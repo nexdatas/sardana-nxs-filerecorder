@@ -23,6 +23,11 @@
 import os
 from distutils.core import setup
 
+## package name
+NDTS = "sardanascanrecorders"
+## nxswriter imported package
+INDTS = __import__(NDTS)
+
 
 ## reading a file
 def read(fname):
@@ -31,17 +36,15 @@ def read(fname):
 
 ## metadata for distutils
 SETUPDATA = dict(
-    name = "nexdatas.recorders",
-    version = '1.0.0',
+    name = "nexdatas.sardanascanrecorders",
+    version=INDTS.__version__,
     author = "Jan Kotanski",
     author_email = "jankotan@gmail.com",
-    description = ("Configuration Server  DataBase"),
+    description = ("NeXus Sardana Scan Recorder"),
     license = "GNU GENERAL PUBLIC LICENSE v3",
-    keywords = "configuration MySQL writer Tango server nexus data",
-    url = "https://github.com/jkotan/nexdatas/",
-    py_modules = ['nxsrecorder'],
-#    data_files=[('share/pyshared/sardana/macroserver/scan/recorder', ['recorders/nxsrecorder.py'])
-#                ],
+    keywords = "NeXus sardana scan recorder data",
+    url = "https://github.com/jkotan/nexdatas.sardanascanrecorders/",
+    packages=['sardanascanrecorders'],
     long_description= read('README')
 )
 
