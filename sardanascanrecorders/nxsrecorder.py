@@ -28,12 +28,11 @@ import re
 
 import numpy
 import json
-import pytz 
+import pytz
 
 import PyTango
 
 from sardana.macroserver.scan.recorder.storage import BaseFileRecorder
-
 
 
 class NXS_FileRecorder(BaseFileRecorder):
@@ -41,11 +40,11 @@ class NXS_FileRecorder(BaseFileRecorder):
 
         Copyright (C) 2012-2015 DESY, Jan Kotanski <jkotan@mail.desy.de>
 
-        you can redistribute it and/or modify it under the terms 
+        you can redistribute it and/or modify it under the terms
         of the GNU Lesser General Public License as published by
         the Free Software Foundation, either version 3 of the License, or
         (at your option) any later version.
-    """ 
+    """
 
     formats = {"DataFormats.nxs": '.nxs'}
 
@@ -723,5 +722,3 @@ class NXS_FileRecorder(BaseFileRecorder):
                 self.__vars[name] = value
             else:
                 self.__vars.pop(name, None)
-
-
