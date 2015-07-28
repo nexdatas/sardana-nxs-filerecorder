@@ -45,7 +45,7 @@ SETUPDATA = dict(
     keywords = "NeXus sardana scan recorder data",
     url = "https://github.com/jkotan/nexdatas.sardanascanrecorders/",
     packages=['sardanascanrecorders'],
-    long_description= read('README')
+    long_description= read('README.md')
 )
 
 
