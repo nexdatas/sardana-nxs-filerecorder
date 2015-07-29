@@ -55,8 +55,6 @@ class NXS_FileRecorder(BaseFileRecorder):
             return json.JSONEncoder.default(self, obj)
 
     def __init__(self, filename=None, macro=None, **pars):
-        print "INIT NXSREC", self, pars
-#        super(NXS_FileRecorder, self).__init__(*pars)
         BaseFileRecorder.__init__(self)
         ## base filename
         self.__base_filename = filename
