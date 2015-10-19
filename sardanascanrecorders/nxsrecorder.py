@@ -602,7 +602,7 @@ class NXS_FileRecorder(BaseFileRecorder):
             rec = json.dumps(
                 envrecord, cls=NXS_FileRecorder.numpyEncoder)
             cnfxml = self.__createConfiguration(envrecord["data"])
-            self.debug('XML: %s' % str(cnfxml))
+            # self.debug('XML: %s' % str(cnfxml))
             self.__removeDynamicComponent()
 
             self.__vars["data"]["serialno"] = envRec["serialno"]
@@ -614,7 +614,7 @@ class NXS_FileRecorder(BaseFileRecorder):
             self.__command(self.__nexuswriter_device, "openFile")
             self.__nexuswriter_device.xmlsettings = cnfxml
 
-            self.debug('START_DATA: %s' % str(envRec))
+            # self.debug('START_DATA: %s' % str(envRec))
 
             self.__nexuswriter_device.jsonrecord = rec
             self.__command(self.__nexuswriter_device, "openEntry")
@@ -651,14 +651,14 @@ class NXS_FileRecorder(BaseFileRecorder):
                 envrecord, cls=NXS_FileRecorder.numpyEncoder)
             self.__nexuswriter_device.jsonrecord = rec
 
-            self.debug('DATA: {"data":%s}' % json.dumps(
-                    record.data,
-                    cls=NXS_FileRecorder.numpyEncoder))
+            #self.debug('DATA: {"data":%s}' % json.dumps(
+            #        record.data,
+            #        cls=NXS_FileRecorder.numpyEncoder))
 
             jsonString = '{"data":%s}' % json.dumps(
                 record.data,
                 cls=NXS_FileRecorder.numpyEncoder)
-            self.debug("JSON!!: %s" % jsonString)
+            # self.debug("JSON!!: %s" % jsonString)
             self.__command(self.__nexuswriter_device, "record",
                         jsonString)
         except:
@@ -689,7 +689,7 @@ class NXS_FileRecorder(BaseFileRecorder):
             self.__env = self.macro.getAllEnv() if self.macro else {}
             envRec = recordlist.getEnviron()
 
-            self.debug('END_DATA: %s ' % str(envRec))
+            # self.debug('END_DATA: %s ' % str(envRec))
 
             tzone = self.__getConfVar("TimeZone", self.__timezone)
             self.__vars["data"]["end_time"] = \
