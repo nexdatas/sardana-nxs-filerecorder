@@ -24,7 +24,7 @@ import os
 from distutils.core import setup
 
 ## package name
-NDTS = "sardanascanrecorders"
+NDTS = "sardananxsrecorder"
 ## nxswriter imported package
 INDTS = __import__(NDTS)
 
@@ -36,7 +36,7 @@ def read(fname):
 
 ## metadata for distutils
 SETUPDATA = dict(
-    name = "nexdatas.sardanascanrecorders",
+    name = "nexdatas.sardananxsrecorder",
     version=INDTS.__version__,
     author = "Jan Kotanski",
     author_email = "jankotan@gmail.com",
@@ -44,7 +44,7 @@ SETUPDATA = dict(
     license = "GNU GENERAL PUBLIC LICENSE v3",
     keywords = "NeXus sardana scan recorder data",
     url = "https://github.com/jkotan/nexdatas.sardanascanrecorders/",
-    packages=['sardanascanrecorders'],
+    packages=['sardananxsrecorder'],
     long_description= read('README')
 )
 

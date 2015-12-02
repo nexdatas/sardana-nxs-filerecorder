@@ -1,3 +1,7 @@
+2015-12-02 Jan Kotanski <jankotan@gmail.com>
+	* changes  sardanascanrecorders into sardananxsrecorder
+	* tagged as 1.1.0
+
 2015-07-28 Jan Kotanski <jankotan@gmail.com>
 	* commenting self.debug(..) to speed up recorder
 	* tagged as 1.0.1
