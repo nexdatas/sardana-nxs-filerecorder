@@ -236,7 +236,7 @@ class NXS_FileRecorder(BaseFileRecorder):
         return number or subs
 
     def getFormat(self):
-        return 'nxs'
+        return '.nxs'
 
     def __setNexusDevices(self, onlyconfig=False):
         vl = self.__getEnvVar("NeXusSelectorDevice", None)
