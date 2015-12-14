@@ -1,4 +1,8 @@
-2015-12-02 Jan Kotanski <jankotan@gmail.com>
+20XX-XX-XX Jan Kotanski <jankotan@gmail.com>
+	* fix for getFormat file extension
+	* tagged as 1.1.1
+
+	2015-12-02 Jan Kotanski <jankotan@gmail.com>
 	* changes  sardanascanrecorders into sardananxsrecorder
 	* tagged as 1.1.0
 
