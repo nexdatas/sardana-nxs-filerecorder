@@ -1,8 +1,8 @@
-20XX-XX-XX Jan Kotanski <jankotan@gmail.com>
-	* fix for getFormat file extension
-	* tagged as 1.1.1
+2015-XX-XX Jan Kotanski <jankotan@gmail.com>
+	* changes related to NXSRecSelector 2.0.0 API
+	* tagged as 2.0.0
 
-	2015-12-02 Jan Kotanski <jankotan@gmail.com>
+2015-12-02 Jan Kotanski <jankotan@gmail.com>
 	* changes  sardanascanrecorders into sardananxsrecorder
 	* tagged as 1.1.0
 

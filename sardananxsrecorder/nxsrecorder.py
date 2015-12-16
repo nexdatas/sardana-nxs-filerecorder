@@ -46,7 +46,7 @@ class NXS_FileRecorder(BaseFileRecorder):
         (at your option) any later version.
     """
 
-    formats = {"DataFormats.nxs": '.nxs'}
+    formats = {"nxs": '.nxs'}
 
     class numpyEncoder(json.JSONEncoder):
         def default(self, obj):
@@ -260,14 +260,14 @@ class NXS_FileRecorder(BaseFileRecorder):
         if self.__nexussettings_device is None:
             from nxsrecconfig import Settings
             self.__nexussettings_device = Settings.Settings()
-            self.__nexussettings_device.importAllEnv()
+            self.__nexussettings_device.importlEnvProfile()
 
         mntgrp = self.__getServerVar("mntGrp", None)
         amntgrp = self.__getEnvVar("ActiveMntGrp", None)
         if mntgrp and amntgrp != mntgrp:
             self.__nexussettings_device.mntgrp = amntgrp
         if amntgrp not in self.__command(
-            self.__nexussettings_device, "availableSelections"):
+            self.__nexussettings_device, "availableProfiles"):
             self.warning(
                 ("Active Measurement Group '%s'" % amntgrp)
                 + (" differs from NeXusMntGrp '%s'." % mntgrp))
@@ -286,9 +286,9 @@ class NXS_FileRecorder(BaseFileRecorder):
                 )
             self.__oddmntgrp = True
         else:
-            self.__command(self.__nexussettings_device, "fetchConfiguration")
+            self.__command(self.__nexussettings_device, "fetchProfile")
 
-        self.__conf = self.__getServerVar("configuration", {}, True)
+        self.__conf = self.__getServerVar("profileConfiguration", {}, True)
         if not self.__oddmntgrp and not onlyconfig:
             self.__command(self.__nexussettings_device, "importMntGrp")
             self.__command(self.__nexussettings_device, "updateMntGrp")
@@ -426,7 +426,7 @@ class NXS_FileRecorder(BaseFileRecorder):
             try:
                 cpdss = json.loads(
                     self.__command(self.__nexussettings_device,
-                                   "clientSources",
+                                   "ComponentClientSources",
                                    [cp]))
                 self.__clientSources.extend(cpdss)
                 dss = [ds["dsname"]
@@ -506,13 +506,6 @@ class NXS_FileRecorder(BaseFileRecorder):
             nexuscomponents.extend(lst)
         self.info("User Components %s" % str(nexuscomponents))
 
-        ## add updateControllers
-        lst = self.__getServerVar("automaticComponents",
-                                  None, False, pass_default=self.__oddmntgrp)
-        if isinstance(lst, (tuple, list)):
-            nexuscomponents.extend(lst)
-        self.info("User Components %s" % str(nexuscomponents))
-
         self.__availableComps = []
         lst = self.__getConfVar("OptionalComponents",
                             None, True, pass_default=self.__oddmntgrp)
@@ -563,10 +556,11 @@ class NXS_FileRecorder(BaseFileRecorder):
                     toswitch.add(alias)
             toswitch.update(set(nds))
             self.debug("Switching to STEP mode: %s" % toswitch)
-            oldtoswitch = self.__getServerVar("stepdatasources", [], False)
-            self.__nexussettings_device.stepdatasources = list(toswitch)
+            oldtoswitch = self.__getServerVar("stepdatasources", "[]", False)
+            self.__nexussettings_device.stepdatasources = str(
+                json.dumps(list(toswitch)))
             cnfxml = self.__command(
-                        self.__nexussettings_device, "createConfiguration",
+                        self.__nexussettings_device, "createWriterConfiguration",
                         nexuscomponents)
         finally:
             self.__nexussettings_device.configVariables = json.dumps(
@@ -624,7 +618,7 @@ class NXS_FileRecorder(BaseFileRecorder):
 
     def __appendRecord(self, var, mode=None):
         nexusrecord = {}
-        dct = self.__getConfVar("DataRecord", None, True)
+        dct = self.__getConfVar("UserData", None, True)
         if isinstance(dct, dict):
             nexusrecord = dct
         record = dict(var)
