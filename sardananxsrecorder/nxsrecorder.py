@@ -418,8 +418,11 @@ class NXS_FileRecorder(BaseFileRecorder):
             cmps = list(set(nexuscomponents) &
                         set(self.__availableComponents()))
         self.__clientSources = []
-        nds = self.__getServerVar("dataSources", [], False,
-                            pass_default=self.__oddmntgrp)
+        if self.__oddmntgrp:
+            nds = []
+        else:
+            nds = self.__command(self.__nexussettings_device,
+                                 "SelectedDataSources")
         nds = nds if nds else []
         datasources = list(set(nds) | set(self.__deviceAliases.keys()))
         for cp in cmps:
