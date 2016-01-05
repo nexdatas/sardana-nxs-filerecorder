@@ -1,3 +1,7 @@
+2016-01-05 Jan Kotanski <jankotan@gmail.com>
+	* add checks for NXSRecSelector version
+	* tagged as 2.0.1
+
 2016-01-04 Jan Kotanski <jankotan@gmail.com>
 	* changes related to NXSRecSelector 2.0.0 API
 	* tagged as 2.0.0
