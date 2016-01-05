@@ -261,6 +261,13 @@ class NXS_FileRecorder(BaseFileRecorder):
             from nxsrecconfig import Settings
             self.__nexussettings_device = Settings.Settings()
             self.__nexussettings_device.importAllEnv()
+        if hasattr(self.__nexussettings_device, "version"):
+            cnfmajor = int(
+                str(self.__nexussettings_device.version
+                ).split(".")[0])
+            if cnfmajor > 1:
+                raise Exception("NXSRecSelector (%s) version 2.0.0 or above" %
+                                (servers[0] if servers else "module"))
 
         mntgrp = self.__getServerVar("mntGrp", None)
         amntgrp = self.__getEnvVar("ActiveMntGrp", None)
