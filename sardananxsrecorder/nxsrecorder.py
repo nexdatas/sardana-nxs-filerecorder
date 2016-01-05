@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #   This file is part of nexdatas - Tango Server for NeXus data writer
 #
-#    Copyright (C) 2012-2015 DESY, Jan Kotanski <jkotan@mail.desy.de>
+#    Copyright (C) 2012-2016 DESY, Jan Kotanski <jkotan@mail.desy.de>
 #
 #    nexdatas is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -36,17 +36,8 @@ from sardana.macroserver.scan.recorder.storage import BaseFileRecorder
 
 
 class NXS_FileRecorder(BaseFileRecorder):
-    """ This recorder saves data to a NeXus file making use of NexDaTaS Writer
 
-        Copyright (C) 2012-2015 DESY, Jan Kotanski <jkotan@mail.desy.de>
-
-        you can redistribute it and/or modify it under the terms
-        of the GNU Lesser General Public License as published by
-        the Free Software Foundation, either version 3 of the License, or
-        (at your option) any later version.
-    """
-
-    formats = {"DataFormats.nxs": '.nxs'}
+    formats = {"nxs": '.nxs'}
 
     class numpyEncoder(json.JSONEncoder):
         def default(self, obj):
