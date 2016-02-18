@@ -29,7 +29,7 @@ import re
 import numpy
 import json
 import pytz
-
+import time
 import PyTango
 
 from sardana.macroserver.scan.recorder.storage import BaseFileRecorder
@@ -187,6 +187,35 @@ class NXS_FileRecorder(BaseFileRecorder):
                 return nenv[attr]
         return default
 
+    @classmethod
+    def __wait(cls, proxy, counter=100):
+        found = False
+        cnt = 0
+        while not found and cnt < counter:
+            if cnt > 1:
+                time.sleep(0.01)
+            try:
+                if cls.__command(proxy, "State") != PyTango.DevState.RUNNING:
+                    found = True
+            except (PyTango.DevFailed, PyTango.Except, PyTango.DevError):
+                time.sleep(0.01)
+                found = False
+                if cnt == counter - 1:
+                    raise
+            cnt += 1
+
+    def __asynchcommand(self, server, command, *args):
+        if hasattr(server, "command_inout_asynch"):
+            try:
+                self.__command(server, command, *args)
+            except PyTango.CommunicationFailed as e:
+                if e[-1].reason == "API_DeviceTimedOut":
+                    self.__wait(server)
+                else:
+                    raise
+        else:
+            self.__command(server, command, *args)
+
     def __setFileName(self, filename, number=True, scanID=None):
         if scanID is not None and scanID < 0:
             return number
@@ -271,23 +300,26 @@ class NXS_FileRecorder(BaseFileRecorder):
         if mntgrp and amntgrp != mntgrp:
             self.__nexussettings_device.mntgrp = amntgrp
         if amntgrp not in self.__command(
-            self.__nexussettings_device, "availableProfiles"):
-            self.warning(
-                ("Active Measurement Group '%s'" % amntgrp)
-                + (" differs from NeXusMntGrp '%s'." % mntgrp))
-            self.warning(
-                "Some metadata may not be stored into the NeXus file.")
-            self.warning(
-                "To fix it please apply your settings by Component Selector."
-                )
-            self.macro.warning(
-                ("Active Measurement Group '%s'" % amntgrp)
-                + (" differs from NeXusMntGrp '%s'." % mntgrp))
-            self.macro.warning(
-                "Some metadata may not be stored into the NeXus file.")
-            self.macro.warning(
-                "To fix it please apply your settings by Component Selector."
-                )
+                self.__nexussettings_device, "availableProfiles"):
+            if onlyconfig:
+                self.warning((
+                    "NXS_FileRecorer: a profile for '%s' does not exist, "
+                    "creating a default profile.\n"
+                    "Consider to run 'spock> nxselector' to select "
+                    "additional components.") % amntgrp)
+                self.macro.warning((
+                    "NXS_FileRecorer: a profile for '%s' does not exist, "
+                    "creating a default profile.\n"
+                    "Consider to run 'spock> nxselector' to select "
+                    "additional components.") % amntgrp)
+                self.macro.info(
+                    "NXS_FileRecorer: descriptive components will be reset")
+                self.info(
+                    "NXS_FileRecorer: descriptive components will be reset")
+            else:
+                self.__command(self.__nexussettings_device, "fetchProfile")
+                self.__asynchcommand(self.__nexussettings_device,
+                                     "resetPreselectedComponents")
             self.__oddmntgrp = True
         else:
             self.__command(self.__nexussettings_device, "fetchProfile")
@@ -495,9 +527,9 @@ class NXS_FileRecorder(BaseFileRecorder):
 
     def __createConfiguration(self, userdata):
         cfm = self.__getConfVar("ComponentsFromMntGrp",
-                            False, pass_default=self.__oddmntgrp)
+                                False, pass_default=self.__oddmntgrp)
         dyncp = self.__getConfVar("DynamicComponents",
-                              True, pass_default=self.__oddmntgrp)
+                                  True, pass_default=self.__oddmntgrp)
 
         envRec = self.recordlist.getEnviron()
         self.__collectAliases(envRec)
@@ -515,13 +547,13 @@ class NXS_FileRecorder(BaseFileRecorder):
 
         self.__availableComps = []
         lst = self.__getConfVar("OptionalComponents",
-                            None, True, pass_default=self.__oddmntgrp)
+                                None, True, pass_default=self.__oddmntgrp)
         if isinstance(lst, (tuple, list)):
             self.__availableComps.extend(lst)
         self.__availableComps = list(set(
-                self.__availableComps))
+            self.__availableComps))
         self.info("Available Components %s" % str(
-                self.__availableComponents()))
+            self.__availableComponents()))
 
         nds, dsNotFound, cpReq, missingKeys = self.__searchDataSources(
             list(set(nexuscomponents) | set(mandatory)),
@@ -531,7 +563,7 @@ class NXS_FileRecorder(BaseFileRecorder):
         self.debug("Components required : %s" % cpReq)
         self.debug("Missing User Data : %s" % missingKeys)
         ids = self.__getConfVar("InitDataSources",
-                            None, True, pass_default=self.__oddmntgrp)
+                                None, True, pass_default=self.__oddmntgrp)
         if ids:
             missingKeys.extend(list(ids))
         self.__createDynamicComponent(dsNotFound if dyncp else [], missingKeys)
@@ -555,7 +587,7 @@ class NXS_FileRecorder(BaseFileRecorder):
                            "updateConfigVariables")
 
             self.info("Components %s" % list(
-                    set(nexuscomponents) | set(mandatory)))
+                set(nexuscomponents) | set(mandatory)))
             toswitch = set()
             for dd in envRec['datadesc']:
                 alias = self.__get_alias(str(dd.name))
@@ -567,8 +599,8 @@ class NXS_FileRecorder(BaseFileRecorder):
             self.__nexussettings_device.stepdatasources = str(
                 json.dumps(list(toswitch)))
             cnfxml = self.__command(
-                        self.__nexussettings_device, "createWriterConfiguration",
-                        nexuscomponents)
+                self.__nexussettings_device, "createWriterConfiguration",
+                nexuscomponents)
         finally:
             self.__nexussettings_device.configVariables = json.dumps(
                 nexusvariables)
@@ -585,8 +617,7 @@ class NXS_FileRecorder(BaseFileRecorder):
 
             self.__setNexusDevices()
 
-            appendentry = self.__getConfVar("AppendEntry",
-                                        True)
+            appendentry = self.__getConfVar("AppendEntry", True)
 
             appendentry = not self.__setFileName(
                 self.__base_filename, not appendentry)
@@ -660,8 +691,7 @@ class NXS_FileRecorder(BaseFileRecorder):
                 record.data,
                 cls=NXS_FileRecorder.numpyEncoder)
             # self.debug("JSON!!: %s" % jsonString)
-            self.__command(self.__nexuswriter_device, "record",
-                        jsonString)
+            self.__command(self.__nexuswriter_device, "record", jsonString)
         except:
             self.__removeDynamicComponent()
             raise
