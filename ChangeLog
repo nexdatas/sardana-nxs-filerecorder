@@ -1,3 +1,7 @@
+2016-03-07 Jan Kotanski <jankotan@gmail.com>
+	* exclude nexus components from dynamic datasources
+	* tagged as 2.2.0
+
 2016-02-18 Jan Kotanski <jankotan@gmail.com>
 	* add reset descriptive components
 	* change info message for nonexisting profile

@@ -405,14 +405,15 @@ class NXS_FileRecorder(BaseFileRecorder):
                 else:
                     self.__dynamicDataSources[(str(elm.name))] = None
 
-    def __createDynamicComponent(self, dss, keys):
+    def __createDynamicComponent(self, dss, keys, nexuscomponents):
         self.debug("DSS: %s" % dss)
         envRec = self.recordlist.getEnviron()
         lddict = []
-        tdss = [ds for ds in dss if not ds.startswith("tango://")]
+        tdss = [ds for ds in dss if not ds.startswith("tango://")
+                and ds not in nexuscomponents]
         for dd in envRec['datadesc']:
             alias = self.__get_alias(str(dd.name))
-            if alias in tdss:
+            if alias in tdss and alias not in nexuscomponents:
                 mdd = {}
                 mdd["name"] = dd.name
                 mdd["shape"] = dd.shape
@@ -566,7 +567,8 @@ class NXS_FileRecorder(BaseFileRecorder):
                                 None, True, pass_default=self.__oddmntgrp)
         if ids:
             missingKeys.extend(list(ids))
-        self.__createDynamicComponent(dsNotFound if dyncp else [], missingKeys)
+        self.__createDynamicComponent(
+            dsNotFound if dyncp else [], missingKeys, nexuscomponents)
         nexuscomponents.append(str(self.__dynamicCP))
 
         if cfm:
@@ -683,9 +685,9 @@ class NXS_FileRecorder(BaseFileRecorder):
                 envrecord, cls=NXS_FileRecorder.numpyEncoder)
             self.__nexuswriter_device.jsonrecord = rec
 
-            #self.debug('DATA: {"data":%s}' % json.dumps(
-            #        record.data,
-            #        cls=NXS_FileRecorder.numpyEncoder))
+            self.debug('DATA: {"data":%s}' % json.dumps(
+                record.data,
+                cls=NXS_FileRecorder.numpyEncoder))
 
             jsonString = '{"data":%s}' % json.dumps(
                 record.data,
