@@ -205,16 +205,13 @@ class NXS_FileRecorder(BaseFileRecorder):
             cnt += 1
 
     def __asynchcommand(self, server, command, *args):
-        if hasattr(server, "command_inout_asynch"):
-            try:
-                self.__command(server, command, *args)
-            except PyTango.CommunicationFailed as e:
-                if e[-1].reason == "API_DeviceTimedOut":
-                    self.__wait(server)
-                else:
-                    raise
-        else:
+        try:
             self.__command(server, command, *args)
+        except PyTango.CommunicationFailed as e:
+            if e[-1].reason == "API_DeviceTimedOut":
+                self.__wait(server)
+            else:
+                raise
 
     def __setFileName(self, filename, number=True, scanID=None):
         if scanID is not None and scanID < 0:
