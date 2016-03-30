@@ -323,8 +323,22 @@ class NXS_FileRecorder(BaseFileRecorder):
 
         self.__conf = self.__getServerVar("profileConfiguration", {}, True)
         if not self.__oddmntgrp and not onlyconfig:
-            self.__command(self.__nexussettings_device, "importMntGrp")
-            self.__command(self.__nexussettings_device, "updateMntGrp")
+            if "MntGrpConfiguration" in self.__conf.keys():
+                poolmg = self.__command(
+                    self.__nexussettings_device, "mntGrpConfiguration")
+                profmg = self.__getConfVar("MntGrpConfiguration", None, False)
+            else:
+                poolmg = None
+                profmg = None
+            if not poolmg or not profmg or poolmg != profmg:
+                self.debug(
+                    "ActiveMntGrp created outside NXSRecSelector v3. "
+                    "Updating ActiveMntGrp")
+                self.macro.debug(
+                    "ActiveMntGrp created outside NXSRecSelector v3. "
+                    "Updating ActiveMntGrp")
+                self.__command(self.__nexussettings_device, "importMntGrp")
+                self.__command(self.__nexussettings_device, "updateMntGrp")
 
         if not onlyconfig:
             vl = self.__getConfVar("WriterDevice", None)
@@ -560,8 +574,16 @@ class NXS_FileRecorder(BaseFileRecorder):
         self.debug("DataSources Not Found : %s" % dsNotFound)
         self.debug("Components required : %s" % cpReq)
         self.debug("Missing User Data : %s" % missingKeys)
-        ids = self.__getConfVar("InitDataSources",
-                                None, True, pass_default=self.__oddmntgrp)
+        if "InitDataSources" in self.__conf.keys():
+            # compatibility with version 2
+            ids = self.__getConfVar(
+                "InitDataSources",
+                None, True, pass_default=self.__oddmntgrp)
+        else:
+            idsdct = self.__getConfVar(
+                "DataSourcePreselection",
+                None, True, pass_default=self.__oddmntgrp)
+            ids = [k for (k, vl) in idsdct.items() if vl] if idsdct else None
         if ids:
             missingKeys.extend(list(ids))
         self.__createDynamicComponent(
