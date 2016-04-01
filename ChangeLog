@@ -1,6 +1,7 @@
-2016-03-XX Jan Kotanski <jankotan@gmail.com>
+2016-04-01 Jan Kotanski <jankotan@gmail.com>
+	* dedicated to run with NXSRecSelector 3.0.0
 	* simplify asynchronous command
-	* tagged as 2.2.1
+	* tagged as 3.0.0
 
 2016-03-07 Jan Kotanski <jankotan@gmail.com>
 	* exclude nexus components from dynamic datasources
