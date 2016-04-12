@@ -15,9 +15,7 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with nexdatas.  If not, see <http://www.gnu.org/licenses/>.
-## \package sardanascanrecorders nexdatas
-## \file nxsrecorder.py
-# package constructor
+#
 
 """This is the macro server scan data NeXus recorder module"""
 
@@ -37,71 +35,76 @@ from sardana.macroserver.scan.recorder.storage import BaseFileRecorder
 
 class NXS_FileRecorder(BaseFileRecorder):
     """ This recorder saves data to a NeXus file making use of NexDaTaS Writer
-
-        Copyright (C) 2012-2016 DESY, Jan Kotanski <jkotan@mail.desy.de>
-
-        you can redistribute it and/or modify it under the terms
-        of the GNU Lesser General Public License as published by
-        the Free Software Foundation, either version 3 of the License, or
-        (at your option) any later version.
     """
 
+    #: recoder format
     formats = {"nxs": '.nxs'}
 
     class numpyEncoder(json.JSONEncoder):
+        """ numpy json encoder with list
+        """
         def default(self, obj):
+            """ default encoder
+
+            :param obj: numpy array object
+            """
             if isinstance(obj, numpy.ndarray) and obj.ndim > 0:
                 return obj.tolist()
             return json.JSONEncoder.default(self, obj)
 
     def __init__(self, filename=None, macro=None, **pars):
+        """ constructor
+
+        :param filename: ScanFile name
+        :param macro: macro object
+        """
         BaseFileRecorder.__init__(self)
-        ## base filename
+        #: base filename
         self.__base_filename = filename
         if macro:
             self.macro = macro
-        ## tango database
+        #: tango database
         self.__db = PyTango.Database()
 
-        ## NXS data writer device
+        #: NXS data writer device
         self.__nexuswriter_device = None
 
-        ## NXS settings server device
+        #: NXS settings server device
         self.__nexussettings_device = None
 
-        ## device proxy timeout
+        #: device proxy timeout
         self.__timeout = 100000
-        ## Custom variables
+        #: Custom variables
         self.__vars = {"data": {},
                        "datasources": {},
                        "decoders": {},
                        "vars": {},
                        "triggers": []}
 
-        ## device aliases
+        #: device aliases
         self.__deviceAliases = {}
-        ## dynamic datasources
+        #: dynamic datasources
         self.__dynamicDataSources = {}
 
-        ## dynamic components
+        #: dynamic components
         self.__dynamicCP = "__dynamic_component__"
 
-        ## environment
+        #: environment
         self.__env = self.macro.getAllEnv() if self.macro else {}
 
-        ## available components
+        #: available components
         self.__availableComps = []
 
-        ## default timezone
+        #: default timezone
         self.__timezone = "Europe/Berlin"
 
-        ## default NeXus configuration env variable
+        #: default NeXus configuration env variable
         self.__defaultenv = "NeXusConfiguration"
 
-        ## module lable
+        #: module lable
         self.__moduleLabel = 'module'
 
-        ## NeXus configuration
+        #: NeXus configuration
         self.__conf = {}
 
         self.__oddmntgrp = False
@@ -117,6 +120,12 @@ class NXS_FileRecorder(BaseFileRecorder):
             self.__base_filename, not appendentry, scanID)
 
     def __command(self, server, command, *args):
+        """ execute tango server (or python object) command
+
+        :param server: server name (or python object)
+        :param command: command name
+        :param *args: command arguments
+        """
         if server and command:
             if hasattr(server, 'command_inout'):
                 if args:
@@ -132,6 +141,13 @@ class NXS_FileRecorder(BaseFileRecorder):
                 "%s.%s cannot be found" % (server, command))
 
     def __getConfVar(self, var, default, decode=False, pass_default=False):
+        """ provides configuration variable from fetched profile configuration
+
+        :param var: variable name
+        :param default: default variable value
+        :param decode: True if variable should be encode from JSON
+        :param pass_default: if True it returns :default:
+        """
         if pass_default:
             return default
         if var in self.__conf.keys():
@@ -154,6 +170,14 @@ class NXS_FileRecorder(BaseFileRecorder):
             return default
 
     def __getServerVar(self, attr, default, decode=False, pass_default=False):
+        """ provides configuration variable from selector server
+            or python object
+
+        :param var: variable name
+        :param default: default variable value
+        :param decode: True if variable should be encode from JSON
+        :param pass_default: if True it returns :default:
+        """
         if pass_default:
             return default
         if self.__nexussettings_device and attr:
@@ -176,6 +200,12 @@ class NXS_FileRecorder(BaseFileRecorder):
             return default
 
     def __getEnvVar(self, var, default, pass_default=False):
+        """ provides spock environment variable
+
+        :param var: variable name
+        :param default: default variable value
+        :param pass_default: if True it returns :default:
+        """
         if pass_default:
             return default
         if var in self.__env.keys():
@@ -189,6 +219,11 @@ class NXS_FileRecorder(BaseFileRecorder):
 
     @classmethod
     def __wait(cls, proxy, counter=100):
+        """ waits until device is running
+
+        :param proxy: device proxy
+        :param counter: command timeout in 0.01s units
+        """
         found = False
         cnt = 0
         while not found and cnt < counter:
@@ -205,6 +240,12 @@ class NXS_FileRecorder(BaseFileRecorder):
             cnt += 1
 
     def __asynchcommand(self, server, command, *args):
+        """ execute tango server (or python object) command asynchronously
+
+        :param server: server name (or python object)
+        :param command: command name
+        :param *args: command arguments
+        """
         try:
             self.__command(server, command, *args)
         except PyTango.CommunicationFailed as e:
@@ -214,6 +255,12 @@ class NXS_FileRecorder(BaseFileRecorder):
                 raise
 
     def __setFileName(self, filename, number=True, scanID=None):
+        """ sets the file names w/o scanID
+
+        :param filename: sardan scanfile name
+        :param numer: True if append scanID
+        :param scanID: scanID to append
+        """
         if scanID is not None and scanID < 0:
             return number
         if self.fd is not None:
@@ -248,6 +295,7 @@ class NXS_FileRecorder(BaseFileRecorder):
                 serial = scanID + 1
         if subs:
             try:
+                #: output file name
                 self.filename = filename % serial
             except:
                 subs = False
@@ -262,9 +310,19 @@ class NXS_FileRecorder(BaseFileRecorder):
         return number or subs
 
     def getFormat(self):
+        """ provides the output file format
+
+        :returns: the output file format
+        """
         return self.formats.keys()[0]
 
     def __setNexusDevices(self, onlyconfig=False):
+        """ sets nexus Tango devices
+
+        :param onlyconfig: If True do not set NXSDataWriter and
+                           profile configuration of NXSRecSelector
+
+        """
         vl = self.__getEnvVar("NeXusSelectorDevice", None)
         if vl is None:
             servers = self.__db.get_device_exported_for_class(
@@ -366,10 +424,12 @@ class NXS_FileRecorder(BaseFileRecorder):
                 from nxswriter import TangoDataWriter
                 self.__nexuswriter_device = TangoDataWriter.TangoDataWriter()
 
-    ## provides a device alias
-    # \param name device name
-    # \return device alias
     def __get_alias(self, name):
+        """ provides a device alias
+
+        :param name: device name
+        :returns: device alias
+        """
         # if name does not contain a "/" it's probably an alias
         if name.find("/") == -1:
             return name
@@ -385,6 +445,10 @@ class NXS_FileRecorder(BaseFileRecorder):
         return alias
 
     def __collectAliases(self, envRec):
+        """ sets deviceAlaises and dynamicDataSources from env record
+
+        :param envRec: environment record
+        """
 
         if 'counters' in envRec:
             for elm in envRec['counters']:
@@ -417,6 +481,12 @@ class NXS_FileRecorder(BaseFileRecorder):
                     self.__dynamicDataSources[(str(elm.name))] = None
 
     def __createDynamicComponent(self, dss, keys, nexuscomponents):
+        """ creates a dynamic component
+
+        :param dss: datasource list
+        :param keys: keys without datasources
+        :param nexuscomponents: nexus component list
+        """
         self.debug("DSS: %s" % dss)
         envRec = self.recordlist.getEnviron()
         lddict = []
@@ -440,11 +510,17 @@ class NXS_FileRecorder(BaseFileRecorder):
                            [jdss, jddict, jkeys])
 
     def __removeDynamicComponent(self):
+        """ removes the dynamic component
+        """
         self.__command(self.__nexussettings_device,
                        "removeDynamicComponent",
                        str(self.__dynamicCP))
 
     def __availableComponents(self):
+        """ provides a list of available components
+
+        :returns: a list of available components
+        """
         cmps = self.__command(self.__nexussettings_device,
                               "availableComponents")
         if self.__availableComps:
@@ -453,12 +529,23 @@ class NXS_FileRecorder(BaseFileRecorder):
             return cmps
 
     def __searchDataSources(self, nexuscomponents, cfm, dyncp, userkeys):
+        """ checks if datasources and missing record keys are define in
+            the components or in the configuration server
+
+        :param nexuscomponents: nexus components
+        :param cfm: componentsFromMntGrp flag
+        :param dyncp: dynamicComponent flag
+        :param userkeys: user data names
+
+        :returns: tuple with (step_datasources, not_found_datasources,
+                              required_components,  missing_user_data)
+        """
         dsFound = {}
         dsNotFound = []
         cpReq = {}
         keyFound = set()
 
-        ## check datasources / get require components with give datasources
+        #: check datasources / get require components with give datasources
         if cfm:
             cmps = list(set(nexuscomponents) |
                         set(self.__availableComponents()))
@@ -510,7 +597,7 @@ class NXS_FileRecorder(BaseFileRecorder):
         missingKeys = set(userkeys) - keyFound
 
         datasources.extend(self.__dynamicDataSources.keys())
-        ## get not found datasources
+        #: get not found datasources
         for ds in datasources:
             if ds not in dsFound.keys():
                 dsNotFound.append(ds)
@@ -538,6 +625,10 @@ class NXS_FileRecorder(BaseFileRecorder):
         return (nds, dsNotFound, cpReq, list(missingKeys))
 
     def __createConfiguration(self, userdata):
+        """ create NeXus configuration
+
+        :param userdata: user data dictionary
+        """
         cfm = self.__getConfVar("ComponentsFromMntGrp",
                                 False, pass_default=self.__oddmntgrp)
         dyncp = self.__getConfVar("DynamicComponents",
@@ -631,6 +722,11 @@ class NXS_FileRecorder(BaseFileRecorder):
         return cnfxml
 
     def _startRecordList(self, recordlist):
+        """ starts record process: creates configuration
+            and records in INIT mode
+
+        :param recordlist: sardana record list
+        """
         try:
             self.__env = self.macro.getAllEnv() if self.macro else {}
             if self.__base_filename is None:
@@ -677,6 +773,12 @@ class NXS_FileRecorder(BaseFileRecorder):
             raise
 
     def __appendRecord(self, var, mode=None):
+        """ merges userdata with variable dictionary
+
+        :param var: variable dictionary
+        :param mode: nexus writer mode: INIT, STEP, FINAL
+        :returns: merged data dictionary
+        """
         nexusrecord = {}
         dct = self.__getConfVar("UserData", None, True)
         if isinstance(dct, dict):
@@ -696,6 +798,11 @@ class NXS_FileRecorder(BaseFileRecorder):
         return record
 
     def _writeRecord(self, record):
+        """ performs record process step: creates configuration
+            and records in INIT mode
+
+        :param record: sardana record list
+        """
         try:
             if self.filename is None:
                 return
@@ -719,6 +826,12 @@ class NXS_FileRecorder(BaseFileRecorder):
             raise
 
     def __timeToString(self, mtime, tzone):
+        """ convers time objects to string
+
+        :param mtime: sardana current time
+        :param tzone: local time zone
+        :returns: formatted time string
+        """
         try:
             tz = pytz.timezone(tzone)
         except:
@@ -735,6 +848,11 @@ class NXS_FileRecorder(BaseFileRecorder):
         return str(starttime.strftime(fmt))
 
     def _endRecordList(self, recordlist):
+        """ ends record process: records in FINAL mode
+            and closes the nexus file
+
+        :param recordlist: sardana record list
+        """
         try:
             if self.filename is None:
                 return
@@ -761,6 +879,13 @@ class NXS_FileRecorder(BaseFileRecorder):
 
     def _addCustomData(self, value, name, group="data", remove=False,
                        **kwargs):
+        """ adds custom data to configuration variables, i.e. from macros
+
+        :param value: variable value
+        :param name: variable name
+        :param group: variable group inside variable dictionary
+        :param remove: if True variable will be removed
+        """
         if group:
             if group not in self.__vars.keys():
                 self.__vars[group] = {}

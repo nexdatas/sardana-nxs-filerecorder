@@ -15,47 +15,56 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with nexdatas.  If not, see <http://www.gnu.org/licenses/>.
-## \file setup.py
-# nxsconfigserver-db installer 
+#
 
-""" setup.py for NXS configuration server """
+""" setup.py for NXS configuration recorder """
 
 import os
 from distutils.core import setup
+from sphinx.setup_command import BuildDoc
 
-## package name
+
+#: package name
 NDTS = "sardananxsrecorder"
-## nxswriter imported package
+#: nxswriter imported package
 INDTS = __import__(NDTS)
 
 
-## reading a file
 def read(fname):
+    """ reading a file
+    """
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
+release = INDTS.__version__
+version = ".".join(release.split(".")[:2])
+name = "Sardana NeXus Recorder"
 
-## metadata for distutils
+#: metadata for distutils
 SETUPDATA = dict(
-    name = "nexdatas.sardananxsrecorder",
+    name="nexdatas.sardananxsrecorder",
     version=INDTS.__version__,
-    author = "Jan Kotanski",
-    author_email = "jankotan@gmail.com",
-    description = ("NeXus Sardana Scan Recorder"),
-    license = "GNU GENERAL PUBLIC LICENSE v3",
-    keywords = "NeXus sardana scan recorder data",
-    url = "https://github.com/jkotan/nexdatas.sardanascanrecorders/",
+    author="Jan Kotanski",
+    author_email="jankotan@gmail.com",
+    description=("NeXus Sardana Scan Recorder"),
+    license="GNU GENERAL PUBLIC LICENSE v3",
+    keywords="NeXus sardana scan recorder data",
+    url="https://github.com/jkotan/nexdatas.sardanascanrecorders/",
     packages=['sardananxsrecorder'],
-    long_description= read('README')
+    cmdclass={'build_sphinx': BuildDoc},
+    command_options={
+        'build_sphinx': {
+            'project': ('setup.py', name),
+            'version': ('setup.py', version),
+            'release': ('setup.py', release)}},
+    long_description= read('README.rst')
 )
 
 
-        
-
-## the main function
 def main():
+    """ the main function
+    """
     setup(**SETUPDATA)
-        
+
 
 if __name__ == '__main__':
     main()
-

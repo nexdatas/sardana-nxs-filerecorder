@@ -15,11 +15,9 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with nexdatas.  If not, see <http://www.gnu.org/licenses/>.
-## \package sardanascanrecorders nexdatas
-## \file __init__.py
-# package constructor
+#
 
 """ Sardana Scan Recorders """
 
-## package version
+#: package version
 __version__ = "3.1.0"

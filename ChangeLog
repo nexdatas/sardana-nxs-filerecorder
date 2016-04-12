@@ -1,5 +1,6 @@
 2016-04-12 Jan Kotanski <jankotan@gmail.com>
 	* add filename to configuration variables
+	* add sphinx documentation
 	* tagged as 3.1.0
 
 2016-04-05 Jan Kotanski <jankotan@gmail.com>
