@@ -1,3 +1,7 @@
+2016-04-13 Jan Kotanski <jankotan@gmail.com>
+	* move filename from data to vars
+	* tagged as 3.1.1
+
 2016-04-12 Jan Kotanski <jankotan@gmail.com>
 	* add filename to configuration variables
 	* add sphinx documentation

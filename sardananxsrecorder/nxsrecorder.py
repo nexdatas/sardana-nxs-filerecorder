@@ -695,6 +695,7 @@ class NXS_FileRecorder(BaseFileRecorder):
             self.__nexussettings_device.configVariables = json.dumps(
                 dict(self.__vars["vars"], **nexusvariables),
                 cls=NXS_FileRecorder.numpyEncoder)
+            self.macro.debug("VAR %s" % self.__nexussettings_device.configVariables)
             self.__command(self.__nexussettings_device,
                            "updateConfigVariables")
 
@@ -746,7 +747,7 @@ class NXS_FileRecorder(BaseFileRecorder):
             tzone = self.__getConfVar("TimeZone", self.__timezone)
             self.__vars["data"]["start_time"] = \
                 self.__timeToString(envRec['starttime'], tzone)
-            self.__vars["data"]["filename"] = str(self.filename)
+            self.__vars["vars"]["filename"] = str(self.filename)
 
             envrecord = self.__appendRecord(self.__vars, 'INIT')
             rec = json.dumps(
