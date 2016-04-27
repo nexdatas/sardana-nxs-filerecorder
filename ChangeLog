@@ -1,3 +1,7 @@
+2016-04-27 Jan Kotanski <jankotan@gmail.com>
+	* fix lower/capital letters in Settings calls
+	* tagged as 3.1.2
+
 2016-04-13 Jan Kotanski <jankotan@gmail.com>
 	* move filename from data to vars
 	* tagged as 3.1.1

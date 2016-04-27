@@ -557,14 +557,14 @@ class NXS_FileRecorder(BaseFileRecorder):
             nds = []
         else:
             nds = self.__command(self.__nexussettings_device,
-                                 "SelectedDataSources")
+                                 "selectedDataSources")
         nds = nds if nds else []
         datasources = list(set(nds) | set(self.__deviceAliases.keys()))
         for cp in cmps:
             try:
                 cpdss = json.loads(
                     self.__command(self.__nexussettings_device,
-                                   "ComponentClientSources",
+                                   "componentClientSources",
                                    [cp]))
                 self.__clientSources.extend(cpdss)
                 dss = [ds["dsname"]
