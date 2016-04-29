@@ -47,7 +47,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'sardananxsrecorder'
-copyright = u'2016, Author'
+copyright = u'2012-2016 DESY, Jan Kotanski <jkotan@mail.desy.de>' \
+            + u'\n\nGNU GENERAL PUBLIC LICENSE, version 3'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
