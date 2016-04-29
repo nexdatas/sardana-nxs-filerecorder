@@ -695,7 +695,8 @@ class NXS_FileRecorder(BaseFileRecorder):
             self.__nexussettings_device.configVariables = json.dumps(
                 dict(self.__vars["vars"], **nexusvariables),
                 cls=NXS_FileRecorder.numpyEncoder)
-            self.macro.debug("VAR %s" % self.__nexussettings_device.configVariables)
+            self.macro.debug(
+                "VAR %s" % self.__nexussettings_device.configVariables)
             self.__command(self.__nexussettings_device,
                            "updateConfigVariables")
 
