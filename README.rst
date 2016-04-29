@@ -18,9 +18,9 @@ Install the dependencies:
 From sources
 """"""""""""
 
-Download the latest NXS Tools version from
+Download the latest NeXuS Scan Recorder version from
 
-    https://github.com/jkotan/nexdatas.tools/
+    https://github.com/jkotan/nexdatas/sardanascanrecorders/
 
 Extract sources and run
 
@@ -66,10 +66,10 @@ To instal other NexDaTaS packages
 
 	  $ apt-get install python-nxswriter nxsconfigserver-db python-nxsconfigserver nxsconfigtool python-nxstools
 
-and for Sardana related packages
+and
 
 .. code:: bash
 
 	  $ apt-get install python-nxsrecselector nxselector
 
-for component selector.
+for Component Selector for Sardana related packages.
