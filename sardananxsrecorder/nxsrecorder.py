@@ -38,7 +38,12 @@ class NXS_FileRecorder(BaseFileRecorder):
     """
 
     #: recoder format
-    formats = {"nxs": '.nxs'}
+    formats = {
+        'nxs': '.nxs',
+        'nx': '.nx',
+        'h5': '.h5',
+        'ndf': '.ndf'
+    }
 
     class numpyEncoder(json.JSONEncoder):
         """ numpy json encoder with list
@@ -314,7 +319,7 @@ class NXS_FileRecorder(BaseFileRecorder):
 
         :returns: the output file format
         """
-        return self.formats.keys()[0]
+        return 'nxs'
 
     def __setNexusDevices(self, onlyconfig=False):
         """ sets nexus Tango devices
