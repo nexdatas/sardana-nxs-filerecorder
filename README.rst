@@ -5,7 +5,7 @@ NeXus scan recorder for Sardana which stores experimenal data in NeXus/HDF5 file
 NeXDatas Tango Server or packages, i.e. NXSDataWriter, NXSConfigServer, NXSRecSelector.
 
 | Source code: https://github.com/nexdatas/sardanascanrecorders
-| Web page: http://www.desy.de/~jkotan/nxsrecorder
+| Web page: https://nexdatas.github.io/sardanascanrecorders
 
 ------------
 Installation
@@ -20,7 +20,7 @@ From sources
 
 Download the latest NeXuS Scan Recorder version from
 
-    https://github.com/jkotan/nexdatas/sardanascanrecorders/
+    https://github.com/nexdatas/sardanascanrecorders
 
 Extract sources and run
 
