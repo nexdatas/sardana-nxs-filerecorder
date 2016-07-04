@@ -1,0 +1,4 @@
+title: NXSSardanaScanRecorder
+email: jan.kotanski@desy.de
+description: "NXSSardanaScanRecorder"
+include: ['_sources', '_static', '_modules', '_images']
