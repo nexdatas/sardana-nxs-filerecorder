@@ -283,9 +283,9 @@ constructor
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBfilename\fP \-\- ScanFile name
+\fBfilename\fP (\fI\%str\fP) \-\- ScanFile name
 .IP \(bu 2
-\fBmacro\fP \-\- macro object
+\fBmacro\fP (\fI\%sardana.macroserver.macro.Macro\fP) \-\- macro object
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -297,13 +297,13 @@ adds custom data to configuration variables, i.e. from macros
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBvalue\fP \-\- variable value
+\fBvalue\fP (\fIany\fP) \-\- variable value
 .IP \(bu 2
-\fBname\fP \-\- variable name
+\fBname\fP (\fI\%str\fP) \-\- variable name
 .IP \(bu 2
-\fBgroup\fP \-\- variable group inside variable dictionary
+\fBgroup\fP (\fI\%str\fP) \-\- variable group inside variable dictionary
 .IP \(bu 2
-\fBremove\fP \-\- if True variable will be removed
+\fBremove\fP (\fI\%bool\fP) \-\- if True variable will be removed
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -318,7 +318,7 @@ and closes the nexus file
 .INDENT 7.0
 .TP
 .B Parameters
-\fBrecordlist\fP \-\- sardana record list
+\fBrecordlist\fP (\fBsardana.macroserver.scan.scandata.RecordList\fP) \-\- sardana record list
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -332,7 +332,7 @@ and records in INIT mode
 .INDENT 7.0
 .TP
 .B Parameters
-\fBrecordlist\fP \-\- sardana record list
+\fBrecordlist\fP (\fBsardana.macroserver.scan.scandata.RecordList\fP) \-\- sardana record list
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -352,7 +352,7 @@ and records in INIT mode
 .INDENT 7.0
 .TP
 .B formats = {\(aqnx\(aq: \(aq.nx\(aq, \(aqndf\(aq: \(aq.ndf\(aq, \(aqnxs\(aq: \(aq.nxs\(aq, \(aqh5\(aq: \(aq.h5\(aq}
-recoder format
+(\fI\%dict\fP <\fI\%str\fP, \fI\%str\fP > ) recoder format
 .UNINDENT
 .INDENT 7.0
 .TP
@@ -362,6 +362,9 @@ provides the output file format
 .TP
 .B Returns
 the output file format
+.TP
+.B Return type
+\fI\%str\fP
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -424,7 +427,7 @@ default encoder
 .INDENT 7.0
 .TP
 .B Parameters
-\fBobj\fP \-\- numpy array object
+\fBobj\fP (\fI\%object\fP or \fIany\fP) \-\- numpy array object
 .UNINDENT
 .UNINDENT
 .UNINDENT
