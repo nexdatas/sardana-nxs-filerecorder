@@ -419,6 +419,8 @@ epub_exclude_files = ['search.html']
 autoclass_content = 'both'
 
 intersphinx_mapping = {
+    'http://www.taurus-scada.org/en/3.7.2/' : None,
+    'http://www.sardana-scada.org' : None,
     'https://nexdatas.github.io/configserver/':None,
     'https://nexdatas.github.io/writer/':None,
     'http://docs.python.org/2.7/': None,

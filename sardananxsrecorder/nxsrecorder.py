@@ -37,7 +37,7 @@ class NXS_FileRecorder(BaseFileRecorder):
     """ This recorder saves data to a NeXus file making use of NexDaTaS Writer
     """
 
-    #: recoder format
+    #: (:obj:`dict` <:obj:`str`, :obj:`str` > ) recoder format
     formats = {
         'nxs': '.nxs',
         'nx': '.nx',
@@ -52,6 +52,7 @@ class NXS_FileRecorder(BaseFileRecorder):
             """ default encoder
 
             :param obj: numpy array object
+            :type obj: :obj:`object` or `any`
             """
             if isinstance(obj, numpy.ndarray) and obj.ndim > 0:
                 return obj.tolist()
@@ -61,59 +62,66 @@ class NXS_FileRecorder(BaseFileRecorder):
         """ constructor
 
         :param filename: ScanFile name
+        :type filename: :obj:`str`
         :param macro: macro object
+        :type macro: :class:`sardana.macroserver.macro.Macro`
         """
         BaseFileRecorder.__init__(self)
-        #: base filename
+        #: (:obj:`str`) base filename
         self.__base_filename = filename
         if macro:
             self.macro = macro
-        #: tango database
+        #: (:class:`PyTango.Database`) tango database
         self.__db = PyTango.Database()
 
-        #: NXS data writer device
+        #: (:class:`PyTango.DeviceProxy`)
+        #:      NXS data writer device
         self.__nexuswriter_device = None
 
-        #: NXS settings server device
+        #: (:class:`PyTango.DeviceProxy`)
+        #:     NXS settings server device
         self.__nexussettings_device = None
 
-        #: device proxy timeout
+        #: (:obj:`int`) device proxy timeout
         self.__timeout = 100000
-        #: Custom variables
+        #: (:obj:`dict` <:obj:`str`, :obj:`list` <:obj:`str`>
+        #:     or :obj:`dict` <:obj:`str` , `any`> > ) Custom variables
         self.__vars = {"data": {},
                        "datasources": {},
                        "decoders": {},
                        "vars": {},
                        "triggers": []}
 
-        #: device aliases
+        #: (:obj:`dict` <:obj:`str` , :obj:`str`>) device aliases
         self.__deviceAliases = {}
-        #: dynamic datasources
+        #: (:obj:`dict` <:obj:`str` , `None`>) dynamic datasources
         self.__dynamicDataSources = {}
 
-        #: dynamic components
+        #: (:obj:`str`) dynamic components
         self.__dynamicCP = "__dynamic_component__"
 
-        #: environment
+        #: (:obj:`dict` <:obj:`str` , `any`> ) environment
         self.__env = self.macro.getAllEnv() if self.macro else {}
 
-        #: available components
+        #: (:obj:`list` <:obj:`str`>) available components
         self.__availableComps = []
 
-        #: default timezone
+        #: (:obj:`str`) default timezone
         self.__timezone = "Europe/Berlin"
 
-        #: default NeXus configuration env variable
+        #: (:obj:`str`) default NeXus configuration env variable
         self.__defaultenv = "NeXusConfiguration"
 
-        #: module lable
+        #: (:obj:`str`) module lable
         self.__moduleLabel = 'module'
 
-        #: NeXus configuration
+        #: (:obj:`dict` <:obj:`str` , :obj:`str`>) NeXus configuration
         self.__conf = {}
 
+        #: (:obj:`bool`) external measurement group
         self.__oddmntgrp = False
 
+        # (:obj:`list` <:obj:`str`>) client source names
         self.__clientSources = []
 
         self.__setNexusDevices(onlyconfig=True)
@@ -128,8 +136,13 @@ class NXS_FileRecorder(BaseFileRecorder):
         """ execute tango server (or python object) command
 
         :param server: server name (or python object)
+        :type server: :class:`PyTango.DeviceProxy`
         :param command: command name
+        :type command: :obj:`str`
         :param *args: command arguments
+        :type *args: :obj:`list` <`any`>
+        :returns: command result
+        :rtype: `any`
         """
         if server and command:
             if hasattr(server, 'command_inout'):
@@ -149,9 +162,15 @@ class NXS_FileRecorder(BaseFileRecorder):
         """ provides configuration variable from fetched profile configuration
 
         :param var: variable name
+        :type var: :obj:'str'
         :param default: default variable value
+        :type default: `any`
         :param decode: True if variable should be encode from JSON
+        :type decode: :obj:`bool`
         :param pass_default: if True it returns :default:
+        :type pass_default: :obj:`bool`
+        :returns: configuration variable value
+        :rtype: `any`
         """
         if pass_default:
             return default
@@ -179,9 +198,15 @@ class NXS_FileRecorder(BaseFileRecorder):
             or python object
 
         :param var: variable name
+        :type var: :obj:'str'
         :param default: default variable value
+        :type default: `any`
         :param decode: True if variable should be encode from JSON
+        :type decode: :obj:`bool`
         :param pass_default: if True it returns :default:
+        :type pass_default: :obj:`bool`
+        :returns: server attribute value
+        :rtype: `any`
         """
         if pass_default:
             return default
@@ -208,8 +233,13 @@ class NXS_FileRecorder(BaseFileRecorder):
         """ provides spock environment variable
 
         :param var: variable name
+        :type var: :obj:'str'
         :param default: default variable value
+        :type default: `any`
         :param pass_default: if True it returns :default:
+        :type pass_default: :obj:`bool`
+        :returns: environment variable value
+        :rtype: `any`
         """
         if pass_default:
             return default
@@ -227,7 +257,9 @@ class NXS_FileRecorder(BaseFileRecorder):
         """ waits until device is running
 
         :param proxy: device proxy
+        :type proxy: :class:`PyTango.DeviceProxy` 
         :param counter: command timeout in 0.01s units
+        :type counter: :obj:`int`
         """
         found = False
         cnt = 0
@@ -247,9 +279,12 @@ class NXS_FileRecorder(BaseFileRecorder):
     def __asynchcommand(self, server, command, *args):
         """ execute tango server (or python object) command asynchronously
 
-        :param server: server name (or python object)
+        :param server: server proxy (or python object)
+        :type server: :class:`PyTango.DeviceProxy` 
         :param command: command name
+        :type command: :obj:`str`
         :param *args: command arguments
+        :type *args: :obj:`list` <`any`>
         """
         try:
             self.__command(server, command, *args)
@@ -262,9 +297,12 @@ class NXS_FileRecorder(BaseFileRecorder):
     def __setFileName(self, filename, number=True, scanID=None):
         """ sets the file names w/o scanID
 
-        :param filename: sardan scanfile name
+        :param filename: sardana scanfile name
+        :type filename: :obj:`str`
         :param numer: True if append scanID
+        :param numer: :obj:`bool`
         :param scanID: scanID to append
+        :type scanID: :obj:`int`
         """
         if scanID is not None and scanID < 0:
             return number
@@ -318,6 +356,7 @@ class NXS_FileRecorder(BaseFileRecorder):
         """ provides the output file format
 
         :returns: the output file format
+        :rtype: :obj:`str`
         """
         return 'nxs'
 
@@ -326,7 +365,7 @@ class NXS_FileRecorder(BaseFileRecorder):
 
         :param onlyconfig: If True do not set NXSDataWriter and
                            profile configuration of NXSRecSelector
-
+        :type onlyconfig: :obj:`bool`
         """
         vl = self.__getEnvVar("NeXusSelectorDevice", None)
         if vl is None:
@@ -433,7 +472,9 @@ class NXS_FileRecorder(BaseFileRecorder):
         """ provides a device alias
 
         :param name: device name
+        :type name: :obj:`str`
         :returns: device alias
+        :rtype: :obj:`str`
         """
         # if name does not contain a "/" it's probably an alias
         if name.find("/") == -1:
@@ -453,6 +494,7 @@ class NXS_FileRecorder(BaseFileRecorder):
         """ sets deviceAlaises and dynamicDataSources from env record
 
         :param envRec: environment record
+        :type envRec: :obj:`dict` <:obj:`str` , `any`>
         """
 
         if 'counters' in envRec:
@@ -489,8 +531,11 @@ class NXS_FileRecorder(BaseFileRecorder):
         """ creates a dynamic component
 
         :param dss: datasource list
+        :type dss: :obj:`list` <:obj:`str`>
         :param keys: keys without datasources
+        :type keys: :obj:`list` <:obj:`str`>
         :param nexuscomponents: nexus component list
+        :type nexuscomponents: :obj:`list` <:obj:`str`>
         """
         self.debug("DSS: %s" % dss)
         envRec = self.recordlist.getEnviron()
@@ -525,6 +570,7 @@ class NXS_FileRecorder(BaseFileRecorder):
         """ provides a list of available components
 
         :returns: a list of available components
+        :rtype: :obj:`list` <:obj:`str`>
         """
         cmps = self.__command(self.__nexussettings_device,
                               "availableComponents")
@@ -538,12 +584,18 @@ class NXS_FileRecorder(BaseFileRecorder):
             the components or in the configuration server
 
         :param nexuscomponents: nexus components
+        :type nexuscomponents: :obj:`list` <:obj:`str`>
         :param cfm: componentsFromMntGrp flag
+        :type cfm: :obj:`bool`
         :param dyncp: dynamicComponent flag
+        :type dyncp: :obj:`bool`
         :param userkeys: user data names
+        :type userkeys: :obj:`list` <:obj:`str`>
 
         :returns: tuple with (step_datasources, not_found_datasources,
                               required_components,  missing_user_data)
+        :rtype: (`list` <:obj:`str`>, `list` <:obj:`str`>,
+                 `list` <:obj:`str`>, `list` <:obj:`str`>)
         """
         dsFound = {}
         dsNotFound = []
@@ -633,6 +685,9 @@ class NXS_FileRecorder(BaseFileRecorder):
         """ create NeXus configuration
 
         :param userdata: user data dictionary
+        :type userdata: :obj:`dict` <:obj:`str` , `any`>
+        :returns: configuration xml string
+        :rtype: :obj:`str`
         """
         cfm = self.__getConfVar("ComponentsFromMntGrp",
                                 False, pass_default=self.__oddmntgrp)
@@ -733,6 +788,7 @@ class NXS_FileRecorder(BaseFileRecorder):
             and records in INIT mode
 
         :param recordlist: sardana record list
+        :type recordlist: :class:`sardana.macroserver.scan.scandata.RecordList`
         """
         try:
             self.__env = self.macro.getAllEnv() if self.macro else {}
@@ -783,8 +839,17 @@ class NXS_FileRecorder(BaseFileRecorder):
         """ merges userdata with variable dictionary
 
         :param var: variable dictionary
+        :type var: { `data`: :obj:`dict` <:obj:`str`, `any`> ,
+                     `datasouces`: :obj:`dict` <:obj:`str`, :obj:`str`> ,
+                     `decoders`: :obj:`dict` <:obj:`str`, :obj:`str`> ,
+                     `triggers`: :obj:`list` <:obj:`str`> }
         :param mode: nexus writer mode: INIT, STEP, FINAL
+        :type mode: :obj:`str`
         :returns: merged data dictionary
+        :rtype: { `data`: :obj:`dict` <:obj:`str`, `any`> ,
+                  `datasouces`: :obj:`dict` <:obj:`str`, :obj:`str`> ,
+                  `decoders`: :obj:`dict` <:obj:`str`, :obj:`str`> ,
+                  `triggers`: :obj:`list` <:obj:`str`> }
         """
         nexusrecord = {}
         dct = self.__getConfVar("UserData", None, True)
@@ -809,6 +874,7 @@ class NXS_FileRecorder(BaseFileRecorder):
             and records in INIT mode
 
         :param record: sardana record list
+        :type recordlist: :class:`sardana.macroserver.scan.scandata.Record`
         """
         try:
             if self.filename is None:
@@ -836,8 +902,11 @@ class NXS_FileRecorder(BaseFileRecorder):
         """ convers time objects to string
 
         :param mtime: sardana current time
+        :type mtime: :obj:`str`
         :param tzone: local time zone
+        :type tzone: :obj:`str`
         :returns: formatted time string
+        :rtype: :obj:`str`
         """
         try:
             tz = pytz.timezone(tzone)
@@ -859,6 +928,7 @@ class NXS_FileRecorder(BaseFileRecorder):
             and closes the nexus file
 
         :param recordlist: sardana record list
+        :type recordlist: :class:`sardana.macroserver.scan.scandata.RecordList`
         """
         try:
             if self.filename is None:
@@ -889,9 +959,13 @@ class NXS_FileRecorder(BaseFileRecorder):
         """ adds custom data to configuration variables, i.e. from macros
 
         :param value: variable value
+        :type value: `any`
         :param name: variable name
+        :type name: :obj:`str`
         :param group: variable group inside variable dictionary
+        :type group: :obj:`str`
         :param remove: if True variable will be removed
+        :type remove: :obj:`bool`
         """
         if group:
             if group not in self.__vars.keys():
