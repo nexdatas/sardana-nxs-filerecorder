@@ -6,6 +6,8 @@ NeXDatas Tango Server or packages, i.e. NXSDataWriter, NXSConfigServer, NXSRecSe
 
 | Source code: https://github.com/nexdatas/sardanascanrecorders
 | Web page: https://nexdatas.github.io/sardanascanrecorders
+| NexDaTaS Web page: https://nexdatas.github.io
+
 
 ------------
 Installation
@@ -13,14 +15,14 @@ Installation
 
 Install the dependencies:
 
-    sardana, sphinx, NXSDataWriter, NXSConfigServer, NXSRecSelector
+|    sardana, sphinx, NXSDataWriter, NXSConfigServer, NXSRecSelector
 
 From sources
 """"""""""""
 
 Download the latest NeXuS Scan Recorder version from
 
-    https://github.com/nexdatas/sardanascanrecorders
+|    https://github.com/nexdatas/sardanascanrecorders
 
 Extract sources and run
 
