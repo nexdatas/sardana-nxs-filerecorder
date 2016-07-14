@@ -156,7 +156,7 @@
     <span class="sd">&quot;&quot;&quot; This recorder saves data to a NeXus file making use of NexDaTaS Writer</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="c">#: recoder format</span>
+    <span class="c">#: (:obj:`dict` &lt;:obj:`str`, :obj:`str` &gt; ) recoder format</span>
     <span class="n">formats</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s">&#39;nxs&#39;</span><span class="p">:</span> <span class="s">&#39;.nxs&#39;</span><span class="p">,</span>
         <span class="s">&#39;nx&#39;</span><span class="p">:</span> <span class="s">&#39;.nx&#39;</span><span class="p">,</span>
@@ -171,6 +171,7 @@
             <span class="sd">&quot;&quot;&quot; default encoder</span>
 
 <span class="sd">            :param obj: numpy array object</span>
+<span class="sd">            :type obj: :obj:`object` or `any`</span>
 <span class="sd">            &quot;&quot;&quot;</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">and</span> <span class="n">obj</span><span class="o">.</span><span class="n">ndim</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
@@ -180,59 +181,66 @@
         <span class="sd">&quot;&quot;&quot; constructor</span>
 
 <span class="sd">        :param filename: ScanFile name</span>
+<span class="sd">        :type filename: :obj:`str`</span>
 <span class="sd">        :param macro: macro object</span>
+<span class="sd">        :type macro: :class:`sardana.macroserver.macro.Macro`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">BaseFileRecorder</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        <span class="c">#: base filename</span>
+        <span class="c">#: (:obj:`str`) base filename</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__base_filename</span> <span class="o">=</span> <span class="n">filename</span>
         <span class="k">if</span> <span class="n">macro</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">macro</span> <span class="o">=</span> <span class="n">macro</span>
-        <span class="c">#: tango database</span>
+        <span class="c">#: (:class:`PyTango.Database`) tango database</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__db</span> <span class="o">=</span> <span class="n">PyTango</span><span class="o">.</span><span class="n">Database</span><span class="p">()</span>
 
-        <span class="c">#: NXS data writer device</span>
+        <span class="c">#: (:class:`PyTango.DeviceProxy`)</span>
+        <span class="c">#:      NXS data writer device</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__nexuswriter_device</span> <span class="o">=</span> <span class="bp">None</span>
 
-        <span class="c">#: NXS settings server device</span>
+        <span class="c">#: (:class:`PyTango.DeviceProxy`)</span>
+        <span class="c">#:     NXS settings server device</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__nexussettings_device</span> <span class="o">=</span> <span class="bp">None</span>
 
-        <span class="c">#: device proxy timeout</span>
+        <span class="c">#: (:obj:`int`) device proxy timeout</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__timeout</span> <span class="o">=</span> <span class="mi">100000</span>
-        <span class="c">#: Custom variables</span>
+        <span class="c">#: (:obj:`dict` &lt;:obj:`str`, :obj:`list` &lt;:obj:`str`&gt;</span>
+        <span class="c">#:     or :obj:`dict` &lt;:obj:`str` , `any`&gt; &gt; ) Custom variables</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__vars</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;data&quot;</span><span class="p">:</span> <span class="p">{},</span>
                        <span class="s">&quot;datasources&quot;</span><span class="p">:</span> <span class="p">{},</span>
                        <span class="s">&quot;decoders&quot;</span><span class="p">:</span> <span class="p">{},</span>
                        <span class="s">&quot;vars&quot;</span><span class="p">:</span> <span class="p">{},</span>
                        <span class="s">&quot;triggers&quot;</span><span class="p">:</span> <span class="p">[]}</span>
 
-        <span class="c">#: device aliases</span>
+        <span class="c">#: (:obj:`dict` &lt;:obj:`str` , :obj:`str`&gt;) device aliases</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__deviceAliases</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="c">#: dynamic datasources</span>
+        <span class="c">#: (:obj:`dict` &lt;:obj:`str` , `None`&gt;) dynamic datasources</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__dynamicDataSources</span> <span class="o">=</span> <span class="p">{}</span>
 
-        <span class="c">#: dynamic components</span>
+        <span class="c">#: (:obj:`str`) dynamic components</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__dynamicCP</span> <span class="o">=</span> <span class="s">&quot;__dynamic_component__&quot;</span>
 
-        <span class="c">#: environment</span>
+        <span class="c">#: (:obj:`dict` &lt;:obj:`str` , `any`&gt; ) environment</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__env</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">macro</span><span class="o">.</span><span class="n">getAllEnv</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">macro</span> <span class="k">else</span> <span class="p">{}</span>
 
-        <span class="c">#: available components</span>
+        <span class="c">#: (:obj:`list` &lt;:obj:`str`&gt;) available components</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__availableComps</span> <span class="o">=</span> <span class="p">[]</span>
 
-        <span class="c">#: default timezone</span>
+        <span class="c">#: (:obj:`str`) default timezone</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__timezone</span> <span class="o">=</span> <span class="s">&quot;Europe/Berlin&quot;</span>
 
-        <span class="c">#: default NeXus configuration env variable</span>
+        <span class="c">#: (:obj:`str`) default NeXus configuration env variable</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__defaultenv</span> <span class="o">=</span> <span class="s">&quot;NeXusConfiguration&quot;</span>
 
-        <span class="c">#: module lable</span>
+        <span class="c">#: (:obj:`str`) module lable</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__moduleLabel</span> <span class="o">=</span> <span class="s">&#39;module&#39;</span>
 
-        <span class="c">#: NeXus configuration</span>
+        <span class="c">#: (:obj:`dict` &lt;:obj:`str` , :obj:`str`&gt;) NeXus configuration</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__conf</span> <span class="o">=</span> <span class="p">{}</span>
 
+        <span class="c">#: (:obj:`bool`) external measurement group</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__oddmntgrp</span> <span class="o">=</span> <span class="bp">False</span>
 
+        <span class="c"># (:obj:`list` &lt;:obj:`str`&gt;) client source names</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__clientSources</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">__setNexusDevices</span><span class="p">(</span><span class="n">onlyconfig</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
@@ -247,8 +255,13 @@
         <span class="sd">&quot;&quot;&quot; execute tango server (or python object) command</span>
 
 <span class="sd">        :param server: server name (or python object)</span>
+<span class="sd">        :type server: :class:`PyTango.DeviceProxy`</span>
 <span class="sd">        :param command: command name</span>
+<span class="sd">        :type command: :obj:`str`</span>
 <span class="sd">        :param *args: command arguments</span>
+<span class="sd">        :type *args: :obj:`list` &lt;`any`&gt;</span>
+<span class="sd">        :returns: command result</span>
+<span class="sd">        :rtype: `any`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">server</span> <span class="ow">and</span> <span class="n">command</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">server</span><span class="p">,</span> <span class="s">&#39;command_inout&#39;</span><span class="p">):</span>
@@ -268,9 +281,15 @@
         <span class="sd">&quot;&quot;&quot; provides configuration variable from fetched profile configuration</span>
 
 <span class="sd">        :param var: variable name</span>
+<span class="sd">        :type var: :obj:&#39;str&#39;</span>
 <span class="sd">        :param default: default variable value</span>
+<span class="sd">        :type default: `any`</span>
 <span class="sd">        :param decode: True if variable should be encode from JSON</span>
+<span class="sd">        :type decode: :obj:`bool`</span>
 <span class="sd">        :param pass_default: if True it returns :default:</span>
+<span class="sd">        :type pass_default: :obj:`bool`</span>
+<span class="sd">        :returns: configuration variable value</span>
+<span class="sd">        :rtype: `any`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">pass_default</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">default</span>
@@ -298,9 +317,15 @@
 <span class="sd">            or python object</span>
 
 <span class="sd">        :param var: variable name</span>
+<span class="sd">        :type var: :obj:&#39;str&#39;</span>
 <span class="sd">        :param default: default variable value</span>
+<span class="sd">        :type default: `any`</span>
 <span class="sd">        :param decode: True if variable should be encode from JSON</span>
+<span class="sd">        :type decode: :obj:`bool`</span>
 <span class="sd">        :param pass_default: if True it returns :default:</span>
+<span class="sd">        :type pass_default: :obj:`bool`</span>
+<span class="sd">        :returns: server attribute value</span>
+<span class="sd">        :rtype: `any`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">pass_default</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">default</span>
@@ -327,8 +352,13 @@
         <span class="sd">&quot;&quot;&quot; provides spock environment variable</span>
 
 <span class="sd">        :param var: variable name</span>
+<span class="sd">        :type var: :obj:&#39;str&#39;</span>
 <span class="sd">        :param default: default variable value</span>
+<span class="sd">        :type default: `any`</span>
 <span class="sd">        :param pass_default: if True it returns :default:</span>
+<span class="sd">        :type pass_default: :obj:`bool`</span>
+<span class="sd">        :returns: environment variable value</span>
+<span class="sd">        :rtype: `any`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">pass_default</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">default</span>
@@ -346,7 +376,9 @@
         <span class="sd">&quot;&quot;&quot; waits until device is running</span>
 
 <span class="sd">        :param proxy: device proxy</span>
+<span class="sd">        :type proxy: :class:`PyTango.DeviceProxy` </span>
 <span class="sd">        :param counter: command timeout in 0.01s units</span>
+<span class="sd">        :type counter: :obj:`int`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">found</span> <span class="o">=</span> <span class="bp">False</span>
         <span class="n">cnt</span> <span class="o">=</span> <span class="mi">0</span>
@@ -366,9 +398,12 @@
     <span class="k">def</span> <span class="nf">__asynchcommand</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">server</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; execute tango server (or python object) command asynchronously</span>
 
-<span class="sd">        :param server: server name (or python object)</span>
+<span class="sd">        :param server: server proxy (or python object)</span>
+<span class="sd">        :type server: :class:`PyTango.DeviceProxy` </span>
 <span class="sd">        :param command: command name</span>
+<span class="sd">        :type command: :obj:`str`</span>
 <span class="sd">        :param *args: command arguments</span>
+<span class="sd">        :type *args: :obj:`list` &lt;`any`&gt;</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__command</span><span class="p">(</span><span class="n">server</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
@@ -381,9 +416,12 @@
     <span class="k">def</span> <span class="nf">__setFileName</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">number</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">scanID</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; sets the file names w/o scanID</span>
 
-<span class="sd">        :param filename: sardan scanfile name</span>
+<span class="sd">        :param filename: sardana scanfile name</span>
+<span class="sd">        :type filename: :obj:`str`</span>
 <span class="sd">        :param numer: True if append scanID</span>
+<span class="sd">        :param numer: :obj:`bool`</span>
 <span class="sd">        :param scanID: scanID to append</span>
+<span class="sd">        :type scanID: :obj:`int`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">scanID</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">scanID</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">number</span>
@@ -437,6 +475,7 @@
         <span class="sd">&quot;&quot;&quot; provides the output file format</span>
 
 <span class="sd">        :returns: the output file format</span>
+<span class="sd">        :rtype: :obj:`str`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="s">&#39;nxs&#39;</span>
 </div>
@@ -445,7 +484,7 @@
 
 <span class="sd">        :param onlyconfig: If True do not set NXSDataWriter and</span>
 <span class="sd">                           profile configuration of NXSRecSelector</span>
-
+<span class="sd">        :type onlyconfig: :obj:`bool`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">vl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__getEnvVar</span><span class="p">(</span><span class="s">&quot;NeXusSelectorDevice&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">vl</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
@@ -552,7 +591,9 @@
         <span class="sd">&quot;&quot;&quot; provides a device alias</span>
 
 <span class="sd">        :param name: device name</span>
+<span class="sd">        :type name: :obj:`str`</span>
 <span class="sd">        :returns: device alias</span>
+<span class="sd">        :rtype: :obj:`str`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c"># if name does not contain a &quot;/&quot; it&#39;s probably an alias</span>
         <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&quot;/&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
@@ -572,6 +613,7 @@
         <span class="sd">&quot;&quot;&quot; sets deviceAlaises and dynamicDataSources from env record</span>
 
 <span class="sd">        :param envRec: environment record</span>
+<span class="sd">        :type envRec: :obj:`dict` &lt;:obj:`str` , `any`&gt;</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="s">&#39;counters&#39;</span> <span class="ow">in</span> <span class="n">envRec</span><span class="p">:</span>
@@ -608,8 +650,11 @@
         <span class="sd">&quot;&quot;&quot; creates a dynamic component</span>
 
 <span class="sd">        :param dss: datasource list</span>
+<span class="sd">        :type dss: :obj:`list` &lt;:obj:`str`&gt;</span>
 <span class="sd">        :param keys: keys without datasources</span>
+<span class="sd">        :type keys: :obj:`list` &lt;:obj:`str`&gt;</span>
 <span class="sd">        :param nexuscomponents: nexus component list</span>
+<span class="sd">        :type nexuscomponents: :obj:`list` &lt;:obj:`str`&gt;</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;DSS: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">dss</span><span class="p">)</span>
         <span class="n">envRec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">recordlist</span><span class="o">.</span><span class="n">getEnviron</span><span class="p">()</span>
@@ -644,6 +689,7 @@
         <span class="sd">&quot;&quot;&quot; provides a list of available components</span>
 
 <span class="sd">        :returns: a list of available components</span>
+<span class="sd">        :rtype: :obj:`list` &lt;:obj:`str`&gt;</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">cmps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__command</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__nexussettings_device</span><span class="p">,</span>
                               <span class="s">&quot;availableComponents&quot;</span><span class="p">)</span>
@@ -657,12 +703,18 @@
 <span class="sd">            the components or in the configuration server</span>
 
 <span class="sd">        :param nexuscomponents: nexus components</span>
+<span class="sd">        :type nexuscomponents: :obj:`list` &lt;:obj:`str`&gt;</span>
 <span class="sd">        :param cfm: componentsFromMntGrp flag</span>
+<span class="sd">        :type cfm: :obj:`bool`</span>
 <span class="sd">        :param dyncp: dynamicComponent flag</span>
+<span class="sd">        :type dyncp: :obj:`bool`</span>
 <span class="sd">        :param userkeys: user data names</span>
+<span class="sd">        :type userkeys: :obj:`list` &lt;:obj:`str`&gt;</span>
 
 <span class="sd">        :returns: tuple with (step_datasources, not_found_datasources,</span>
 <span class="sd">                              required_components,  missing_user_data)</span>
+<span class="sd">        :rtype: (`list` &lt;:obj:`str`&gt;, `list` &lt;:obj:`str`&gt;,</span>
+<span class="sd">                 `list` &lt;:obj:`str`&gt;, `list` &lt;:obj:`str`&gt;)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">dsFound</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">dsNotFound</span> <span class="o">=</span> <span class="p">[]</span>
@@ -752,6 +804,9 @@
         <span class="sd">&quot;&quot;&quot; create NeXus configuration</span>
 
 <span class="sd">        :param userdata: user data dictionary</span>
+<span class="sd">        :type userdata: :obj:`dict` &lt;:obj:`str` , `any`&gt;</span>
+<span class="sd">        :returns: configuration xml string</span>
+<span class="sd">        :rtype: :obj:`str`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">cfm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__getConfVar</span><span class="p">(</span><span class="s">&quot;ComponentsFromMntGrp&quot;</span><span class="p">,</span>
                                 <span class="bp">False</span><span class="p">,</span> <span class="n">pass_default</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__oddmntgrp</span><span class="p">)</span>
@@ -852,6 +907,7 @@
 <span class="sd">            and records in INIT mode</span>
 
 <span class="sd">        :param recordlist: sardana record list</span>
+<span class="sd">        :type recordlist: :class:`sardana.macroserver.scan.scandata.RecordList`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__env</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">macro</span><span class="o">.</span><span class="n">getAllEnv</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">macro</span> <span class="k">else</span> <span class="p">{}</span>
@@ -902,8 +958,17 @@
         <span class="sd">&quot;&quot;&quot; merges userdata with variable dictionary</span>
 
 <span class="sd">        :param var: variable dictionary</span>
+<span class="sd">        :type var: { `data`: :obj:`dict` &lt;:obj:`str`, `any`&gt; ,</span>
+<span class="sd">                     `datasouces`: :obj:`dict` &lt;:obj:`str`, :obj:`str`&gt; ,</span>
+<span class="sd">                     `decoders`: :obj:`dict` &lt;:obj:`str`, :obj:`str`&gt; ,</span>
+<span class="sd">                     `triggers`: :obj:`list` &lt;:obj:`str`&gt; }</span>
 <span class="sd">        :param mode: nexus writer mode: INIT, STEP, FINAL</span>
+<span class="sd">        :type mode: :obj:`str`</span>
 <span class="sd">        :returns: merged data dictionary</span>
+<span class="sd">        :rtype: { `data`: :obj:`dict` &lt;:obj:`str`, `any`&gt; ,</span>
+<span class="sd">                  `datasouces`: :obj:`dict` &lt;:obj:`str`, :obj:`str`&gt; ,</span>
+<span class="sd">                  `decoders`: :obj:`dict` &lt;:obj:`str`, :obj:`str`&gt; ,</span>
+<span class="sd">                  `triggers`: :obj:`list` &lt;:obj:`str`&gt; }</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">nexusrecord</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">dct</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__getConfVar</span><span class="p">(</span><span class="s">&quot;UserData&quot;</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
@@ -928,6 +993,7 @@
 <span class="sd">            and records in INIT mode</span>
 
 <span class="sd">        :param record: sardana record list</span>
+<span class="sd">        :type recordlist: :class:`sardana.macroserver.scan.scandata.Record`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
@@ -955,8 +1021,11 @@
         <span class="sd">&quot;&quot;&quot; convers time objects to string</span>
 
 <span class="sd">        :param mtime: sardana current time</span>
+<span class="sd">        :type mtime: :obj:`str`</span>
 <span class="sd">        :param tzone: local time zone</span>
+<span class="sd">        :type tzone: :obj:`str`</span>
 <span class="sd">        :returns: formatted time string</span>
+<span class="sd">        :rtype: :obj:`str`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">tz</span> <span class="o">=</span> <span class="n">pytz</span><span class="o">.</span><span class="n">timezone</span><span class="p">(</span><span class="n">tzone</span><span class="p">)</span>
@@ -978,6 +1047,7 @@
 <span class="sd">            and closes the nexus file</span>
 
 <span class="sd">        :param recordlist: sardana record list</span>
+<span class="sd">        :type recordlist: :class:`sardana.macroserver.scan.scandata.RecordList`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
@@ -1008,9 +1078,13 @@
         <span class="sd">&quot;&quot;&quot; adds custom data to configuration variables, i.e. from macros</span>
 
 <span class="sd">        :param value: variable value</span>
+<span class="sd">        :type value: `any`</span>
 <span class="sd">        :param name: variable name</span>
+<span class="sd">        :type name: :obj:`str`</span>
 <span class="sd">        :param group: variable group inside variable dictionary</span>
+<span class="sd">        :type group: :obj:`str`</span>
 <span class="sd">        :param remove: if True variable will be removed</span>
+<span class="sd">        :type remove: :obj:`bool`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">group</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">group</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__vars</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
