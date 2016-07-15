@@ -33,7 +33,7 @@ Extract sources and run
 and add an *RecorderPath* property of *MacroServer* with its value
 defining the package location, e.g.
 
-    /usr/lib/python2.7/dist-packages/sardananxsrecorder
+|    /usr/lib/python2.7/dist-packages/sardananxsrecorder
 
 	  
 Debian packages
