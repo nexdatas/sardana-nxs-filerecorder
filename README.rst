@@ -26,7 +26,7 @@ Download the latest NeXuS Scan Recorder version from
 
 Extract sources and run
 
-.. code:: bash
+.. code-block:: console
 
 	  $ python setup.py install
 
@@ -43,34 +43,34 @@ Debian Jessie (and Wheezy) packages can be found in the HDRI repository.
 
 To install the debian packages, add the PGP repository key
 
-.. code:: bash
+.. code-block:: console
 
 	  $ sudo su
 	  $ wget -q -O - http://repos.pni-hdri.de/debian_repo.pub.gpg | apt-key add -
 
 and then download the corresponding source list
 
-.. code:: bash
+.. code-block:: console
 
 	  $ cd /etc/apt/sources.list.d
 	  $ wget http://repos.pni-hdri.de/jessie-pni-hdri.list
 
 Finally,
 
-.. code:: bash
+.. code-block:: console
 
 	  $ apt-get update
 	  $ apt-get install python-sardana-nxsrecorder
 
 To instal other NexDaTaS packages
 
-.. code:: bash
+.. code-block:: console
 
 	  $ apt-get install python-nxswriter nxsconfigserver-db python-nxsconfigserver nxsconfigtool python-nxstools
 
 and
 
-.. code:: bash
+.. code-block:: console
 
 	  $ apt-get install python-nxsrecselector nxselector
 
@@ -86,7 +86,7 @@ Setting Saradna
 If sardana is not yet set up run
 
 
-.. code:: bash
+.. code-block:: console
 
 	  $ Pool
 
@@ -95,7 +95,7 @@ If sardana is not yet set up run
 
 Then wait a while until Pool is started and in a new terminal run
 
-.. code:: bash
+.. code-block:: console
 
 	  $ MacroServer
 
@@ -108,20 +108,20 @@ for MacroServer to 3 and restart servers.
 
 Alternatively, terminate Pool and MacroServer in the terminals and run
 
-.. code:: bash
+.. code-block:: console
 
           $ nxsetup -s Pool -l2
 
 wait until Pool is started and run
 
-.. code:: bash
+.. code-block:: console
 
           $ nxsetup -s MacroServer -l3
 
 
 Additionally, one can create dummy devices by running `sar_demo` in
 
-.. code:: bash
+.. code-block:: console
 
 	  $ spock
 
@@ -131,13 +131,13 @@ Setting NeXus Servers
 
 To set up  NeXus Servers run
 
-.. code:: bash
+.. code-block:: console
 
 	  $ nxsetup -x
 
 or
 
-.. code:: bash
+.. code-block:: console
 
           $ nxsetup -x NXSDataWriter
           $ nxsetup -x NXSConfigServer
@@ -147,7 +147,7 @@ for specific servers.
 
 If the `RecoderPath` property of MacroServer is not set one can do it by
 
-.. code:: bash
+.. code-block:: console
 
 	  $ nxsetup -a /usr/lib/python2.7/dist-packages/sardananxsrecorder
 
