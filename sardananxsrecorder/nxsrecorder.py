@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #   This file is part of nexdatas - Tango Server for NeXus data writer
 #
-#    Copyright (C) 2012-2016 DESY, Jan Kotanski <jkotan@mail.desy.de>
+#    Copyright (C) 2012-2017 DESY, Jan Kotanski <jkotan@mail.desy.de>
 #
 #    nexdatas is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -120,9 +120,6 @@ class NXS_FileRecorder(BaseFileRecorder):
 
         #: (:obj:`bool`) external measurement group
         self.__oddmntgrp = False
-
-        # (:obj:`list` <:obj:`str`>) client source names
-        self.__clientSources = []
 
         self.__setNexusDevices(onlyconfig=True)
 
@@ -257,7 +254,7 @@ class NXS_FileRecorder(BaseFileRecorder):
         """ waits until device is running
 
         :param proxy: device proxy
-        :type proxy: :class:`PyTango.DeviceProxy` 
+        :type proxy: :class:`PyTango.DeviceProxy`
         :param counter: command timeout in 0.01s units
         :type counter: :obj:`int`
         """
@@ -280,7 +277,7 @@ class NXS_FileRecorder(BaseFileRecorder):
         """ execute tango server (or python object) command asynchronously
 
         :param server: server proxy (or python object)
-        :type server: :class:`PyTango.DeviceProxy` 
+        :type server: :class:`PyTango.DeviceProxy`
         :param command: command name
         :type command: :obj:`str`
         :param *args: command arguments
@@ -306,8 +303,6 @@ class NXS_FileRecorder(BaseFileRecorder):
         """
         if scanID is not None and scanID < 0:
             return number
-        if self.fd is not None:
-            self.fd.close()
 
         dirname = os.path.dirname(filename)
         if not dirname:
@@ -599,6 +594,9 @@ class NXS_FileRecorder(BaseFileRecorder):
         """
         dsFound = {}
         dsNotFound = []
+
+        # (:obj:`list` <:obj:`str`>) all component source names
+        allcpdss = []
         cpReq = {}
         keyFound = set()
 
@@ -609,7 +607,6 @@ class NXS_FileRecorder(BaseFileRecorder):
         else:
             cmps = list(set(nexuscomponents) &
                         set(self.__availableComponents()))
-        self.__clientSources = []
         if self.__oddmntgrp:
             nds = []
         else:
@@ -617,16 +614,27 @@ class NXS_FileRecorder(BaseFileRecorder):
                                  "selectedDataSources")
         nds = nds if nds else []
         datasources = list(set(nds) | set(self.__deviceAliases.keys()))
+        hascpsrcs = hasattr(self.__nexussettings_device, 'componentSources')
         for cp in cmps:
             try:
-                cpdss = json.loads(
-                    self.__command(self.__nexussettings_device,
-                                   "componentClientSources",
-                                   [cp]))
-                self.__clientSources.extend(cpdss)
+                if hascpsrcs:
+                    cpdss = json.loads(
+                        self.__command(self.__nexussettings_device,
+                                       "componentSources",
+                                       [cp]))
+                    allcpdss.extend([ds["dsname"] for ds in cpdss])
+
+                else:
+                    cpdss = json.loads(
+                        self.__command(self.__nexussettings_device,
+                                       "componentClientSources",
+                                       [cp]))
                 dss = [ds["dsname"]
-                       for ds in cpdss if ds["strategy"] == 'STEP']
-                keyFound.update(set([ds["record"] for ds in cpdss]))
+                       for ds in cpdss if ds["strategy"] == 'STEP'
+                       and ds["dstype"] == 'CLIENT']
+                reckeys = [
+                    ds["record"] for ds in cpdss if ds["dstype"] == 'CLIENT']
+                keyFound.update(set(reckeys))
             except Exception as e:
                 if cp in nexuscomponents:
                     self.warning("Component '%s' wrongly defined in DB!" % cp)
@@ -656,7 +664,7 @@ class NXS_FileRecorder(BaseFileRecorder):
         datasources.extend(self.__dynamicDataSources.keys())
         #: get not found datasources
         for ds in datasources:
-            if ds not in dsFound.keys():
+            if ds not in dsFound.keys() and ds not in allcpdss:
                 dsNotFound.append(ds)
                 if not dyncp:
                     self.warning(
@@ -667,7 +675,7 @@ class NXS_FileRecorder(BaseFileRecorder):
                         "Warning: '%s' will not be stored. " % ds
                         + "It was not found in Components!"
                         + " Consider setting: NeXusDynamicComponents=True")
-            elif not cfm:
+            elif not cfm and ds not in allcpdss:
                 if not (set(dsFound[ds]) & set(nexuscomponents)):
                     dsNotFound.append(ds)
                     if not dyncp:
@@ -770,8 +778,10 @@ class NXS_FileRecorder(BaseFileRecorder):
             toswitch.update(set(nds))
             self.debug("Switching to STEP mode: %s" % toswitch)
             oldtoswitch = self.__getServerVar("stepdatasources", "[]", False)
-            self.__nexussettings_device.stepdatasources = str(
-                json.dumps(list(toswitch)))
+            stepdss = str(json.dumps(list(toswitch)))
+            self.__nexussettings_device.stepdatasources = stepdss
+            if hasattr(self.__nexussettings_device, "linkdatasources"):
+                self.__nexussettings_device.linkdatasources = stepdss
             cnfxml = self.__command(
                 self.__nexussettings_device, "createWriterConfiguration",
                 nexuscomponents)
