@@ -1,6 +1,6 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "SARDANANXSRECORDER" "1" "April 21, 2017" "3.3" "Sardana NeXus Recorder"
+.TH "SARDANANXSRECORDER" "1" "April 24, 2017" "3.3" "Sardana NeXus Recorder"
 .SH NAME
 sardananxsrecorder \- sardananxsrecorder Documentation
 .
@@ -190,7 +190,7 @@ Alternatively, terminate Pool and MacroServer in the terminals and run
 .sp
 .nf
 .ft C
-$ nxsetup \-s Pool \-l2
+$ nxsetup start Pool \-l2
 .ft P
 .fi
 .UNINDENT
@@ -202,7 +202,7 @@ wait until Pool is started and run
 .sp
 .nf
 .ft C
-$ nxsetup \-s MacroServer \-l3
+$ nxsetup start MacroServer \-l3
 .ft P
 .fi
 .UNINDENT
@@ -227,7 +227,7 @@ To set up  NeXus Servers run
 .sp
 .nf
 .ft C
-$ nxsetup \-x
+$ nxsetup set
 .ft P
 .fi
 .UNINDENT
@@ -239,9 +239,9 @@ or
 .sp
 .nf
 .ft C
-$ nxsetup \-x NXSDataWriter
-$ nxsetup \-x NXSConfigServer
-$ nxsetup \-x NXSRecSelector
+$ nxsetup set NXSDataWriter
+$ nxsetup set NXSConfigServer
+$ nxsetup set NXSRecSelector
 .ft P
 .fi
 .UNINDENT
@@ -255,7 +255,7 @@ If the \fIRecoderPath\fP property of MacroServer is not set one can do it by
 .sp
 .nf
 .ft C
-$ nxsetup \-a /usr/lib/python2.7/dist\-packages/sardananxsrecorder
+$ nxsetup add\-recorder\-path /usr/lib/python2.7/dist\-packages/sardananxsrecorder
 .ft P
 .fi
 .UNINDENT
