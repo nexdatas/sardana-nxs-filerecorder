@@ -62,7 +62,7 @@ if not PNI_AVAILABLE and not H5PY_AVAILABLE:
 #if PNI_AVAILABLE and H5PY_AVAILABLE:
 
 
-    
+
 ## list of available databases
 DB_AVAILABLE = []
 
@@ -159,7 +159,7 @@ def main():
     result = runner.run(suite).wasSuccessful()
     sys.exit(not result)
 
-         
+
  #   if ts:
  #       ts.tearDown()
 
