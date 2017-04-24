@@ -5,7 +5,7 @@ dist: trusty
 
 python:
   - "2.7"
-  
+
 services:
   - mysql
 
@@ -16,9 +16,9 @@ before_install:
   - curl http://repos.pni-hdri.de/debian_repo.pub.gpg | sudo apt-key add -
   - sudo apt-get -qq update
 # - sudo apt-get install -y  mysql-server mysql-client mysql-client-5.5  mysql-server-5.5
-  - sudo apt-get install -y  --force-yes tango-db tango-common 
+  - sudo apt-get install -y  --force-yes tango-db tango-common
   - sleep 10
-  - sudo apt-get install -y  --force-yes  tango-starter tango-test python-sardana liblog4j1.2-java 
+  - sudo apt-get install -y  --force-yes  tango-starter tango-test python-sardana liblog4j1.2-java
   - sleep 10
 #  - sudo apt-get install -y   --force-yes python-pni
   - sudo apt-get install -y   --force-yes python-h5py
