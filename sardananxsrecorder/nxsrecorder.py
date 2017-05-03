@@ -761,7 +761,7 @@ class NXS_FileRecorder(BaseFileRecorder):
         oldtoswitch = None
         try:
             self.__nexussettings_device.configVariables = json.dumps(
-                dict(self.__vars["vars"], **nexusvariables),
+                dict(nexusvariables, **self.__vars["vars"]),
                 cls=NXS_FileRecorder.numpyEncoder)
             self.macro.debug(
                 "VAR %s" % self.__nexussettings_device.configVariables)
