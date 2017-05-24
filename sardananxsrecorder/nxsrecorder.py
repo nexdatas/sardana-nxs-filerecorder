@@ -960,7 +960,8 @@ class NXS_FileRecorder(BaseFileRecorder):
             self.__nexuswriter_device.jsonrecord = rec
             self.__command(self.__nexuswriter_device, "closeEntry")
             self.__command(self.__nexuswriter_device, "closeFile")
-
+        except:
+            self.__command(self.__nexuswriter_device, "closeFile")
         finally:
             self.__removeDynamicComponent()
 
