@@ -812,8 +812,8 @@ class NXS_FileRecorder(BaseFileRecorder):
             appendentry = not self.__setFileName(
                 self.__base_filename, not appendentry)
             envRec = self.recordlist.getEnviron()
-            if appendentry:
-                self.__vars["vars"]["serialno"] = envRec["serialno"]
+            self.__vars["vars"]["serialno"] = envRec["serialno"] \
+                if appendentry else ""
             self.__vars["vars"]["scan_title"] = envRec["title"]
 
             tzone = self.__getConfVar("TimeZone", self.__timezone)

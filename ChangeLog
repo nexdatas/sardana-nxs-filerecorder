@@ -1,3 +1,7 @@
+2017-09-20 Jan Kotanski <jankotan@gmail.com>
+	* set scanid variable always
+	* tagged as 3.4.0
+
 2017-05-24 Jan Kotanski <jankotan@gmail.com>
 	* add closefile on endRecord exception
 	* tagged as 3.3.2
