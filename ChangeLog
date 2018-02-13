@@ -1,3 +1,7 @@
+2018-02-13 Jan Kotanski <jankotan@gmail.com>
+	* add scan_id variable
+	* tagged as 3.5.0
+
 2017-09-20 Jan Kotanski <jankotan@gmail.com>
 	* set scanid variable always
 	* tagged as 3.4.0
