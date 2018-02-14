@@ -146,7 +146,7 @@ def main():
     ts = None
 
     ## test suit
-    db = PyTango.Database()
+    # db = PyTango.Database()
     suite = unittest.TestSuite()
 
 #                suite.addTests(
