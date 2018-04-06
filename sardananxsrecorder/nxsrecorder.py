@@ -472,6 +472,8 @@ class NXS_FileRecorder(BaseFileRecorder):
         :rtype: :obj:`str`
         """
         # if name does not contain a "/" it's probably an alias
+        if name.startswith("tango://"):
+            name = name[8:]
         if name.find("/") == -1:
             return name
 
@@ -538,10 +540,11 @@ class NXS_FileRecorder(BaseFileRecorder):
         tdss = [ds for ds in dss if not ds.startswith("tango://")
                 and ds not in nexuscomponents]
         for dd in envRec['datadesc']:
+            print("DD %s %s" % (dd.name, dd.dtype))
             alias = self.__get_alias(str(dd.name))
             if alias in tdss and alias not in nexuscomponents:
                 mdd = {}
-                mdd["name"] = dd.name
+                mdd["name"] = alias
                 mdd["shape"] = dd.shape
                 mdd["dtype"] = dd.dtype
                 lddict.append(mdd)

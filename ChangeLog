@@ -1,3 +1,7 @@
+2018-04-06 Jan Kotanski <jankotan@gmail.com>
+	* improve fetching channel parameters
+	* tagged as 3.6.0
+
 2018-02-14 Jan Kotanski <jankotan@gmail.com>
 	* comment wrong tests
 	* tagged as 3.5.1
