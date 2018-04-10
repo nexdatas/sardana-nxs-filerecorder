@@ -544,7 +544,10 @@ class NXS_FileRecorder(BaseFileRecorder):
             alias = self.__get_alias(str(dd.name))
             if alias in tdss and alias not in nexuscomponents:
                 mdd = {}
-                mdd["name"] = alias
+                mdd["name"] = (
+                    dd.name[8:]
+                    if str(dd.name).startswith("tango://")
+                    else dd.name)
                 mdd["shape"] = dd.shape
                 mdd["dtype"] = dd.dtype
                 lddict.append(mdd)
