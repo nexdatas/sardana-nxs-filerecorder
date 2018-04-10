@@ -540,14 +540,9 @@ class NXS_FileRecorder(BaseFileRecorder):
         tdss = [ds for ds in dss if not ds.startswith("tango://")
                 and ds not in nexuscomponents]
         for dd in envRec['datadesc']:
-            print("DD %s %s" % (dd.name, dd.dtype))
             alias = self.__get_alias(str(dd.name))
             if alias in tdss and alias not in nexuscomponents:
                 mdd = {}
-                # mdd["name"] = (
-                #     dd.name[8:]
-                #    if str(dd.name).startswith("tango://")
-                #     else dd.name)
                 mdd["name"] = dd.name
                 mdd["shape"] = dd.shape
                 mdd["dtype"] = dd.dtype
