@@ -91,8 +91,6 @@ except Exception:
         print("MYSQL not available: %s" % e)
     except Exception as e:
         print("MYSQL not available: %s" % e)
-    except:
-        print("MYSQL not available")
 
 
 try:
@@ -108,8 +106,6 @@ except ImportError as e:
     print("PGSQL not available: %s" % e)
 except Exception as e:
     print("PGSQL not available: %s" % e)
-except:
-    print("PGSQL not available")
 
 
 try:
@@ -136,8 +132,6 @@ except ImportError as e:
     print("ORACLE not available: %s" % e)
 except Exception as e:
     print("ORACLE not available: %s" % e)
-except:
-    print("ORACLE not available")
 
 
 # main function
