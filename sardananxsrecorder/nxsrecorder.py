@@ -19,7 +19,6 @@
 
 """This is the macro server scan data NeXus recorder module"""
 
-__docformat__ = 'restructuredtext'
 
 import os
 import re
@@ -31,6 +30,8 @@ import time
 import PyTango
 
 from sardana.macroserver.scan.recorder.storage import BaseFileRecorder
+
+__docformat__ = 'restructuredtext'
 
 
 class NXS_FileRecorder(BaseFileRecorder):
@@ -499,29 +500,37 @@ class NXS_FileRecorder(BaseFileRecorder):
                 alias = self.__get_alias(str(elm))
                 if alias:
                     self.__deviceAliases[alias] = str(elm)
+                    print("C1 %s %s" % (alias, elm))
                 else:
                     self.__dynamicDataSources[(str(elm))] = None
+                    print("C2 %s" % (elm))
         if 'ref_moveables' in envRec:
             for elm in envRec['ref_moveables']:
                 alias = self.__get_alias(str(elm))
                 if alias:
                     self.__deviceAliases[alias] = str(elm)
+                    print("M1 %s %s" % (alias, elm))
                 else:
                     self.__dynamicDataSources[(str(elm))] = None
+                    print("M2 %s" % (elm))
         if 'column_desc' in envRec:
             for elm in envRec['column_desc']:
                 if "name" in elm.keys():
                     alias = self.__get_alias(str(elm["name"]))
                     if alias:
                         self.__deviceAliases[alias] = str(elm["name"])
+                        print("CD1 %s %s" % (alias, elm["name"]))
                     else:
                         self.__dynamicDataSources[(str(elm["name"]))] = None
+                        print("CD2  %s" % (elm["name"]))
         if 'datadesc' in envRec:
             for elm in envRec['datadesc']:
                 alias = self.__get_alias(str(elm.name))
                 if alias:
+                    print("DD1 %s %s" % (alias, elm.name))
                     self.__deviceAliases[alias] = str(elm.name)
                 else:
+                    print("DD2 %s " % (elm.name))
                     self.__dynamicDataSources[(str(elm.name))] = None
 
     def __createDynamicComponent(self, dss, keys, nexuscomponents):
