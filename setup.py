@@ -35,6 +35,7 @@ def read(fname):
     """
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
+
 release = INDTS.__version__
 version = ".".join(release.split(".")[:2])
 name = "Sardana NeXus Recorder"
@@ -56,7 +57,7 @@ SETUPDATA = dict(
             'project': ('setup.py', name),
             'version': ('setup.py', version),
             'release': ('setup.py', release)}},
-    long_description= read('README.rst')
+    long_description=read('README.rst')
 )
 
 
