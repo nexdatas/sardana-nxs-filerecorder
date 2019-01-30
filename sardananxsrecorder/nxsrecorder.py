@@ -178,7 +178,7 @@ class NXS_FileRecorder(BaseFileRecorder):
                 try:
                     dec = json.loads(res)
                     return dec
-                except:
+                except Exception:
                     self.warning("%s = '%s' cannot be decoded" % (var, res))
                     self.macro.warning(
                         "%s = '%s' cannot be decoded" % (var, res))
@@ -214,7 +214,7 @@ class NXS_FileRecorder(BaseFileRecorder):
                 try:
                     dec = json.loads(res)
                     return dec
-                except:
+                except Exception:
                     self.warning("%s = '%s' cannot be decoded" % (attr, res))
                     self.macro.warning(
                         "%s = '%s' cannot be decoded" % (attr, res))
@@ -336,7 +336,7 @@ class NXS_FileRecorder(BaseFileRecorder):
             try:
                 #: output file name
                 self.filename = filename % serial
-            except:
+            except Exception:
                 subs = False
 
         if not subs:
@@ -484,7 +484,7 @@ class NXS_FileRecorder(BaseFileRecorder):
             name = "/".join(lst[1:])
         try:
             alias = self.__db.get_alias(name)
-        except:
+        except Exception:
             alias = None
         return alias
 
@@ -853,7 +853,7 @@ class NXS_FileRecorder(BaseFileRecorder):
 
             self.__nexuswriter_device.jsonrecord = rec
             self.__command(self.__nexuswriter_device, "openEntry")
-        except:
+        except Exception:
             self.__removeDynamicComponent()
             raise
 
@@ -916,7 +916,7 @@ class NXS_FileRecorder(BaseFileRecorder):
                 cls=NXS_FileRecorder.numpyEncoder)
             # self.debug("JSON!!: %s" % jsonString)
             self.__command(self.__nexuswriter_device, "record", jsonString)
-        except:
+        except Exception:
             self.__removeDynamicComponent()
             raise
 
@@ -932,7 +932,7 @@ class NXS_FileRecorder(BaseFileRecorder):
         """
         try:
             tz = pytz.timezone(tzone)
-        except:
+        except Exception:
             self.warning(
                 "Wrong TimeZone. "
                 + "The time zone set to `%s`" % self.__timezone)
@@ -972,7 +972,7 @@ class NXS_FileRecorder(BaseFileRecorder):
             self.__nexuswriter_device.jsonrecord = rec
             self.__command(self.__nexuswriter_device, "closeEntry")
             self.__command(self.__nexuswriter_device, "closeFile")
-        except:
+        except Exception:
             self.__command(self.__nexuswriter_device, "closeFile")
         finally:
             self.__removeDynamicComponent()
