@@ -46,6 +46,7 @@ then
 fi
 
 echo "install python-sardana-nxsrecorder"
+docker exec -it --user root ndts chown -R tango:tango .
 docker exec -it --user root ndts python setup.py -q install
 if [ $? -ne "0" ]
 then
