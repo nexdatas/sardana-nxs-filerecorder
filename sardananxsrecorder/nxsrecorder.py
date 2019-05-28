@@ -386,7 +386,8 @@ class NXS_FileRecorder(BaseFileRecorder):
                 self.__nexussettings_device = None
                 self.warning("Cannot connect to '%s' " % servers[0])
                 if self.__macro:
-                    self.__macro().warning("Cannot connect to '%s'" % servers[0])
+                    self.__macro().warning(
+                        "Cannot connect to '%s'" % servers[0])
         else:
             self.__nexussettings_device = None
         if self.__nexussettings_device is None:
@@ -658,7 +659,7 @@ class NXS_FileRecorder(BaseFileRecorder):
                     if self.__macro:
                         self.__macro().warning(
                             "Component '%s' wrongly defined in DB!" % cp)
-                    #                self.__macro.warning("Error: '%s'" % str(e))
+                        # self.__macro().warning("Error: '%s'" % str(e))
                 else:
                     self.debug("Component '%s' wrongly defined in DB!" % cp)
                     self.warning("Error: '%s'" % str(e))
