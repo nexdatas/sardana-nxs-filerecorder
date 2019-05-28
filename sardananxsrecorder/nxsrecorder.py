@@ -28,6 +28,7 @@ import json
 import pytz
 import time
 import PyTango
+import weakref
 
 from sardana.macroserver.scan.recorder.storage import BaseFileRecorder
 
@@ -70,8 +71,7 @@ class NXS_FileRecorder(BaseFileRecorder):
         BaseFileRecorder.__init__(self)
         #: (:obj:`str`) base filename
         self.__base_filename = filename
-        if macro:
-            self.macro = macro
+        self.__macro = weakref.ref(macro) if macro else None
         #: (:class:`PyTango.Database`) tango database
         self.__db = PyTango.Database()
 
@@ -102,7 +102,7 @@ class NXS_FileRecorder(BaseFileRecorder):
         self.__dynamicCP = "__dynamic_component__"
 
         #: (:obj:`dict` <:obj:`str` , `any`> ) environment
-        self.__env = self.macro.getAllEnv() if self.macro else {}
+        self.__env = macro.getAllEnv() if macro else {}
 
         #: (:obj:`list` <:obj:`str`>) available components
         self.__availableComps = []
@@ -153,8 +153,9 @@ class NXS_FileRecorder(BaseFileRecorder):
                 return res(*args)
         else:
             self.warning("%s.%s cannot be found" % (server, command))
-            self.macro.warning(
-                "%s.%s cannot be found" % (server, command))
+            if self.__macro:
+                self.__macro().warning(
+                    "%s.%s cannot be found" % (server, command))
 
     def __getConfVar(self, var, default, decode=False, pass_default=False):
         """ provides configuration variable from fetched profile configuration
@@ -180,15 +181,17 @@ class NXS_FileRecorder(BaseFileRecorder):
                     return dec
                 except Exception:
                     self.warning("%s = '%s' cannot be decoded" % (var, res))
-                    self.macro.warning(
-                        "%s = '%s' cannot be decoded" % (var, res))
+                    if self.__macro:
+                        self.__macro().warning(
+                            "%s = '%s' cannot be decoded" % (var, res))
                     return default
             else:
                 return res
         else:
             self.warning("%s cannot be found" % (var))
-            self.macro.warning(
-                "%s cannot be found" % (var))
+            if self.__macro:
+                self.__macro().warning(
+                    "%s cannot be found" % (var))
             return default
 
     def __getServerVar(self, attr, default, decode=False, pass_default=False):
@@ -216,15 +219,17 @@ class NXS_FileRecorder(BaseFileRecorder):
                     return dec
                 except Exception:
                     self.warning("%s = '%s' cannot be decoded" % (attr, res))
-                    self.macro.warning(
-                        "%s = '%s' cannot be decoded" % (attr, res))
+                    if self.__macro:
+                        self.__macro().warning(
+                            "%s = '%s' cannot be decoded" % (attr, res))
                     return default
             else:
                 return res
         else:
             self.warning("%s cannot be found" % (attr))
-            self.macro.warning(
-                "%s  cannot be found" % (attr))
+            if self.__macro:
+                self.__macro().warning(
+                    "%s  cannot be found" % (attr))
             return default
 
     def __getEnvVar(self, var, default, pass_default=False):
@@ -310,9 +315,10 @@ class NXS_FileRecorder(BaseFileRecorder):
             self.warning(
                 "Missing file directory. "
                 "File will be saved in the local writer directory.")
-            self.macro.warning(
-                "Missing file directory. "
-                "File will be saved in the local writer directory.")
+            if self.__macro:
+                self.__macro().warning(
+                    "Missing file directory. "
+                    "File will be saved in the local writer directory.")
             dirname = '/'
 
         if not os.path.isdir(dirname):
@@ -320,7 +326,8 @@ class NXS_FileRecorder(BaseFileRecorder):
                 os.makedirs(dirname)
                 os.chmod(dirname, 0o777)
             except Exception as e:
-                self.macro.warning(str(e))
+                if self.__macro:
+                    self.__macro().warning(str(e))
                 self.warning(str(e))
                 self.filename = None
                 return number
@@ -378,7 +385,9 @@ class NXS_FileRecorder(BaseFileRecorder):
             except Exception:
                 self.__nexussettings_device = None
                 self.warning("Cannot connect to '%s' " % servers[0])
-                self.macro.warning("Cannot connect to '%s'" % servers[0])
+                if self.__macro:
+                    self.__macro().warning(
+                        "Cannot connect to '%s'" % servers[0])
         else:
             self.__nexussettings_device = None
         if self.__nexussettings_device is None:
@@ -402,13 +411,15 @@ class NXS_FileRecorder(BaseFileRecorder):
                     "creating a default profile.\n"
                     "Consider to run 'spock> nxselector' to select "
                     "additional components.") % amntgrp)
-                self.macro.warning((
-                    "NXS_FileRecorer: a profile for '%s' does not exist, "
-                    "creating a default profile.\n"
-                    "Consider to run 'spock> nxselector' to select "
-                    "additional components.") % amntgrp)
-                self.macro.info(
-                    "NXS_FileRecorer: descriptive components will be reset")
+                if self.__macro:
+                    self.__macro().warning((
+                        "NXS_FileRecorer: a profile for '%s' does not exist, "
+                        "creating a default profile.\n"
+                        "Consider to run 'spock> nxselector' to select "
+                        "additional components.") % amntgrp)
+                    self.__macro().info(
+                        "NXS_FileRecorer: "
+                        "descriptive components will be reset")
                 self.info(
                     "NXS_FileRecorer: descriptive components will be reset")
             else:
@@ -432,9 +443,10 @@ class NXS_FileRecorder(BaseFileRecorder):
                 self.debug(
                     "ActiveMntGrp created outside NXSRecSelector v3. "
                     "Updating ActiveMntGrp")
-                self.macro.debug(
-                    "ActiveMntGrp created outside NXSRecSelector v3. "
-                    "Updating ActiveMntGrp")
+                if self.__macro:
+                    self.__macro().debug(
+                        "ActiveMntGrp created outside NXSRecSelector v3. "
+                        "Updating ActiveMntGrp")
                 self.__command(self.__nexussettings_device, "importMntGrp")
                 self.__command(self.__nexussettings_device, "updateMntGrp")
 
@@ -456,7 +468,9 @@ class NXS_FileRecorder(BaseFileRecorder):
                 except Exception:
                     self.__nexuswriter_device = None
                     self.warning("Cannot connect to '%s' " % servers[0])
-                    self.macro.warning("Cannot connect to '%s'" % servers[0])
+                    if self.__macro:
+                        self.__macro().warning(
+                            "Cannot connect to '%s'" % servers[0])
             else:
                 self.__nexuswriter_device = None
 
@@ -500,37 +514,29 @@ class NXS_FileRecorder(BaseFileRecorder):
                 alias = self.__get_alias(str(elm))
                 if alias:
                     self.__deviceAliases[alias] = str(elm)
-                    print("C1 %s %s" % (alias, elm))
                 else:
                     self.__dynamicDataSources[(str(elm))] = None
-                    print("C2 %s" % (elm))
         if 'ref_moveables' in envRec:
             for elm in envRec['ref_moveables']:
                 alias = self.__get_alias(str(elm))
                 if alias:
                     self.__deviceAliases[alias] = str(elm)
-                    print("M1 %s %s" % (alias, elm))
                 else:
                     self.__dynamicDataSources[(str(elm))] = None
-                    print("M2 %s" % (elm))
         if 'column_desc' in envRec:
             for elm in envRec['column_desc']:
                 if "name" in elm.keys():
                     alias = self.__get_alias(str(elm["name"]))
                     if alias:
                         self.__deviceAliases[alias] = str(elm["name"])
-                        print("CD1 %s %s" % (alias, elm["name"]))
                     else:
                         self.__dynamicDataSources[(str(elm["name"]))] = None
-                        print("CD2  %s" % (elm["name"]))
         if 'datadesc' in envRec:
             for elm in envRec['datadesc']:
                 alias = self.__get_alias(str(elm.name))
                 if alias:
-                    print("DD1 %s %s" % (alias, elm.name))
                     self.__deviceAliases[alias] = str(elm.name)
                 else:
-                    print("DD2 %s " % (elm.name))
                     self.__dynamicDataSources[(str(elm.name))] = None
 
     def __createDynamicComponent(self, dss, keys, nexuscomponents):
@@ -650,15 +656,17 @@ class NXS_FileRecorder(BaseFileRecorder):
                 if cp in nexuscomponents:
                     self.warning("Component '%s' wrongly defined in DB!" % cp)
                     self.warning("Error: '%s'" % str(e))
-                    self.macro.warning(
-                        "Component '%s' wrongly defined in DB!" % cp)
-                #                self.macro.warning("Error: '%s'" % str(e))
+                    if self.__macro:
+                        self.__macro().warning(
+                            "Component '%s' wrongly defined in DB!" % cp)
+                        # self.__macro().warning("Error: '%s'" % str(e))
                 else:
                     self.debug("Component '%s' wrongly defined in DB!" % cp)
                     self.warning("Error: '%s'" % str(e))
-                    self.macro.debug(
-                        "Component '%s' wrongly defined in DB!" % cp)
-                    self.macro.debug("Error: '%s'" % str(e))
+                    if self.__macro:
+                        self.__macro().debug(
+                            "Component '%s' wrongly defined in DB!" % cp)
+                    self.__macro.debug("Error: '%s'" % str(e))
                 dss = []
             if dss:
                 cdss = list(set(dss) & set(datasources))
@@ -679,25 +687,30 @@ class NXS_FileRecorder(BaseFileRecorder):
                 dsNotFound.append(ds)
                 if not dyncp:
                     self.warning(
-                        "Warning: '%s' will not be stored. " % ds
-                        + "It was not found in Components!"
-                        + " Consider setting: NeXusDynamicComponents=True")
-                    self.macro.warning(
-                        "Warning: '%s' will not be stored. " % ds
-                        + "It was not found in Components!"
-                        + " Consider setting: NeXusDynamicComponents=True")
+                        "Warning: '%s' will not be stored. "
+                        "It was not found in Components!"
+                        " Consider setting: NeXusDynamicComponents=True" % ds)
+                    if self.__macro:
+                        self.__macro().warning(
+                            "Warning: '%s' will not be stored. "
+                            "It was not found in Components!"
+                            " Consider setting: NeXusDynamicComponents=True"
+                            % ds)
             elif not cfm and ds not in allcpdss:
                 if not (set(dsFound[ds]) & set(nexuscomponents)):
                     dsNotFound.append(ds)
                     if not dyncp:
                         self.warning(
-                            "Warning: '%s' will not be stored. " % ds
-                            + "It was not found in User Components!"
-                            + " Consider setting: NeXusDynamicComponents=True")
-                        self.macro.warning(
-                            "Warning: '%s' will not be stored. " % ds
-                            + "It was not found in User Components!"
-                            + " Consider setting: NeXusDynamicComponents=True")
+                            "Warning: '%s' will not be stored. "
+                            "It was not found in User Components!"
+                            " Consider setting: NeXusDynamicComponents=True"
+                            % ds)
+                        if self.__macro:
+                            self.__macro().warning(
+                                "Warning: '%s' will not be stored. "
+                                "It was not found in User Components!"
+                                " Consider setting: "
+                                "NeXusDynamicComponents=True" % ds)
         return (nds, dsNotFound, cpReq, list(missingKeys))
 
     def __createConfiguration(self, userdata):
@@ -774,8 +787,9 @@ class NXS_FileRecorder(BaseFileRecorder):
             self.__nexussettings_device.configVariables = json.dumps(
                 dict(nexusvariables, **self.__vars["vars"]),
                 cls=NXS_FileRecorder.numpyEncoder)
-            self.macro.debug(
-                "VAR %s" % self.__nexussettings_device.configVariables)
+            if self.__macro:
+                self.__macro().debug(
+                    "VAR %s" % self.__nexussettings_device.configVariables)
             self.__command(self.__nexussettings_device,
                            "updateConfigVariables")
 
@@ -812,7 +826,7 @@ class NXS_FileRecorder(BaseFileRecorder):
         :type recordlist: :class:`sardana.macroserver.scan.scandata.RecordList`
         """
         try:
-            self.__env = self.macro.getAllEnv() if self.macro else {}
+            self.__env = self.__macro().getAllEnv() if self.__macro else {}
             if self.__base_filename is None:
                 return
 
@@ -901,7 +915,7 @@ class NXS_FileRecorder(BaseFileRecorder):
         try:
             if self.filename is None:
                 return
-            self.__env = self.macro.getAllEnv() if self.macro else {}
+            self.__env = self.__macro().getAllEnv() if self.__macro else {}
             envrecord = self.__appendRecord(self.__vars, 'STEP')
             rec = json.dumps(
                 envrecord, cls=NXS_FileRecorder.numpyEncoder)
@@ -935,10 +949,11 @@ class NXS_FileRecorder(BaseFileRecorder):
         except Exception:
             self.warning(
                 "Wrong TimeZone. "
-                + "The time zone set to `%s`" % self.__timezone)
-            self.macro.warning(
-                "Wrong TimeZone. "
-                + "The time zone set to `%s`" % self.__timezone)
+                "The time zone set to `%s`" % self.__timezone)
+            if self.__macro:
+                self.__macro().warning(
+                    "Wrong TimeZone. "
+                    "The time zone set to `%s`" % self.__timezone)
             tz = pytz.timezone(self.__timezone)
 
         fmt = '%Y-%m-%dT%H:%M:%S.%f%z'
@@ -956,7 +971,7 @@ class NXS_FileRecorder(BaseFileRecorder):
             if self.filename is None:
                 return
 
-            self.__env = self.macro.getAllEnv() if self.macro else {}
+            self.__env = self.__macro().getAllEnv() if self.__macro else {}
             envRec = recordlist.getEnviron()
 
             self.debug('END_DATA: %s ' % str(envRec))
