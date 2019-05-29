@@ -1,6 +1,6 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "SARDANANXSRECORDER" "1" "February 13, 2018" "3.5" "Sardana NeXus Recorder"
+.TH "SARDANANXSRECORDER" "1" "May 29, 2019" "3.6" "Sardana NeXus Recorder"
 .SH NAME
 sardananxsrecorder \- sardananxsrecorder Documentation
 .
@@ -282,9 +282,9 @@ constructor
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBfilename\fP (\fI\%str\fP) \-\- ScanFile name
+\fBfilename\fP (\fI\%str\fP) – ScanFile name
 .IP \(bu 2
-\fBmacro\fP (\fI\%sardana.macroserver.macro.Macro\fP) \-\- macro object
+\fBmacro\fP (\fI\%sardana.macroserver.macro.Macro\fP) – macro object
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -296,13 +296,13 @@ adds custom data to configuration variables, i.e. from macros
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBvalue\fP (\fIany\fP) \-\- variable value
+\fBvalue\fP (\fIany\fP) – variable value
 .IP \(bu 2
-\fBname\fP (\fI\%str\fP) \-\- variable name
+\fBname\fP (\fI\%str\fP) – variable name
 .IP \(bu 2
-\fBgroup\fP (\fI\%str\fP) \-\- variable group inside variable dictionary
+\fBgroup\fP (\fI\%str\fP) – variable group inside variable dictionary
 .IP \(bu 2
-\fBremove\fP (\fI\%bool\fP) \-\- if True variable will be removed
+\fBremove\fP (\fI\%bool\fP) – if True variable will be removed
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -317,7 +317,7 @@ and closes the nexus file
 .INDENT 7.0
 .TP
 .B Parameters
-\fBrecordlist\fP (\fBsardana.macroserver.scan.scandata.RecordList\fP) \-\- sardana record list
+\fBrecordlist\fP (\fBsardana.macroserver.scan.scandata.RecordList\fP) – sardana record list
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -331,7 +331,7 @@ and records in INIT mode
 .INDENT 7.0
 .TP
 .B Parameters
-\fBrecordlist\fP (\fBsardana.macroserver.scan.scandata.RecordList\fP) \-\- sardana record list
+\fBrecordlist\fP (\fBsardana.macroserver.scan.scandata.RecordList\fP) – sardana record list
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -345,12 +345,12 @@ and records in INIT mode
 .INDENT 7.0
 .TP
 .B Parameters
-\fBrecord\fP \-\- sardana record list
+\fBrecord\fP – sardana record list
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
 .TP
-.B formats = {\(aqnx\(aq: \(aq.nx\(aq, \(aqndf\(aq: \(aq.ndf\(aq, \(aqnxs\(aq: \(aq.nxs\(aq, \(aqh5\(aq: \(aq.h5\(aq}
+.B formats = {\(aqh5\(aq: \(aq.h5\(aq, \(aqndf\(aq: \(aq.ndf\(aq, \(aqnx\(aq: \(aq.nx\(aq, \(aqnxs\(aq: \(aq.nxs\(aq}
 (\fI\%dict\fP <\fI\%str\fP, \fI\%str\fP > ) recoder format
 .UNINDENT
 .INDENT 7.0
@@ -404,16 +404,16 @@ If indent is a non\-negative integer, then JSON array
 elements and object members will be pretty\-printed with that
 indent level.  An indent level of 0 will only insert newlines.
 None is the most compact representation.  Since the default
-item separator is \(aq, \(aq,  the output might include trailing
+item separator is ‘, ‘,  the output might include trailing
 whitespace when indent is specified.  You can use
-separators=(\(aq,\(aq, \(aq: \(aq) to avoid this.
+separators=(‘,’, ‘: ‘) to avoid this.
 .sp
 If specified, separators should be a (item_separator, key_separator)
-tuple.  The default is (\(aq, \(aq, \(aq: \(aq).  To get the most compact JSON
-representation you should specify (\(aq,\(aq, \(aq:\(aq) to eliminate whitespace.
+tuple.  The default is (‘, ‘, ‘: ‘).  To get the most compact JSON
+representation you should specify (‘,’, ‘:’) to eliminate whitespace.
 .sp
 If specified, default is a function that gets called for objects
-that can\(aqt otherwise be serialized.  It should return a JSON encodable
+that can’t otherwise be serialized.  It should return a JSON encodable
 version of the object or raise a \fBTypeError\fP\&.
 .sp
 If encoding is not None, then all input strings will be
@@ -426,7 +426,7 @@ default encoder
 .INDENT 7.0
 .TP
 .B Parameters
-\fBobj\fP (\fI\%object\fP or \fIany\fP) \-\- numpy array object
+\fBobj\fP (\fI\%object\fP or \fIany\fP) – numpy array object
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -436,11 +436,11 @@ default encoder
 Sardana Scan Recorders
 .INDENT 0.0
 .IP \(bu 2
-\fIgenindex\fP
+genindex
 .IP \(bu 2
-\fImodindex\fP
+modindex
 .IP \(bu 2
-\fIsearch\fP
+search
 .UNINDENT
 .SH AUTHOR
 Author
