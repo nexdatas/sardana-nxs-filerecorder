@@ -270,7 +270,7 @@ class NXS_FileRecorder(BaseFileRecorder):
             if cnt > 1:
                 time.sleep(0.01)
             try:
-                if cls.__command(proxy, "State") != PyTango.DevState.RUNNING:
+                if proxy.state() != PyTango.DevState.RUNNING:
                     found = True
             except (PyTango.DevFailed, PyTango.Except, PyTango.DevError):
                 time.sleep(0.01)
@@ -382,6 +382,7 @@ class NXS_FileRecorder(BaseFileRecorder):
                 self.__nexussettings_device = PyTango.DeviceProxy(servers[0])
                 self.__nexussettings_device.set_timeout_millis(self.__timeout)
                 self.__nexussettings_device.ping()
+                self.__nexussettings_device.set_source(PyTango.DevSource.DEV)
             except Exception:
                 self.__nexussettings_device = None
                 self.warning("Cannot connect to '%s' " % servers[0])
@@ -465,6 +466,7 @@ class NXS_FileRecorder(BaseFileRecorder):
                     self.__nexuswriter_device.set_timeout_millis(
                         self.__timeout)
                     self.__nexuswriter_device.ping()
+                    self.__nexuswriter_device.set_source(PyTango.DevSource.DEV)
                 except Exception:
                     self.__nexuswriter_device = None
                     self.warning("Cannot connect to '%s' " % servers[0])
