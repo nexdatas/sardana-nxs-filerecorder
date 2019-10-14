@@ -20,14 +20,22 @@
 """ setup.py for NXS configuration recorder """
 
 import os
-from distutils.core import setup
-from sphinx.setup_command import BuildDoc
+import sys
+from setuptools import setup
+
+try:
+    from sphinx.setup_command import BuildDoc
+except Exception:
+    BuildDoc = None
 
 
 #: package name
 NDTS = "sardananxsrecorder"
 #: nxswriter imported package
 INDTS = __import__(NDTS)
+
+needs_pytest = set(['test']).intersection(sys.argv)
+pytest_runner = ['pytest-runner'] if needs_pytest else []
 
 
 def read(fname):
@@ -36,28 +44,60 @@ def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 
+#: required python packages
+install_requires = [
+    'lxml',
+    'numpy>1.6.0',
+    # 'pytango',
+    # 'nxswriter',
+    # 'nxstools',
+    # 'nxsconfigserver',
+    # 'sardana',
+    # 'taurus',
+    # 'pymysqldb',
+]
+
+
 release = INDTS.__version__
 version = ".".join(release.split(".")[:2])
 name = "Sardana NeXus Recorder"
 
 #: metadata for distutils
 SETUPDATA = dict(
-    name="nexdatas.sardananxsrecorder",
+    name="sardana-nxsrecorder",
     version=INDTS.__version__,
     author="Jan Kotanski",
     author_email="jankotan@gmail.com",
     description=("NeXus Sardana Scan Recorder"),
     license="GNU GENERAL PUBLIC LICENSE v3",
     keywords="NeXus sardana scan recorder data",
-    url="https://github.com/jkotan/nexdatas.sardanascanrecorders/",
+    url="https://github.com/nexdatas/nexdatas.sardanascanrecorders/",
     packages=['sardananxsrecorder'],
     cmdclass={'build_sphinx': BuildDoc},
+    classifiers=[
+        'Development Status :: 5 - Production/Stable',
+        'Intended Audience :: Science/Research',
+        'Topic :: Scientific/Engineering :: Physics',
+        'Topic :: Software Development :: Libraries :: Python Modules',
+        'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+    ],
+    install_requires=install_requires,
+    zip_safe=False,
+    setup_requires=pytest_runner,
+    tests_require=['pytest'],
     command_options={
         'build_sphinx': {
             'project': ('setup.py', name),
             'version': ('setup.py', version),
             'release': ('setup.py', release)}},
     long_description=read('README.rst')
+    # long_description_content_type='text/x-rst'
 )
 
 

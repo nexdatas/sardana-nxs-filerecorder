@@ -15,9 +15,13 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with nexdatas.  If not, see <http://www.gnu.org/licenses/>.
+# \package test nexdatas
+# \file runtest.py
+# the unittest runner
 #
 
-""" Sardana Scan Recorders """
+import main
 
-#: package version
-__version__ = "3.6.4"
+
+if __name__ == "__main__":
+    main.main()
