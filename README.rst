@@ -64,7 +64,7 @@ Finally, for python2.7
 	  $ apt-get update
 	  $ apt-get install python-sardana-nxsrecorder
 
-and set properties with
+and set the RecoderPath property of MacroServer with
 
 .. code-block:: console
 
