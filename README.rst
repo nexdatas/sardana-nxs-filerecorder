@@ -39,7 +39,7 @@ defining the package location, e.g.
 Debian packages
 """""""""""""""
 
-Debian Jessie (and Wheezy) packages can be found in the HDRI repository.
+Debian Buster (and Stretch) and Ubuntu Bionic packages can be found in the HDRI repository.
 
 To install the debian packages, add the PGP repository key
 
@@ -53,26 +53,52 @@ and then download the corresponding source list
 .. code-block:: console
 
 	  $ cd /etc/apt/sources.list.d
-	  $ wget http://repos.pni-hdri.de/jessie-pni-hdri.list
+	  $ wget http://repos.pni-hdri.de/buster-pni-hdri.list
 
-Finally,
+For other disctribution replace `buster` by `stretch` or `bionic`.
+
+Finally, for python2.7
 
 .. code-block:: console
 
 	  $ apt-get update
 	  $ apt-get install python-sardana-nxsrecorder
 
+and set properties with
+
+.. code-block:: console
+
+	  $ apt-get install sardana-nxsrecorder
+
+For python3 
+
+.. code-block:: console
+
+	  $ apt-get update
+	  $ apt-get install python3-sardana-nxsrecorder
+	  $ apt-get install sardana-nxsrecorder3
+	  
 To instal other NexDaTaS packages
 
 .. code-block:: console
 
-	  $ apt-get install python-nxswriter nxsconfigserver-db python-nxsconfigserver nxsconfigtool python-nxstools
+	  $ apt-get install python-nxswriter nxsconfigserver-db python-nxsconfigserver nxsconfigtool python-nxstools nxswriter nxsconfigserver nxsrecselector
+
+or for python 3
+	  
+	  $ apt-get install python3-nxswriter nxsconfigserver-db python3-nxsconfigserver nxsconfigtool3 python3-nxstools nxswriter3 nxsconfigserver3
 
 and
 
 .. code-block:: console
 
-	  $ apt-get install python-nxsrecselector nxselector
+	  $ apt-get install python-nxsrecselector nxsrecselector nxselector
+
+or for python3
+	  
+.. code-block:: console
+
+	  $ apt-get install python3-nxsrecselector nxsrecselector3 nxselector3
 
 for Component Selector for Sardana related packages.
 
