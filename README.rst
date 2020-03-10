@@ -86,6 +86,8 @@ To instal other NexDaTaS packages
 
 or for python 3
 	  
+.. code-block:: console
+
 	  $ apt-get install python3-nxswriter nxsconfigserver-db python3-nxsconfigserver nxsconfigtool3 python3-nxstools nxswriter3 nxsconfigserver3
 
 and
