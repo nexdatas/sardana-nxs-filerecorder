@@ -912,7 +912,7 @@ class NXS_FileRecorder(BaseFileRecorder):
             and records in INIT mode
 
         :param record: sardana record list
-        :type recordlist: :class:`sardana.macroserver.scan.scandata.Record`
+        :type record: :class:`sardana.macroserver.scan.scandata.Record`
         """
         try:
             if self.filename is None:
