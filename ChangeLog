@@ -1,3 +1,7 @@
+2021-02-24 Jan Kotanski <jankotan@gmail.com>
+	* avoid catching tango.DevError and tango.Except
+	* tagged as 3.6.5
+
 2019-10-14 Jan Kotanski <jankotan@gmail.com>
 	* switch to setuptools
 	* add support for pip
