@@ -56,7 +56,11 @@ class NXS_FileRecorder(BaseFileRecorder):
             :param obj: numpy array object
             :type obj: :obj:`object` or `any`
             """
-            if isinstance(obj, numpy.ndarray) and obj.ndim > 0:
+            if isinstance(obj, numpy.integer):
+                return int(obj)
+            elif isinstance(obj, numpy.floating):
+                return float(obj)
+            elif isinstance(obj, numpy.ndarray) and obj.ndim > 0:
                 return obj.tolist()
             return json.JSONEncoder.default(self, obj)
 
