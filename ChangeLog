@@ -1,3 +1,7 @@
+2021-04-08 Jan Kotanski <jankotan@gmail.com>
+	* add suport for numpy.integer and numpy.float in numpyEncoder
+	* tagged as 3.6.6
+
 2021-02-24 Jan Kotanski <jankotan@gmail.com>
 	* avoid catching tango.DevError and tango.Except
 	* tagged as 3.6.5
