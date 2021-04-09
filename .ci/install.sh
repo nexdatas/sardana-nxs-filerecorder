@@ -68,7 +68,7 @@ else
 	echo " "
     else
 	docker exec  --user root ndts /bin/sh -c 'export DEBIAN_FRONTEND=noninteractive; apt-get -qq update; apt-get install -y libtango-dev python3-dev'
-	docker exec  --user root ndts /bin/sh -c 'git clone https://github.com/tango-controls/pytango pytango; cd pytango; git checkout tags/v9.2.5 -b b9.2.5'
+	docker exec  --user root ndts /bin/sh -c 'git clone https://gitlab.com/tango-controls/pytango pytango; cd pytango; git checkout tags/v9.2.5 -b b9.2.5'
 	docker exec  --user root ndts /bin/sh -c 'cd pytango; python3 setup.py install'
     fi
 fi
