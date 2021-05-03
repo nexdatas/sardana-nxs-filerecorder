@@ -4,19 +4,17 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Welcome to sardananxsrecorder’s documentation! &#8212; Sardana NeXus Recorder 3.6.3 documentation</title>
-    <link rel="stylesheet" href="_static/basic.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/bootstrap-3.3.6/css/bootstrap.min.css" type="text/css" />
-    <link rel="stylesheet" href="_static/bootstrap-3.3.6/css/bootstrap-theme.min.css" type="text/css" />
+    <title>Welcome to sardananxsrecorder’s documentation! &#8212; Sardana NeXus Recorder 3.6.5 documentation</title>
     <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
     <script type="text/javascript" src="_static/js/jquery-1.11.0.min.js"></script>
     <script type="text/javascript" src="_static/js/jquery-fix.js"></script>
-    <script type="text/javascript" src="_static/bootstrap-3.3.6/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-3.3.7/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -123,42 +121,7 @@
 
 <div class="container">
   <div class="row">
-      <div class="col-md-3">
-        <div id="sidebar" class="bs-sidenav" role="complementary"><ul>
-<li><a class="reference internal" href="#">Welcome to sardananxsrecorder’s documentation!</a><ul>
-<li><a class="reference internal" href="#installation">Installation</a><ul>
-<li><a class="reference internal" href="#from-sources">From sources</a></li>
-<li><a class="reference internal" href="#debian-packages">Debian packages</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#setting-environment">Setting environment</a><ul>
-<li><a class="reference internal" href="#setting-saradna">Setting Saradna</a></li>
-<li><a class="reference internal" href="#setting-nexus-servers">Setting NeXus Servers</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
-</ul>
-
-  <li>
-    <a href="sardananxsrecorder.html" title="Next Chapter: sardananxsrecorder package"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">sardananxsrec... &raquo;</span>
-    </a>
-  </li>
-<div id="sourcelink">
-  <a href="_sources/index.rst.txt"
-     rel="nofollow">Source</a>
-</div>
-<form action="search.html" method="get">
- <div class="form-group">
-  <input type="text" name="q" class="form-control" placeholder="Search" />
- </div>
-  <input type="hidden" name="check_keywords" value="yes" />
-  <input type="hidden" name="area" value="default" />
-</form>
-        </div>
-      </div>
-    <div class="col-md-9 content">
+    <div class="col-md-12 content">
       
   <div class="section" id="welcome-to-sardananxsrecorder-s-documentation">
 <h1>Welcome to sardananxsrecorder’s documentation!<a class="headerlink" href="#welcome-to-sardananxsrecorder-s-documentation" title="Permalink to this headline">¶</a></h1>
@@ -193,7 +156,7 @@ defining the package location, e.g.</p>
 </div>
 <div class="section" id="debian-packages">
 <h3>Debian packages<a class="headerlink" href="#debian-packages" title="Permalink to this headline">¶</a></h3>
-<p>Debian Jessie (and Wheezy) packages can be found in the HDRI repository.</p>
+<p>Debian Buster (and Stretch) and Ubuntu Bionic packages can be found in the HDRI repository.</p>
 <p>To install the debian packages, add the PGP repository key</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> sudo su
 <span class="gp">$</span> wget -q -O - http://repos.pni-hdri.de/debian_repo.pub.gpg <span class="p">|</span> apt-key add -
@@ -201,20 +164,39 @@ defining the package location, e.g.</p>
 </div>
 <p>and then download the corresponding source list</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> <span class="nb">cd</span> /etc/apt/sources.list.d
-<span class="gp">$</span> wget http://repos.pni-hdri.de/jessie-pni-hdri.list
+<span class="gp">$</span> wget http://repos.pni-hdri.de/buster-pni-hdri.list
 </pre></div>
 </div>
-<p>Finally,</p>
+<p>For other disctribution replace <cite>buster</cite> by <cite>stretch</cite> or <cite>bionic</cite>.</p>
+<p>Finally, for python2.7</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> apt-get update
 <span class="gp">$</span> apt-get install python-sardana-nxsrecorder
 </pre></div>
 </div>
+<p>and set the RecoderPath property of MacroServer with</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> apt-get install sardana-nxsrecorder
+</pre></div>
+</div>
+<p>For python3</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> apt-get update
+<span class="gp">$</span> apt-get install python3-sardana-nxsrecorder
+<span class="gp">$</span> apt-get install sardana-nxsrecorder3
+</pre></div>
+</div>
 <p>To instal other NexDaTaS packages</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> apt-get install python-nxswriter nxsconfigserver-db python-nxsconfigserver nxsconfigtool python-nxstools
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> apt-get install python-nxswriter nxsconfigserver-db python-nxsconfigserver nxsconfigtool python-nxstools nxswriter nxsconfigserver nxsrecselector
+</pre></div>
+</div>
+<p>or for python 3</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> apt-get install python3-nxswriter nxsconfigserver-db python3-nxsconfigserver nxsconfigtool3 python3-nxstools nxswriter3 nxsconfigserver3
 </pre></div>
 </div>
 <p>and</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> apt-get install python-nxsrecselector nxselector
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> apt-get install python-nxsrecselector nxsrecselector nxselector
+</pre></div>
+</div>
+<p>or for python3</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> apt-get install python3-nxsrecselector nxsrecselector3 nxselector3
 </pre></div>
 </div>
 <p>for Component Selector for Sardana related packages.</p>
@@ -312,7 +294,7 @@ for MacroServer to 3 and restart servers.</p>
         &copy; Copyright 2012-2018 DESY, Jan Kotanski &lt;jkotan@mail.desy.de&gt;
 
 GNU GENERAL PUBLIC LICENSE, version 3.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.9.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.<br/>
     </p>
   </div>
 </footer>
