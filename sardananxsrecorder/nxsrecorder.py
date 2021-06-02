@@ -111,6 +111,9 @@ class NXS_FileRecorder(BaseFileRecorder):
         #: (:obj:`list` <:obj:`str`>) available components
         self.__availableComps = []
 
+        #: (:obj:`list` <:obj:`str`>) ordered aliases
+        self.__aliases = []
+
         #: (:obj:`str`) default timezone
         self.__timezone = "Europe/Berlin"
 
@@ -790,14 +793,6 @@ class NXS_FileRecorder(BaseFileRecorder):
             nexusvariables = dct
         oldtoswitch = None
         try:
-            self.__nexussettings_device.configVariables = json.dumps(
-                dict(nexusvariables, **self.__vars["vars"]),
-                cls=NXS_FileRecorder.numpyEncoder)
-            if self.__macro:
-                self.__macro().debug(
-                    "VAR %s" % self.__nexussettings_device.configVariables)
-            self.__command(self.__nexussettings_device,
-                           "updateConfigVariables")
 
             self.info("Components %s" % list(
                 set(nexuscomponents) | set(mandatory)))
@@ -807,6 +802,23 @@ class NXS_FileRecorder(BaseFileRecorder):
                 if alias:
                     toswitch.add(alias)
             toswitch.update(set(nds))
+            och = self.__getConfVar("OrderedChannels",
+                                    None, True, pass_default=self.__oddmntgrp)
+            allcp = list(nexuscomponents)
+            allcp.extend(list(toswitch))
+            self.__aliases = [ch for ch in och if ch in allcp]
+            if self.__aliases:
+                self.__vars["vars"]["mgchannels"] = " ".join(self.__aliases)
+            self.__nexussettings_device.configVariables = json.dumps(
+                dict(nexusvariables, **self.__vars["vars"]),
+                cls=NXS_FileRecorder.numpyEncoder)
+            if self.__macro:
+                self.__macro().debug(
+                    "VAR %s" % self.__nexussettings_device.configVariables)
+            self.__command(self.__nexussettings_device,
+                           "updateConfigVariables")
+
+            self.debug("Aliases: %s" % str(self.__aliases))
             self.debug("Switching to STEP mode: %s" % toswitch)
             oldtoswitch = self.__getServerVar("stepdatasources", "[]", False)
             stepdss = str(json.dumps(list(toswitch)))
