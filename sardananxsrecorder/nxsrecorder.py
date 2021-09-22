@@ -806,6 +806,7 @@ class NXS_FileRecorder(BaseFileRecorder):
                                     None, True, pass_default=self.__oddmntgrp)
             allcp = list(nexuscomponents)
             allcp.extend(list(toswitch))
+            och = och or []
             self.__aliases = [ch for ch in och if ch in allcp]
             if self.__aliases:
                 self.__vars["vars"]["mgchannels"] = " ".join(self.__aliases)
