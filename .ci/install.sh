@@ -70,7 +70,11 @@ fi
 if [ "$?" -ne "0" ]; then exit 255; fi
 
 echo "install qt5"
-docker exec  --user root ndts /bin/bash -c 'export DEBIAN_FRONTEND=noninteractive;  apt-get -qq update; apt-get -qq install -y  qtbase5-dev-tools qt5-default'
+if [[ "$1" == "debian11" ]]; then
+    docker exec  --user root ndts /bin/bash -c 'export DEBIAN_FRONTEND=noninteractive;  apt-get -qq update; apt-get -qq install -y  qtbase5-dev-tools'
+else
+    docker exec  --user root ndts /bin/bash -c 'export DEBIAN_FRONTEND=noninteractive;  apt-get -qq update; apt-get -qq install -y  qtbase5-dev-tools qt5-default'
+fi
 if [ "$?" -ne "0" ]; then exit 255; fi
 
 if [[ "$1" == "debian8" ]]; then
