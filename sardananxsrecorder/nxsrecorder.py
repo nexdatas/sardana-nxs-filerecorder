@@ -60,8 +60,10 @@ class NXS_FileRecorder(BaseFileRecorder):
                 return int(obj)
             elif isinstance(obj, numpy.floating):
                 return float(obj)
-            elif isinstance(obj, numpy.ndarray) and obj.ndim > 0:
+            elif isinstance(obj, numpy.ndarray):
                 return obj.tolist()
+            elif isinstance(obj, np.bool_):
+                return bool(obj)
             return json.JSONEncoder.default(self, obj)
 
     def __init__(self, filename=None, macro=None, **pars):
