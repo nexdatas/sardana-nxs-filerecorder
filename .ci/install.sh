@@ -70,7 +70,7 @@ fi
 if [ "$?" -ne "0" ]; then exit 255; fi
 
 echo "install qt5"
-if [ "$1" = "debian11" ] || [ "$1" = "ubuntu20.04" ]; then
+if [ "$1" = "debian11" ] || [ "$1" = "ubuntu22.04" ]; then
     docker exec  --user root ndts /bin/bash -c 'export DEBIAN_FRONTEND=noninteractive;  apt-get -qq update; apt-get -qq install -y  qtbase5-dev-tools'
 else
     docker exec  --user root ndts /bin/bash -c 'export DEBIAN_FRONTEND=noninteractive;  apt-get -qq update; apt-get -qq install -y  qtbase5-dev-tools qt5-default'
