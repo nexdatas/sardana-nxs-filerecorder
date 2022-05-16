@@ -13,12 +13,12 @@ Welcome to sardananxsrecorder's documentation!
    :target: https://nexdatas.github.io/sardanascanrecorders/index.html
    :alt:
 
-.. |Pypi Version| image:: https://img.shields.io/pypi/v/sardananxsrecorder.svg
-                  :target: https://pypi.python.org/pypi/sardananxsrecorder
+.. |Pypi Version| image:: https://img.shields.io/pypi/v/sardana-nxsrecorder.svg
+                  :target: https://pypi.python.org/pypi/sardana-nxsrecorder
                   :alt:
 
-.. |Python Versions| image:: https://img.shields.io/pypi/pyversions/sardananxsrecorder.svg
-                     :target: https://pypi.python.org/pypi/sardananxsrecorder/
+.. |Python Versions| image:: https://img.shields.io/pypi/pyversions/sardana-nxsrecorder.svg
+                     :target: https://pypi.python.org/pypi/sardana-nxsrecorder/
                      :alt:
 
 
