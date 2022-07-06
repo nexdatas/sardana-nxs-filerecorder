@@ -1012,6 +1012,54 @@ class NXS_FileRecorder(BaseFileRecorder):
             self.__command(self.__nexuswriter_device, "closeFile")
         finally:
             self.__removeDynamicComponent()
+            if self.__getEnvVar("NXSAppendSciCatDataset", None):
+                self.__appendSciCatDataset()
+
+    def beamtime_id(self, bmtfpath, bmtfprefix, bmtfext):
+        """ code for beamtimeid  datasource
+
+        :param bmtfpath:  beamtime file directory
+        :type bmtfpath: :obj:`str`
+        :param bmtfprefix:  beamtime file prefix
+        :type bmtfprefix: :obj:`str`
+        :param bmtfext:  beamtime file postfix
+        :type bmtfext: :obj:`str`
+        :returns: beamtime id
+        :rtype: :obj:`str`
+        """
+        result = ""
+        fpath = self.filename
+        if fpath.startswith(bmtfpath):
+            try:
+                if os.path.isdir(bmtfpath):
+                    btml = [fl for fl in os.listdir(bmtfpath)
+                            if (fl.startswith(bmtfprefix)
+                                and fl.endswith(bmtfext))]
+                    result = btml[0][len(bmtfprefix):-len(bmtfext)]
+            except Exception:
+                pass
+        return result
+
+    def __appendSciCatDataset(self):
+        """ append dataset to SciCat ingestion list """
+
+        fdir, fname = os.path.split(self.filename)
+        sname, fext = os.path.splitext(fname)
+
+        bmtfpath = self.__getEnvVar("BeamtimeFilePath", "/gpfs/current")
+        bmtfprefix = self.__getEnvVar(
+            "BeamtimeFilePrefix", "beamtime-metadata-")
+        bmtfext = self.__getEnvVar("BeamtimeFileExt", ".json")
+        beamtimeid = self.beamtime_id(bmtfpath, bmtfprefix, bmtfext)
+        beamtimeid = beamtimeid or "00000000"
+        dslprefix = self.__getEnvVar("SciCatDatasetListFilePrefix",
+                                     "scicat-datasets-")
+        dslext = self.__getEnvVar("SciCatDatasetListFileExt", ".lst")
+        dslfile = "%s%s%s" % (dslprefix, beamtimeid, dslext)
+        if fdir:
+            dslfile = os.path.join(fdir, dslfile)
+        with open(dslfile, "a+") as fl:
+            fl.write("\n%s" % sname)
 
     def _addCustomData(self, value, name, group="data", remove=False,
                        **kwargs):
