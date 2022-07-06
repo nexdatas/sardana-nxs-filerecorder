@@ -1,3 +1,7 @@
+2022-07-06 Jan Kotanski <jankotan@gmail.com>
+	* append SciCat dataset to the list file if NXSAppendSciCatDataset is set
+	* tagged as 3.8.0
+
 2022-05-17 Jan Kotanski <jankotan@gmail.com>
 	* comment longer debug streams
 	* tagged as 3.7.3
