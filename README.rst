@@ -5,12 +5,12 @@ Welcome to sardananxsrecorder's documentation!
 |Pypi Version|
 |Python Versions|
 
-.. |github workflow| image:: https://github.com/nexdatas/sardanascanrecorders/actions/workflows/tests.yml/badge.svg
-   :target: https://github.com/nexdatas/sardanascanrecorders/actions
+.. |github workflow| image:: https://github.com/nexdatas/sardana-nxs-filerecorder/actions/workflows/tests.yml/badge.svg
+   :target: https://github.com/nexdatas/sardana-nxs-filerecorder/actions
    :alt:
 
 .. |docs| image:: https://img.shields.io/badge/Documentation-webpages-ADD8E6.svg
-   :target: https://nexdatas.github.io/sardanascanrecorders/index.html
+   :target: https://nexdatas.github.io/sardana-nxs-filerecorder/index.html
    :alt:
 
 .. |Pypi Version| image:: https://img.shields.io/pypi/v/sardana-nxsrecorder.svg
@@ -25,8 +25,8 @@ Welcome to sardananxsrecorder's documentation!
 NeXus scan recorder for Sardana which stores experimenal data in NeXus/HDF5 file with use of
 NeXDatas Tango Server or packages, i.e. NXSDataWriter, NXSConfigServer, NXSRecSelector.
 
-| Source code: https://github.com/nexdatas/sardanascanrecorders
-| Web page: https://nexdatas.github.io/sardanascanrecorders
+| Source code: https://github.com/nexdatas/sardana-nxs-filerecorder
+| Web page: https://nexdatas.github.io/sardana-nxs-filerecorder
 | NexDaTaS Web page: https://nexdatas.github.io
 
 
@@ -43,7 +43,7 @@ From sources
 
 Download the latest NeXuS Scan Recorder version from
 
-|    https://github.com/nexdatas/sardanascanrecorders
+|    https://github.com/nexdatas/sardana-nxs-filerecorder
 
 Extract sources and run
 
