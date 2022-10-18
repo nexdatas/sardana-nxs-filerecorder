@@ -439,6 +439,7 @@ class NXS_FileRecorder(BaseFileRecorder):
             self.__oddmntgrp = True
         else:
             self.__command(self.__nexussettings_device, "fetchProfile")
+        self.__vars["vars"]["measurement_group"] = amntgrp
 
         self.__conf = self.__getServerVar("profileConfiguration", {}, True)
         if not self.__oddmntgrp and not onlyconfig:
@@ -820,6 +821,7 @@ class NXS_FileRecorder(BaseFileRecorder):
                     "VAR %s" % self.__nexussettings_device.configVariables)
             self.__command(self.__nexussettings_device,
                            "updateConfigVariables")
+            self.__vars["vars"]["nexus_components"] = " ".json(nexuscomponents)
 
             self.debug("Aliases: %s" % str(self.__aliases))
             self.debug("Switching to STEP mode: %s" % toswitch)
