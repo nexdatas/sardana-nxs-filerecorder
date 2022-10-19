@@ -561,7 +561,8 @@ class NXS_FileRecorder(BaseFileRecorder):
         :param nexuscomponents: nexus component list
         :type nexuscomponents: :obj:`list` <:obj:`str`>
         """
-        self.debug("DSS: %s" % dss)
+        self.debug("Step DSs: %s" % dss)
+        self.debug("Init DSs: %s" % keys)
         envRec = self.recordlist.getEnviron()
         lddict = []
         tdss = [ds for ds in dss if not ds.startswith("tango://")
@@ -781,6 +782,7 @@ class NXS_FileRecorder(BaseFileRecorder):
             ids = [k for (k, vl) in idsdct.items() if vl] if idsdct else None
         if ids:
             missingKeys.extend(list(ids))
+        self.__vars["vars"]["nexus_init_datasources"] = " ".join(missingKeys)
         self.__createDynamicComponent(
             dsNotFound if dyncp else [], missingKeys, nexuscomponents)
         nexuscomponents.append(str(self.__dynamicCP))
@@ -814,6 +816,7 @@ class NXS_FileRecorder(BaseFileRecorder):
             if self.__aliases:
                 self.__vars["vars"]["mgchannels"] = " ".join(self.__aliases)
             self.__vars["vars"]["nexus_components"] = " ".join(nexuscomponents)
+            self.__vars["vars"]["nexus_step_datasources"] = " ".join(toswitch)
             self.__nexussettings_device.configVariables = json.dumps(
                 dict(nexusvariables, **self.__vars["vars"]),
                 cls=NXS_FileRecorder.numpyEncoder)
