@@ -813,6 +813,7 @@ class NXS_FileRecorder(BaseFileRecorder):
             self.__aliases = [ch for ch in och if ch in allcp]
             if self.__aliases:
                 self.__vars["vars"]["mgchannels"] = " ".join(self.__aliases)
+            self.__vars["vars"]["nexus_components"] = " ".join(nexuscomponents)
             self.__nexussettings_device.configVariables = json.dumps(
                 dict(nexusvariables, **self.__vars["vars"]),
                 cls=NXS_FileRecorder.numpyEncoder)
@@ -821,7 +822,6 @@ class NXS_FileRecorder(BaseFileRecorder):
                     "VAR %s" % self.__nexussettings_device.configVariables)
             self.__command(self.__nexussettings_device,
                            "updateConfigVariables")
-            self.__vars["vars"]["nexus_components"] = " ".join(nexuscomponents)
 
             self.debug("Aliases: %s" % str(self.__aliases))
             self.debug("Switching to STEP mode: %s" % toswitch)
@@ -864,7 +864,6 @@ class NXS_FileRecorder(BaseFileRecorder):
                 if appendentry else ""
             self.__vars["vars"]["scan_id"] = envRec["serialno"]
             self.__vars["vars"]["scan_title"] = envRec["title"]
-
             tzone = self.__getConfVar("TimeZone", self.__timezone)
             self.__vars["data"]["start_time"] = \
                 self.__timeToString(envRec['starttime'], tzone)
