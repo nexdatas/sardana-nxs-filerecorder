@@ -1,6 +1,6 @@
-2022-07-06 Jan Kotanski <jankotan@gmail.com>
+2022-10-19 Jan Kotanski <jankotan@gmail.com>
 	* add nexus_components and measurement_group variables
-	* tagged as 3.9.0
+	* tagged as 3.9.1
 
 2022-07-06 Jan Kotanski <jankotan@gmail.com>
 	* append SciCat dataset to the list file if NXSAppendSciCatDataset is set

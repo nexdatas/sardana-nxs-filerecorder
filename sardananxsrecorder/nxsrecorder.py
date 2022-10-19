@@ -821,7 +821,7 @@ class NXS_FileRecorder(BaseFileRecorder):
                     "VAR %s" % self.__nexussettings_device.configVariables)
             self.__command(self.__nexussettings_device,
                            "updateConfigVariables")
-            self.__vars["vars"]["nexus_components"] = " ".json(nexuscomponents)
+            self.__vars["vars"]["nexus_components"] = " ".join(nexuscomponents)
 
             self.debug("Aliases: %s" % str(self.__aliases))
             self.debug("Switching to STEP mode: %s" % toswitch)
