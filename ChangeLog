@@ -1,4 +1,8 @@
 2022-10-19 Jan Kotanski <jankotan@gmail.com>
+	* fix setting nexus_components variable (#44)
+	* tagged as 3.9.2
+
+2022-10-19 Jan Kotanski <jankotan@gmail.com>
 	* add nexus_components and measurement_group variables
 	* tagged as 3.9.1
 
