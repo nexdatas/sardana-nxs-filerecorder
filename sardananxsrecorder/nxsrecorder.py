@@ -816,7 +816,12 @@ class NXS_FileRecorder(BaseFileRecorder):
             if self.__aliases:
                 self.__vars["vars"]["mgchannels"] = " ".join(self.__aliases)
             self.__vars["vars"]["nexus_components"] = " ".join(nexuscomponents)
-            self.__vars["vars"]["nexus_step_datasources"] = " ".join(toswitch)
+            stepdss = [str(ds) for ds in envRec['ref_moveables']
+                       if str(ds) in toswitch]
+            stepdss.extend(
+                [str(ds) for ds in toswitch
+                 if ds not in envRec['ref_moveables']])
+            self.__vars["vars"]["nexus_step_datasources"] = " ".join(stepdss)
             self.__nexussettings_device.configVariables = json.dumps(
                 dict(nexusvariables, **self.__vars["vars"]),
                 cls=NXS_FileRecorder.numpyEncoder)
@@ -827,7 +832,7 @@ class NXS_FileRecorder(BaseFileRecorder):
                            "updateConfigVariables")
 
             self.debug("Aliases: %s" % str(self.__aliases))
-            self.debug("Switching to STEP mode: %s" % toswitch)
+            self.debug("Switching to STEP mode: %s" % stepdss)
             oldtoswitch = self.__getServerVar("stepdatasources", "[]", False)
             stepdss = str(json.dumps(list(toswitch)))
             self.__nexussettings_device.stepdatasources = stepdss
