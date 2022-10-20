@@ -1,3 +1,7 @@
+2022-10-21 Jan Kotanski <jankotan@gmail.com>
+	* set nexus_step_datasources order depending on moveables (#50)
+	* tagged as 3.10.1
+
 2022-10-20 Jan Kotanski <jankotan@gmail.com>
 	* add nexus_step_datasources and nexus_init_datasources variables (#47)
 	* tagged as 3.10.0
