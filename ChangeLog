@@ -1,6 +1,6 @@
 2022-10-20 Jan Kotanski <jankotan@gmail.com>
 	* add nexus_step_datasources and nexus_init_datasources variables (#47)
-	* tagged as 3.9.3
+	* tagged as 3.10.0
 
 2022-10-19 Jan Kotanski <jankotan@gmail.com>
 	* fix setting nexus_components variable (#44)
