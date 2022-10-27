@@ -4,7 +4,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>sardananxsrecorder.nxsrecorder &#8212; Sardana NeXus Recorder 3.6.5 documentation</title>
+    <title>sardananxsrecorder.nxsrecorder &#8212; Sardana NeXus Recorder 3.11.0 documentation</title>
     <link rel="stylesheet" href="../../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -36,7 +36,7 @@
         </button>
         <a class="navbar-brand" href="../../index.html">
           Sardana NeXus Recorder</a>
-        <span class="navbar-text navbar-version pull-left"><b>3.6</b></span>
+        <span class="navbar-text navbar-version pull-left"><b>3.11</b></span>
       </div>
 
         <div class="collapse navbar-collapse nav-collapse">
@@ -161,8 +161,14 @@
 <span class="sd">            :param obj: numpy array object</span>
 <span class="sd">            :type obj: :obj:`object` or `any`</span>
 <span class="sd">            &quot;&quot;&quot;</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">and</span> <span class="n">obj</span><span class="o">.</span><span class="n">ndim</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">integer</span><span class="p">):</span>
+                <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">floating</span><span class="p">):</span>
+                <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
                 <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">bool_</span><span class="p">):</span>
+                <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONEncoder</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span></div></div>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">macro</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">pars</span><span class="p">):</span>
@@ -211,6 +217,9 @@
 
         <span class="c1">#: (:obj:`list` &lt;:obj:`str`&gt;) available components</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__availableComps</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1">#: (:obj:`list` &lt;:obj:`str`&gt;) ordered aliases</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__aliases</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="c1">#: (:obj:`str`) default timezone</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__timezone</span> <span class="o">=</span> <span class="s2">&quot;Europe/Berlin&quot;</span>
@@ -535,6 +544,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">__oddmntgrp</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__command</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__nexussettings_device</span><span class="p">,</span> <span class="s2">&quot;fetchProfile&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__vars</span><span class="p">[</span><span class="s2">&quot;vars&quot;</span><span class="p">][</span><span class="s2">&quot;measurement_group&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">amntgrp</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">__conf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__getServerVar</span><span class="p">(</span><span class="s2">&quot;profileConfiguration&quot;</span><span class="p">,</span> <span class="p">{},</span> <span class="kc">True</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">__oddmntgrp</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">onlyconfig</span><span class="p">:</span>
@@ -656,7 +666,8 @@
 <span class="sd">        :param nexuscomponents: nexus component list</span>
 <span class="sd">        :type nexuscomponents: :obj:`list` &lt;:obj:`str`&gt;</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;DSS: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">dss</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Step DSs: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">dss</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Init DSs: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">keys</span><span class="p">)</span>
         <span class="n">envRec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">recordlist</span><span class="o">.</span><span class="n">getEnviron</span><span class="p">()</span>
         <span class="n">lddict</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">tdss</span> <span class="o">=</span> <span class="p">[</span><span class="n">ds</span> <span class="k">for</span> <span class="n">ds</span> <span class="ow">in</span> <span class="n">dss</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">ds</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;tango://&quot;</span><span class="p">)</span>
@@ -672,7 +683,7 @@
         <span class="n">jddict</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">lddict</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="n">NXS_FileRecorder</span><span class="o">.</span><span class="n">numpyEncoder</span><span class="p">)</span>
         <span class="n">jdss</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">tdss</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="n">NXS_FileRecorder</span><span class="o">.</span><span class="n">numpyEncoder</span><span class="p">)</span>
         <span class="n">jkeys</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">keys</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="n">NXS_FileRecorder</span><span class="o">.</span><span class="n">numpyEncoder</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;JDD: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">jddict</span><span class="p">)</span>
+        <span class="c1"># self.debug(&quot;JDD: %s&quot; % jddict)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__dynamicCP</span> <span class="o">=</span> \
             <span class="bp">self</span><span class="o">.</span><span class="n">__command</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__nexussettings_device</span><span class="p">,</span>
                            <span class="s2">&quot;createDynamicComponent&quot;</span><span class="p">,</span>
@@ -876,6 +887,7 @@
             <span class="n">ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">vl</span><span class="p">)</span> <span class="ow">in</span> <span class="n">idsdct</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">vl</span><span class="p">]</span> <span class="k">if</span> <span class="n">idsdct</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">ids</span><span class="p">:</span>
             <span class="n">missingKeys</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">ids</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__vars</span><span class="p">[</span><span class="s2">&quot;vars&quot;</span><span class="p">][</span><span class="s2">&quot;nexus_init_datasources&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">missingKeys</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__createDynamicComponent</span><span class="p">(</span>
             <span class="n">dsNotFound</span> <span class="k">if</span> <span class="n">dyncp</span> <span class="k">else</span> <span class="p">[],</span> <span class="n">missingKeys</span><span class="p">,</span> <span class="n">nexuscomponents</span><span class="p">)</span>
         <span class="n">nexuscomponents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__dynamicCP</span><span class="p">))</span>
@@ -891,14 +903,6 @@
             <span class="n">nexusvariables</span> <span class="o">=</span> <span class="n">dct</span>
         <span class="n">oldtoswitch</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">__nexussettings_device</span><span class="o">.</span><span class="n">configVariables</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span>
-                <span class="nb">dict</span><span class="p">(</span><span class="n">nexusvariables</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">__vars</span><span class="p">[</span><span class="s2">&quot;vars&quot;</span><span class="p">]),</span>
-                <span class="bp">cls</span><span class="o">=</span><span class="n">NXS_FileRecorder</span><span class="o">.</span><span class="n">numpyEncoder</span><span class="p">)</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__macro</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">__macro</span><span class="p">()</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                    <span class="s2">&quot;VAR </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">__nexussettings_device</span><span class="o">.</span><span class="n">configVariables</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">__command</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__nexussettings_device</span><span class="p">,</span>
-                           <span class="s2">&quot;updateConfigVariables&quot;</span><span class="p">)</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Components </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">list</span><span class="p">(</span>
                 <span class="nb">set</span><span class="p">(</span><span class="n">nexuscomponents</span><span class="p">)</span> <span class="o">|</span> <span class="nb">set</span><span class="p">(</span><span class="n">mandatory</span><span class="p">)))</span>
@@ -908,7 +912,32 @@
                 <span class="k">if</span> <span class="n">alias</span><span class="p">:</span>
                     <span class="n">toswitch</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">alias</span><span class="p">)</span>
             <span class="n">toswitch</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">nds</span><span class="p">))</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Switching to STEP mode: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">toswitch</span><span class="p">)</span>
+            <span class="n">och</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__getConfVar</span><span class="p">(</span><span class="s2">&quot;OrderedChannels&quot;</span><span class="p">,</span>
+                                    <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">pass_default</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__oddmntgrp</span><span class="p">)</span>
+            <span class="n">allcp</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">nexuscomponents</span><span class="p">)</span>
+            <span class="n">allcp</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">toswitch</span><span class="p">))</span>
+            <span class="n">och</span> <span class="o">=</span> <span class="n">och</span> <span class="ow">or</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__aliases</span> <span class="o">=</span> <span class="p">[</span><span class="n">ch</span> <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="n">och</span> <span class="k">if</span> <span class="n">ch</span> <span class="ow">in</span> <span class="n">allcp</span><span class="p">]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__aliases</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__vars</span><span class="p">[</span><span class="s2">&quot;vars&quot;</span><span class="p">][</span><span class="s2">&quot;mgchannels&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__aliases</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__vars</span><span class="p">[</span><span class="s2">&quot;vars&quot;</span><span class="p">][</span><span class="s2">&quot;nexus_components&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">nexuscomponents</span><span class="p">)</span>
+            <span class="n">stepdss</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span> <span class="k">for</span> <span class="n">ds</span> <span class="ow">in</span> <span class="n">envRec</span><span class="p">[</span><span class="s1">&#39;ref_moveables&#39;</span><span class="p">]</span>
+                       <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span> <span class="ow">in</span> <span class="n">toswitch</span><span class="p">]</span>
+            <span class="n">stepdss</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span> <span class="k">for</span> <span class="n">ds</span> <span class="ow">in</span> <span class="n">toswitch</span>
+                 <span class="k">if</span> <span class="n">ds</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">envRec</span><span class="p">[</span><span class="s1">&#39;ref_moveables&#39;</span><span class="p">]])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__vars</span><span class="p">[</span><span class="s2">&quot;vars&quot;</span><span class="p">][</span><span class="s2">&quot;nexus_step_datasources&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">stepdss</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__nexussettings_device</span><span class="o">.</span><span class="n">configVariables</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span>
+                <span class="nb">dict</span><span class="p">(</span><span class="n">nexusvariables</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">__vars</span><span class="p">[</span><span class="s2">&quot;vars&quot;</span><span class="p">]),</span>
+                <span class="bp">cls</span><span class="o">=</span><span class="n">NXS_FileRecorder</span><span class="o">.</span><span class="n">numpyEncoder</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__macro</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__macro</span><span class="p">()</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                    <span class="s2">&quot;VAR </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">__nexussettings_device</span><span class="o">.</span><span class="n">configVariables</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__command</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__nexussettings_device</span><span class="p">,</span>
+                           <span class="s2">&quot;updateConfigVariables&quot;</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Aliases: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__aliases</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Switching to STEP mode: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">stepdss</span><span class="p">)</span>
             <span class="n">oldtoswitch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__getServerVar</span><span class="p">(</span><span class="s2">&quot;stepdatasources&quot;</span><span class="p">,</span> <span class="s2">&quot;[]&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
             <span class="n">stepdss</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">toswitch</span><span class="p">)))</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__nexussettings_device</span><span class="o">.</span><span class="n">stepdatasources</span> <span class="o">=</span> <span class="n">stepdss</span>
@@ -948,7 +977,6 @@
                 <span class="k">if</span> <span class="n">appendentry</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__vars</span><span class="p">[</span><span class="s2">&quot;vars&quot;</span><span class="p">][</span><span class="s2">&quot;scan_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">envRec</span><span class="p">[</span><span class="s2">&quot;serialno&quot;</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__vars</span><span class="p">[</span><span class="s2">&quot;vars&quot;</span><span class="p">][</span><span class="s2">&quot;scan_title&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">envRec</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">]</span>
-
             <span class="n">tzone</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__getConfVar</span><span class="p">(</span><span class="s2">&quot;TimeZone&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__timezone</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__vars</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="s2">&quot;start_time&quot;</span><span class="p">]</span> <span class="o">=</span> \
                 <span class="bp">self</span><span class="o">.</span><span class="n">__timeToString</span><span class="p">(</span><span class="n">envRec</span><span class="p">[</span><span class="s1">&#39;starttime&#39;</span><span class="p">],</span> <span class="n">tzone</span><span class="p">)</span>
@@ -958,7 +986,7 @@
             <span class="n">rec</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span>
                 <span class="n">envrecord</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="n">NXS_FileRecorder</span><span class="o">.</span><span class="n">numpyEncoder</span><span class="p">)</span>
             <span class="n">cnfxml</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__createConfiguration</span><span class="p">(</span><span class="n">envrecord</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">])</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;XML: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">cnfxml</span><span class="p">))</span>
+            <span class="c1"># self.debug(&#39;XML: %s&#39; % str(cnfxml))</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__removeDynamicComponent</span><span class="p">()</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">__vars</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="s2">&quot;serialno&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">envRec</span><span class="p">[</span><span class="s2">&quot;serialno&quot;</span><span class="p">]</span>
@@ -970,7 +998,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">__command</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__nexuswriter_device</span><span class="p">,</span> <span class="s2">&quot;openFile&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__nexuswriter_device</span><span class="o">.</span><span class="n">xmlsettings</span> <span class="o">=</span> <span class="n">cnfxml</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;START_DATA: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">envRec</span><span class="p">))</span>
+            <span class="c1"># self.debug(&#39;START_DATA: %s&#39; % str(envRec))</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">__nexuswriter_device</span><span class="o">.</span><span class="n">jsonrecord</span> <span class="o">=</span> <span class="n">rec</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__command</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__nexuswriter_device</span><span class="p">,</span> <span class="s2">&quot;openEntry&quot;</span><span class="p">)</span>
@@ -1028,9 +1056,9 @@
                 <span class="n">envrecord</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="n">NXS_FileRecorder</span><span class="o">.</span><span class="n">numpyEncoder</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__nexuswriter_device</span><span class="o">.</span><span class="n">jsonrecord</span> <span class="o">=</span> <span class="n">rec</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;DATA: {&quot;data&quot;:</span><span class="si">%s</span><span class="s1">}&#39;</span> <span class="o">%</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span>
-                <span class="n">record</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
-                <span class="bp">cls</span><span class="o">=</span><span class="n">NXS_FileRecorder</span><span class="o">.</span><span class="n">numpyEncoder</span><span class="p">))</span>
+            <span class="c1"># self.debug(&#39;DATA: {&quot;data&quot;:%s}&#39; % json.dumps(</span>
+            <span class="c1">#     record.data,</span>
+            <span class="c1">#     cls=NXS_FileRecorder.numpyEncoder))</span>
 
             <span class="n">jsonString</span> <span class="o">=</span> <span class="s1">&#39;{&quot;data&quot;:</span><span class="si">%s</span><span class="s1">}&#39;</span> <span class="o">%</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span>
                 <span class="n">record</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
@@ -1081,7 +1109,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">__env</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__macro</span><span class="p">()</span><span class="o">.</span><span class="n">getAllEnv</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__macro</span> <span class="k">else</span> <span class="p">{}</span>
             <span class="n">envRec</span> <span class="o">=</span> <span class="n">recordlist</span><span class="o">.</span><span class="n">getEnviron</span><span class="p">()</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;END_DATA: </span><span class="si">%s</span><span class="s1"> &#39;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">envRec</span><span class="p">))</span>
+            <span class="c1"># self.debug(&#39;END_DATA: %s &#39; % str(envRec))</span>
 
             <span class="n">tzone</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__getConfVar</span><span class="p">(</span><span class="s2">&quot;TimeZone&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__timezone</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__vars</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="s2">&quot;end_time&quot;</span><span class="p">]</span> <span class="o">=</span> \
@@ -1097,7 +1125,58 @@
         <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__command</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__nexuswriter_device</span><span class="p">,</span> <span class="s2">&quot;closeFile&quot;</span><span class="p">)</span>
         <span class="k">finally</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">__removeDynamicComponent</span><span class="p">()</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__removeDynamicComponent</span><span class="p">()</span>
+            <span class="n">vl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__getEnvVar</span><span class="p">(</span><span class="s2">&quot;NXSAppendSciCatDataset&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">vl</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__appendSciCatDataset</span><span class="p">(</span><span class="n">vl</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">beamtime_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bmtfpath</span><span class="p">,</span> <span class="n">bmtfprefix</span><span class="p">,</span> <span class="n">bmtfext</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; code for beamtimeid  datasource</span>
+
+<span class="sd">        :param bmtfpath:  beamtime file directory</span>
+<span class="sd">        :type bmtfpath: :obj:`str`</span>
+<span class="sd">        :param bmtfprefix:  beamtime file prefix</span>
+<span class="sd">        :type bmtfprefix: :obj:`str`</span>
+<span class="sd">        :param bmtfext:  beamtime file postfix</span>
+<span class="sd">        :type bmtfext: :obj:`str`</span>
+<span class="sd">        :returns: beamtime id</span>
+<span class="sd">        :rtype: :obj:`str`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">fpath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span>
+        <span class="k">if</span> <span class="n">fpath</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">bmtfpath</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">bmtfpath</span><span class="p">):</span>
+                    <span class="n">btml</span> <span class="o">=</span> <span class="p">[</span><span class="n">fl</span> <span class="k">for</span> <span class="n">fl</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">bmtfpath</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="p">(</span><span class="n">fl</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">bmtfprefix</span><span class="p">)</span>
+                                <span class="ow">and</span> <span class="n">fl</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">bmtfext</span><span class="p">))]</span>
+                    <span class="n">result</span> <span class="o">=</span> <span class="n">btml</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="nb">len</span><span class="p">(</span><span class="n">bmtfprefix</span><span class="p">):</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">bmtfext</span><span class="p">)]</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="k">pass</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="k">def</span> <span class="nf">__appendSciCatDataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hostname</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; append dataset to SciCat ingestion list &quot;&quot;&quot;</span>
+
+        <span class="n">fdir</span><span class="p">,</span> <span class="n">fname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span>
+        <span class="n">sname</span><span class="p">,</span> <span class="n">fext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span>
+
+        <span class="n">bmtfpath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__getEnvVar</span><span class="p">(</span><span class="s2">&quot;BeamtimeFilePath&quot;</span><span class="p">,</span> <span class="s2">&quot;/gpfs/current&quot;</span><span class="p">)</span>
+        <span class="n">bmtfprefix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__getEnvVar</span><span class="p">(</span>
+            <span class="s2">&quot;BeamtimeFilePrefix&quot;</span><span class="p">,</span> <span class="s2">&quot;beamtime-metadata-&quot;</span><span class="p">)</span>
+        <span class="n">bmtfext</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__getEnvVar</span><span class="p">(</span><span class="s2">&quot;BeamtimeFileExt&quot;</span><span class="p">,</span> <span class="s2">&quot;.json&quot;</span><span class="p">)</span>
+        <span class="n">beamtimeid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">beamtime_id</span><span class="p">(</span><span class="n">bmtfpath</span><span class="p">,</span> <span class="n">bmtfprefix</span><span class="p">,</span> <span class="n">bmtfext</span><span class="p">)</span>
+        <span class="n">beamtimeid</span> <span class="o">=</span> <span class="n">beamtimeid</span> <span class="ow">or</span> <span class="s2">&quot;00000000&quot;</span>
+        <span class="n">defprefix</span> <span class="o">=</span> <span class="s2">&quot;scicat-datasets-&quot;</span>
+        <span class="k">if</span> <span class="n">hostname</span> <span class="ow">and</span> <span class="n">hostname</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">True</span> <span class="ow">and</span> <span class="n">hostname</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">&quot;true&quot;</span><span class="p">:</span>
+            <span class="n">defprefix</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s%s</span><span class="s2">-&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">defprefix</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">hostname</span><span class="p">))</span>
+        <span class="n">dslprefix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__getEnvVar</span><span class="p">(</span><span class="s2">&quot;SciCatDatasetListFilePrefix&quot;</span><span class="p">,</span> <span class="n">defprefix</span><span class="p">)</span>
+        <span class="n">dslext</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__getEnvVar</span><span class="p">(</span><span class="s2">&quot;SciCatDatasetListFileExt&quot;</span><span class="p">,</span> <span class="s2">&quot;.lst&quot;</span><span class="p">)</span>
+        <span class="n">dslfile</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s%s%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">dslprefix</span><span class="p">,</span> <span class="n">beamtimeid</span><span class="p">,</span> <span class="n">dslext</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">fdir</span><span class="p">:</span>
+            <span class="n">dslfile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fdir</span><span class="p">,</span> <span class="n">dslfile</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">dslfile</span><span class="p">,</span> <span class="s2">&quot;a+&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fl</span><span class="p">:</span>
+            <span class="n">fl</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">sname</span><span class="p">)</span>
 
 <div class="viewcode-block" id="NXS_FileRecorder._addCustomData"><a class="viewcode-back" href="../../sardananxsrecorder.html#sardananxsrecorder.nxsrecorder.NXS_FileRecorder._addCustomData">[docs]</a>    <span class="k">def</span> <span class="nf">_addCustomData</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="n">remove</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                        <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
