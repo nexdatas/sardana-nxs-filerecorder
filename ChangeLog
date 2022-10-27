@@ -1,4 +1,4 @@
-2022-10-21 Jan Kotanski <jankotan@gmail.com>
+2022-10-26 Jan Kotanski <jankotan@gmail.com>
 	* set the hostname via NXSAppendSciCatDataset to changes scicat-datasets list filename (#54)
 	* tagged as 3.11.0
 
