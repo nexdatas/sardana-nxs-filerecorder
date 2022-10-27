@@ -1021,8 +1021,9 @@ class NXS_FileRecorder(BaseFileRecorder):
             self.__command(self.__nexuswriter_device, "closeFile")
         finally:
             self.__removeDynamicComponent()
-            if self.__getEnvVar("NXSAppendSciCatDataset", None):
-                self.__appendSciCatDataset()
+            vl = self.__getEnvVar("NXSAppendSciCatDataset", None)
+            if vl:
+                self.__appendSciCatDataset(vl)
 
     def beamtime_id(self, bmtfpath, bmtfprefix, bmtfext):
         """ code for beamtimeid  datasource
@@ -1049,7 +1050,7 @@ class NXS_FileRecorder(BaseFileRecorder):
                 pass
         return result
 
-    def __appendSciCatDataset(self):
+    def __appendSciCatDataset(self, hostname=None):
         """ append dataset to SciCat ingestion list """
 
         fdir, fname = os.path.split(self.filename)
@@ -1061,8 +1062,10 @@ class NXS_FileRecorder(BaseFileRecorder):
         bmtfext = self.__getEnvVar("BeamtimeFileExt", ".json")
         beamtimeid = self.beamtime_id(bmtfpath, bmtfprefix, bmtfext)
         beamtimeid = beamtimeid or "00000000"
-        dslprefix = self.__getEnvVar("SciCatDatasetListFilePrefix",
-                                     "scicat-datasets-")
+        defprefix = "scicat-datasets-"
+        if hostname and hostname is not True and hostname.lower() != "true":
+            defprefix = "%s-%s-" % (defprefix, str(hostname))
+        dslprefix = self.__getEnvVar("SciCatDatasetListFilePrefix", defprefix)
         dslext = self.__getEnvVar("SciCatDatasetListFileExt", ".lst")
         dslfile = "%s%s%s" % (dslprefix, beamtimeid, dslext)
         if fdir:
