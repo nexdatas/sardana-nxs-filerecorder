@@ -1064,7 +1064,7 @@ class NXS_FileRecorder(BaseFileRecorder):
         beamtimeid = beamtimeid or "00000000"
         defprefix = "scicat-datasets-"
         if hostname and hostname is not True and hostname.lower() != "true":
-            defprefix = "%s-%s-" % (defprefix, str(hostname))
+            defprefix = "%s%s-" % (defprefix, str(hostname))
         dslprefix = self.__getEnvVar("SciCatDatasetListFilePrefix", defprefix)
         dslext = self.__getEnvVar("SciCatDatasetListFileExt", ".lst")
         dslfile = "%s%s%s" % (dslprefix, beamtimeid, dslext)
