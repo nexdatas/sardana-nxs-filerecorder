@@ -27,8 +27,13 @@ import numpy
 import json
 import pytz
 import time
-import PyTango
 import weakref
+
+try:
+    import tango
+except Exception:
+    import PyTango as tango
+
 
 from sardana.macroserver.scan.recorder.storage import BaseFileRecorder
 
@@ -78,14 +83,14 @@ class NXS_FileRecorder(BaseFileRecorder):
         #: (:obj:`str`) base filename
         self.__base_filename = filename
         self.__macro = weakref.ref(macro) if macro else None
-        #: (:class:`PyTango.Database`) tango database
-        self.__db = PyTango.Database()
+        #: (:class:`tango.Database`) tango database
+        self.__db = tango.Database()
 
-        #: (:class:`PyTango.DeviceProxy`)
+        #: (:class:`tango.DeviceProxy`)
         #:      NXS data writer device
         self.__nexuswriter_device = None
 
-        #: (:class:`PyTango.DeviceProxy`)
+        #: (:class:`tango.DeviceProxy`)
         #:     NXS settings server device
         self.__nexussettings_device = None
 
@@ -143,7 +148,7 @@ class NXS_FileRecorder(BaseFileRecorder):
         """ execute tango server (or python object) command
 
         :param server: server name (or python object)
-        :type server: :class:`PyTango.DeviceProxy`
+        :type server: :class:`tango.DeviceProxy`
         :param command: command name
         :type command: :obj:`str`
         :param *args: command arguments
@@ -269,7 +274,7 @@ class NXS_FileRecorder(BaseFileRecorder):
         """ waits until device is running
 
         :param proxy: device proxy
-        :type proxy: :class:`PyTango.DeviceProxy`
+        :type proxy: :class:`tango.DeviceProxy`
         :param counter: command timeout in 0.01s units
         :type counter: :obj:`int`
         """
@@ -279,9 +284,9 @@ class NXS_FileRecorder(BaseFileRecorder):
             if cnt > 1:
                 time.sleep(0.01)
             try:
-                if proxy.state() != PyTango.DevState.RUNNING:
+                if proxy.state() != tango.DevState.RUNNING:
                     found = True
-            except PyTango.DevFailed:
+            except tango.DevFailed:
                 time.sleep(0.01)
                 found = False
                 if cnt == counter - 1:
@@ -292,7 +297,7 @@ class NXS_FileRecorder(BaseFileRecorder):
         """ execute tango server (or python object) command asynchronously
 
         :param server: server proxy (or python object)
-        :type server: :class:`PyTango.DeviceProxy`
+        :type server: :class:`tango.DeviceProxy`
         :param command: command name
         :type command: :obj:`str`
         :param *args: command arguments
@@ -300,7 +305,7 @@ class NXS_FileRecorder(BaseFileRecorder):
         """
         try:
             self.__command(server, command, *args)
-        except PyTango.CommunicationFailed as e:
+        except tango.CommunicationFailed as e:
             if e[-1].reason == "API_DeviceTimedOut":
                 self.__wait(server)
             else:
@@ -388,10 +393,10 @@ class NXS_FileRecorder(BaseFileRecorder):
         if len(servers) > 0 and len(servers[0]) > 0 \
                 and servers[0] != self.__moduleLabel:
             try:
-                self.__nexussettings_device = PyTango.DeviceProxy(servers[0])
+                self.__nexussettings_device = tango.DeviceProxy(servers[0])
                 self.__nexussettings_device.set_timeout_millis(self.__timeout)
                 self.__nexussettings_device.ping()
-                self.__nexussettings_device.set_source(PyTango.DevSource.DEV)
+                self.__nexussettings_device.set_source(tango.DevSource.DEV)
             except Exception:
                 self.__nexussettings_device = None
                 self.warning("Cannot connect to '%s' " % servers[0])
@@ -472,11 +477,11 @@ class NXS_FileRecorder(BaseFileRecorder):
             if len(servers) > 0 and len(servers[0]) > 0 \
                     and servers[0] != self.__moduleLabel:
                 try:
-                    self.__nexuswriter_device = PyTango.DeviceProxy(servers[0])
+                    self.__nexuswriter_device = tango.DeviceProxy(servers[0])
                     self.__nexuswriter_device.set_timeout_millis(
                         self.__timeout)
                     self.__nexuswriter_device.ping()
-                    self.__nexuswriter_device.set_source(PyTango.DevSource.DEV)
+                    self.__nexuswriter_device.set_source(tango.DevSource.DEV)
                 except Exception:
                     self.__nexuswriter_device = None
                     self.warning("Cannot connect to '%s' " % servers[0])
