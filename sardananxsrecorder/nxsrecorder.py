@@ -33,7 +33,7 @@ try:
     import tango
 except Exception:
     import PyTango as tango
-    
+
 
 from sardana.macroserver.scan.recorder.storage import BaseFileRecorder
 
