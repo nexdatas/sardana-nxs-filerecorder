@@ -56,7 +56,7 @@ defining the package location, e.g.
 
 |    /usr/lib/python2.7/dist-packages/sardananxsrecorder
 
-	  
+
 Debian packages
 """""""""""""""
 
@@ -91,14 +91,14 @@ and set the RecoderPath property of MacroServer with
 
 	  $ apt-get install sardana-nxsrecorder
 
-For python3 
+For python3
 
 .. code-block:: console
 
 	  $ apt-get update
 	  $ apt-get install python3-sardana-nxsrecorder
 	  $ apt-get install sardana-nxsrecorder3
-	  
+
 To instal other NexDaTaS packages
 
 .. code-block:: console
@@ -106,7 +106,7 @@ To instal other NexDaTaS packages
 	  $ apt-get install python-nxswriter nxsconfigserver-db python-nxsconfigserver nxsconfigtool python-nxstools nxswriter nxsconfigserver nxsrecselector
 
 or for python 3
-	  
+
 .. code-block:: console
 
 	  $ apt-get install python3-nxswriter nxsconfigserver-db python3-nxsconfigserver nxsconfigtool3 python3-nxstools nxswriter3 nxsconfigserver3
@@ -118,7 +118,7 @@ and
 	  $ apt-get install python-nxsrecselector nxsrecselector nxselector
 
 or for python3
-	  
+
 .. code-block:: console
 
 	  $ apt-get install python3-nxsrecselector nxsrecselector3 nxselector3
@@ -201,3 +201,21 @@ If the `RecoderPath` property of MacroServer is not set one can do it by
 	  $ nxsetup add-recorder-path /usr/lib/python2.7/dist-packages/sardananxsrecorder
 
 where the path should point the `sardananxsrecorder` package.
+
+-----------------
+Sardana Variables
+-----------------
+
+The NeXus file recorder uses the following sardana environment variables
+
+* **ActiveMntGrp** *(str)* - active measurement group
+* **ScanID** *(int)* - the last scan identifier number, default: ``-1``
+* **NeXusSelectorDevice** *(str)* - NXSRecSelector tango device if more installed, otherwise first one found
+
+* **NXSAppendSciCatDataset** *(bool)* - append scan name to scicat dataset list file, default: ``False``
+* **BeamtimeFilePath** *(str)* - beamtime file path to search beamtime metadata file, default: ``"/gpfs/current"``
+* **BeamtimeFilePrefix** *(str)* - beamtime metadata file prefix, default: ``"beamtime-metadata-"``
+* **BeamtimeFileExt** *(str)* - beamtime metadata file extension, default: ``".json"``
+* **SciCatDatasetListFilePrefix** *(str)* - scicat dataset list file prefix, default: ``"scicat-datasets-"``
+* **SciCatDatasetListFileExt** *(str)* - scicat dataset list file extension, default: ``".lst"``
+* **SciCatDatasetListFileLocal** *(bool)* - add the hostname to the scicat dataset list file extension, default: ``False``

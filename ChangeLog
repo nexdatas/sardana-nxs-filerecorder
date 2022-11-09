@@ -1,3 +1,7 @@
+2022-11-11 Jan Kotanski <jankotan@gmail.com>
+	* add SciCatDatasetListFileLocal flag which sets the hostname in scicat-datasets list filename  (#61)
+	* tagged as 3.12.0
+
 2022-10-26 Jan Kotanski <jankotan@gmail.com>
 	* set the hostname via NXSAppendSciCatDataset to changes scicat-datasets list filename (#54)
 	* tagged as 3.11.0

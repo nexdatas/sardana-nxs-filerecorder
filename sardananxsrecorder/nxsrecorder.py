@@ -28,6 +28,7 @@ import json
 import pytz
 import time
 import weakref
+import socket
 
 try:
     import tango
@@ -1068,6 +1069,9 @@ class NXS_FileRecorder(BaseFileRecorder):
         beamtimeid = self.beamtime_id(bmtfpath, bmtfprefix, bmtfext)
         beamtimeid = beamtimeid or "00000000"
         defprefix = "scicat-datasets-"
+        defaulthost = self.__getEnvVar("SciCatDatasetListFileLocal", None)
+        if defaulthost:
+            hostname = socket.gethostname()
         if hostname and hostname is not True and hostname.lower() != "true":
             defprefix = "%s%s-" % (defprefix, str(hostname))
         dslprefix = self.__getEnvVar("SciCatDatasetListFilePrefix", defprefix)
