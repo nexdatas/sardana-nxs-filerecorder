@@ -1,4 +1,4 @@
-2022-11-11 Jan Kotanski <jankotan@gmail.com>
+2022-11-09 Jan Kotanski <jankotan@gmail.com>
 	* add SciCatDatasetListFileLocal flag which sets the hostname in scicat-datasets list filename  (#61)
 	* tagged as 3.12.0
 
