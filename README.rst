@@ -212,7 +212,7 @@ The NeXus file recorder uses the following sardana environment variables
 * **ScanID** *(int)* - the last scan identifier number, default: ``-1``
 * **NeXusSelectorDevice** *(str)* - NXSRecSelector tango device if more installed, otherwise it takes the first one
 
-* **NXSAppendSciCatDataset** *(bool)* - append scan name to scicat dataset list file
+* **NXSAppendSciCatDataset** *(bool)* - append scan name to scicat dataset list file, default: ``False``
 * **BeamtimeFilePath** *(str)* - beamtime file path to search beamtime metadata file, default: ``"/gpfs/current"``
 * **BeamtimeFilePrefix** *(str)* - beamtime metadata file prefix, default: ``"beamtime-metadata-"``
 * **BeamtimeFileExt** *(str)* - beamtime metadata file extension, default: ``".json"``
