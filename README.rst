@@ -60,7 +60,7 @@ defining the package location, e.g.
 Debian packages
 """""""""""""""
 
-Debian Buster (and Stretch) and Ubuntu Bionic packages can be found in the HDRI repository.
+Debian Bullseye (and Buster) and Ubuntu Jammy (and Focal) packages can be found in the HDRI repository.
 
 To install the debian packages, add the PGP repository key
 
