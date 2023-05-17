@@ -365,7 +365,7 @@ class NXS_FileRecorder(BaseFileRecorder):
             if number:
                 if filename.endswith('.tmp') and \
                    filename[-4].rpartition(".")[0] and \
-                   filename[-4].rpartition(".")[2] in formats.keys():
+                   filename[-4].rpartition(".")[2] in self.formats.keys():
                     tpl = filename[-4].rpartition(".")
                     self.filename = "%s_%05d.%s.tmp" % (tpl[0], serial, tpl[2])
                 else:
