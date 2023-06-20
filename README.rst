@@ -60,7 +60,7 @@ defining the package location, e.g.
 Debian packages
 """""""""""""""
 
-Debian Bullseye (and Buster) and Ubuntu Jammy (and Focal) packages can be found in the HDRI repository.
+Debian Bookworm, Bullseye, Buster and Ubuntu Lunar, Jammy and Focal packages can be found in the HDRI repository.
 
 To install the debian packages, add the PGP repository key
 
@@ -74,9 +74,8 @@ and then download the corresponding source list
 .. code-block:: console
 
 	  $ cd /etc/apt/sources.list.d
-	  $ wget http://repos.pni-hdri.de/buster-pni-hdri.list
+	  $ wget http://repos.pni-hdri.de/bookworm-pni-hdri.list
 
-For other disctribution replace `buster` by `stretch` or `bionic`.
 
 Finally, for python2.7
 
