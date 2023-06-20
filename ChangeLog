@@ -1,4 +1,8 @@
 2022-11-09 Jan Kotanski <jankotan@gmail.com>
+	* add support for .nxs.tmp or .h5.tmp files (#64)
+	* tagged as 3.13.0
+
+2022-11-09 Jan Kotanski <jankotan@gmail.com>
 	* add SciCatDatasetListFileLocal flag which sets the hostname in scicat-datasets list filename  (#61)
 	* tagged as 3.12.0
 

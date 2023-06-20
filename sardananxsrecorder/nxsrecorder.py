@@ -363,8 +363,14 @@ class NXS_FileRecorder(BaseFileRecorder):
 
         if not subs:
             if number:
-                tpl = filename.rpartition('.')
-                self.filename = "%s_%05d.%s" % (tpl[0], serial, tpl[2])
+                if filename.endswith('.tmp') and \
+                   filename[-4].rpartition(".")[0] and \
+                   filename[-4].rpartition(".")[2] in self.formats.keys():
+                    tpl = filename[-4].rpartition(".")
+                    self.filename = "%s_%05d.%s.tmp" % (tpl[0], serial, tpl[2])
+                else:
+                    tpl = filename.rpartition('.')
+                    self.filename = "%s_%05d.%s" % (tpl[0], serial, tpl[2])
             else:
                 self.filename = filename
 
