@@ -37,6 +37,14 @@ except Exception:
 
 
 from sardana.macroserver.scan.recorder.storage import BaseFileRecorder
+from sardana import __version__
+
+try:
+    lv = list(map(int, __version__.split(".")))[:2]
+    isarver = lv[0] * 100 + lv[1]
+except Exception:
+    isarver = 304
+
 
 __docformat__ = 'restructuredtext'
 
@@ -353,7 +361,10 @@ class NXS_FileRecorder(BaseFileRecorder):
             if scanID is None:
                 serial = self.recordlist.getEnvironValue('serialno')
             elif scanID >= 0:
-                serial = scanID + 1
+                if isarver >= 304 or isarver == 0:
+                    serial = scanID
+                else:
+                    serial = scanID + 1
         if subs:
             try:
                 #: output file name
