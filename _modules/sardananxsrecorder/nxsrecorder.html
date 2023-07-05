@@ -1,27 +1,26 @@
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>sardananxsrecorder.nxsrecorder &#8212; Sardana NeXus Recorder 3.11.0 documentation</title>
-    <link rel="stylesheet" href="../../_static/bootstrap-sphinx.css" type="text/css" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>sardananxsrecorder.nxsrecorder &#8212; Sardana NeXus Recorder 3.13.1 documentation</title>
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../_static/language_data.js"></script>
-    <script type="text/javascript" src="../../_static/js/jquery-1.11.0.min.js"></script>
-    <script type="text/javascript" src="../../_static/js/jquery-fix.js"></script>
-    <script type="text/javascript" src="../../_static/bootstrap-3.3.7/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="../../_static/bootstrap-sphinx.js"></script>
+    <link rel="stylesheet" href="../../_static/bootstrap-sphinx.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
 <meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../../_static/js/jquery-1.11.0.min.js"></script>
+<script type="text/javascript" src="../../_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="../../_static/bootstrap-3.3.7/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="../../_static/bootstrap-sphinx.js"></script>
 
   </head><body>
 
@@ -36,7 +35,7 @@
         </button>
         <a class="navbar-brand" href="../../index.html">
           Sardana NeXus Recorder</a>
-        <span class="navbar-text navbar-version pull-left"><b>3.11</b></span>
+        <span class="navbar-text navbar-version pull-left"><b>3.13</b></span>
       </div>
 
         <div class="collapse navbar-collapse nav-collapse">
@@ -100,7 +99,7 @@
 
 <div class="container">
   <div class="row">
-    <div class="col-md-12 content">
+    <div class="body col-md-12 content" role="main">
       
   <h1>Source code for sardananxsrecorder.nxsrecorder</h1><div class="highlight"><pre>
 <span></span><span class="ch">#!/usr/bin/env python</span>
@@ -132,10 +131,24 @@
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">pytz</span>
 <span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">import</span> <span class="nn">PyTango</span>
 <span class="kn">import</span> <span class="nn">weakref</span>
+<span class="kn">import</span> <span class="nn">socket</span>
 
-<span class="kn">from</span> <span class="nn">sardana.macroserver.scan.recorder.storage</span> <span class="k">import</span> <span class="n">BaseFileRecorder</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">tango</span>
+<span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">PyTango</span> <span class="k">as</span> <span class="nn">tango</span>
+
+
+<span class="kn">from</span> <span class="nn">sardana.macroserver.scan.recorder.storage</span> <span class="kn">import</span> <span class="n">BaseFileRecorder</span>
+<span class="kn">from</span> <span class="nn">sardana</span> <span class="kn">import</span> <span class="n">__version__</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">lv</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">__version__</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)))[:</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">isarver</span> <span class="o">=</span> <span class="n">lv</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span> <span class="o">+</span> <span class="n">lv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+    <span class="n">isarver</span> <span class="o">=</span> <span class="mi">304</span>
+
 
 <span class="n">__docformat__</span> <span class="o">=</span> <span class="s1">&#39;restructuredtext&#39;</span>
 
@@ -171,7 +184,7 @@
                 <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONEncoder</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span></div></div>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">macro</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">pars</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">macro</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">pars</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; constructor</span>
 
 <span class="sd">        :param filename: ScanFile name</span>
@@ -183,14 +196,14 @@
         <span class="c1">#: (:obj:`str`) base filename</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__base_filename</span> <span class="o">=</span> <span class="n">filename</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__macro</span> <span class="o">=</span> <span class="n">weakref</span><span class="o">.</span><span class="n">ref</span><span class="p">(</span><span class="n">macro</span><span class="p">)</span> <span class="k">if</span> <span class="n">macro</span> <span class="k">else</span> <span class="kc">None</span>
-        <span class="c1">#: (:class:`PyTango.Database`) tango database</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__db</span> <span class="o">=</span> <span class="n">PyTango</span><span class="o">.</span><span class="n">Database</span><span class="p">()</span>
+        <span class="c1">#: (:class:`tango.Database`) tango database</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__db</span> <span class="o">=</span> <span class="n">tango</span><span class="o">.</span><span class="n">Database</span><span class="p">()</span>
 
-        <span class="c1">#: (:class:`PyTango.DeviceProxy`)</span>
+        <span class="c1">#: (:class:`tango.DeviceProxy`)</span>
         <span class="c1">#:      NXS data writer device</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__nexuswriter_device</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="c1">#: (:class:`PyTango.DeviceProxy`)</span>
+        <span class="c1">#: (:class:`tango.DeviceProxy`)</span>
         <span class="c1">#:     NXS settings server device</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__nexussettings_device</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -248,7 +261,7 @@
         <span class="sd">&quot;&quot;&quot; execute tango server (or python object) command</span>
 
 <span class="sd">        :param server: server name (or python object)</span>
-<span class="sd">        :type server: :class:`PyTango.DeviceProxy`</span>
+<span class="sd">        :type server: :class:`tango.DeviceProxy`</span>
 <span class="sd">        :param command: command name</span>
 <span class="sd">        :type command: :obj:`str`</span>
 <span class="sd">        :param *args: command arguments</span>
@@ -374,7 +387,7 @@
         <span class="sd">&quot;&quot;&quot; waits until device is running</span>
 
 <span class="sd">        :param proxy: device proxy</span>
-<span class="sd">        :type proxy: :class:`PyTango.DeviceProxy`</span>
+<span class="sd">        :type proxy: :class:`tango.DeviceProxy`</span>
 <span class="sd">        :param counter: command timeout in 0.01s units</span>
 <span class="sd">        :type counter: :obj:`int`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -384,9 +397,9 @@
             <span class="k">if</span> <span class="n">cnt</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.01</span><span class="p">)</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">proxy</span><span class="o">.</span><span class="n">state</span><span class="p">()</span> <span class="o">!=</span> <span class="n">PyTango</span><span class="o">.</span><span class="n">DevState</span><span class="o">.</span><span class="n">RUNNING</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">proxy</span><span class="o">.</span><span class="n">state</span><span class="p">()</span> <span class="o">!=</span> <span class="n">tango</span><span class="o">.</span><span class="n">DevState</span><span class="o">.</span><span class="n">RUNNING</span><span class="p">:</span>
                     <span class="n">found</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">except</span> <span class="n">PyTango</span><span class="o">.</span><span class="n">DevFailed</span><span class="p">:</span>
+            <span class="k">except</span> <span class="n">tango</span><span class="o">.</span><span class="n">DevFailed</span><span class="p">:</span>
                 <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.01</span><span class="p">)</span>
                 <span class="n">found</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="k">if</span> <span class="n">cnt</span> <span class="o">==</span> <span class="n">counter</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
@@ -397,7 +410,7 @@
         <span class="sd">&quot;&quot;&quot; execute tango server (or python object) command asynchronously</span>
 
 <span class="sd">        :param server: server proxy (or python object)</span>
-<span class="sd">        :type server: :class:`PyTango.DeviceProxy`</span>
+<span class="sd">        :type server: :class:`tango.DeviceProxy`</span>
 <span class="sd">        :param command: command name</span>
 <span class="sd">        :type command: :obj:`str`</span>
 <span class="sd">        :param *args: command arguments</span>
@@ -405,7 +418,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__command</span><span class="p">(</span><span class="n">server</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
-        <span class="k">except</span> <span class="n">PyTango</span><span class="o">.</span><span class="n">CommunicationFailed</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">except</span> <span class="n">tango</span><span class="o">.</span><span class="n">CommunicationFailed</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">e</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">reason</span> <span class="o">==</span> <span class="s2">&quot;API_DeviceTimedOut&quot;</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">__wait</span><span class="p">(</span><span class="n">server</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
@@ -452,7 +465,10 @@
             <span class="k">if</span> <span class="n">scanID</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">serial</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">recordlist</span><span class="o">.</span><span class="n">getEnvironValue</span><span class="p">(</span><span class="s1">&#39;serialno&#39;</span><span class="p">)</span>
             <span class="k">elif</span> <span class="n">scanID</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">serial</span> <span class="o">=</span> <span class="n">scanID</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">isarver</span> <span class="o">&gt;=</span> <span class="mi">304</span> <span class="ow">or</span> <span class="n">isarver</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">serial</span> <span class="o">=</span> <span class="n">scanID</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">serial</span> <span class="o">=</span> <span class="n">scanID</span> <span class="o">+</span> <span class="mi">1</span>
         <span class="k">if</span> <span class="n">subs</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="c1">#: output file name</span>
@@ -462,8 +478,14 @@
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">subs</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">number</span><span class="p">:</span>
-                <span class="n">tpl</span> <span class="o">=</span> <span class="n">filename</span><span class="o">.</span><span class="n">rpartition</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">_</span><span class="si">%05d</span><span class="s2">.</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">tpl</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">serial</span><span class="p">,</span> <span class="n">tpl</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">filename</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.tmp&#39;</span><span class="p">)</span> <span class="ow">and</span> \
+                   <span class="n">filename</span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">rpartition</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">and</span> \
+                   <span class="n">filename</span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">rpartition</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">2</span><span class="p">]</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">formats</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                    <span class="n">tpl</span> <span class="o">=</span> <span class="n">filename</span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">rpartition</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">_</span><span class="si">%05d</span><span class="s2">.</span><span class="si">%s</span><span class="s2">.tmp&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">tpl</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">serial</span><span class="p">,</span> <span class="n">tpl</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">tpl</span> <span class="o">=</span> <span class="n">filename</span><span class="o">.</span><span class="n">rpartition</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">_</span><span class="si">%05d</span><span class="s2">.</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">tpl</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">serial</span><span class="p">,</span> <span class="n">tpl</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span>
 
@@ -493,10 +515,10 @@
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">servers</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">servers</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span> \
                 <span class="ow">and</span> <span class="n">servers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__moduleLabel</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">__nexussettings_device</span> <span class="o">=</span> <span class="n">PyTango</span><span class="o">.</span><span class="n">DeviceProxy</span><span class="p">(</span><span class="n">servers</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__nexussettings_device</span> <span class="o">=</span> <span class="n">tango</span><span class="o">.</span><span class="n">DeviceProxy</span><span class="p">(</span><span class="n">servers</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">__nexussettings_device</span><span class="o">.</span><span class="n">set_timeout_millis</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__timeout</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">__nexussettings_device</span><span class="o">.</span><span class="n">ping</span><span class="p">()</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">__nexussettings_device</span><span class="o">.</span><span class="n">set_source</span><span class="p">(</span><span class="n">PyTango</span><span class="o">.</span><span class="n">DevSource</span><span class="o">.</span><span class="n">DEV</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__nexussettings_device</span><span class="o">.</span><span class="n">set_source</span><span class="p">(</span><span class="n">tango</span><span class="o">.</span><span class="n">DevSource</span><span class="o">.</span><span class="n">DEV</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">__nexussettings_device</span> <span class="o">=</span> <span class="kc">None</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Cannot connect to &#39;</span><span class="si">%s</span><span class="s2">&#39; &quot;</span> <span class="o">%</span> <span class="n">servers</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
@@ -506,7 +528,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__nexussettings_device</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__nexussettings_device</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="kn">from</span> <span class="nn">nxsrecconfig</span> <span class="k">import</span> <span class="n">Settings</span>
+            <span class="kn">from</span> <span class="nn">nxsrecconfig</span> <span class="kn">import</span> <span class="n">Settings</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__nexussettings_device</span> <span class="o">=</span> <span class="n">Settings</span><span class="o">.</span><span class="n">Settings</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__nexussettings_device</span><span class="o">.</span><span class="n">importEnvProfile</span><span class="p">()</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__nexussettings_device</span><span class="p">,</span> <span class="s2">&quot;version&quot;</span><span class="p">)</span> <span class="ow">or</span> \
@@ -577,11 +599,11 @@
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">servers</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">servers</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span> \
                     <span class="ow">and</span> <span class="n">servers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__moduleLabel</span><span class="p">:</span>
                 <span class="k">try</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">__nexuswriter_device</span> <span class="o">=</span> <span class="n">PyTango</span><span class="o">.</span><span class="n">DeviceProxy</span><span class="p">(</span><span class="n">servers</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">__nexuswriter_device</span> <span class="o">=</span> <span class="n">tango</span><span class="o">.</span><span class="n">DeviceProxy</span><span class="p">(</span><span class="n">servers</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">__nexuswriter_device</span><span class="o">.</span><span class="n">set_timeout_millis</span><span class="p">(</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">__timeout</span><span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">__nexuswriter_device</span><span class="o">.</span><span class="n">ping</span><span class="p">()</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">__nexuswriter_device</span><span class="o">.</span><span class="n">set_source</span><span class="p">(</span><span class="n">PyTango</span><span class="o">.</span><span class="n">DevSource</span><span class="o">.</span><span class="n">DEV</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">__nexuswriter_device</span><span class="o">.</span><span class="n">set_source</span><span class="p">(</span><span class="n">tango</span><span class="o">.</span><span class="n">DevSource</span><span class="o">.</span><span class="n">DEV</span><span class="p">)</span>
                 <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">__nexuswriter_device</span> <span class="o">=</span> <span class="kc">None</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Cannot connect to &#39;</span><span class="si">%s</span><span class="s2">&#39; &quot;</span> <span class="o">%</span> <span class="n">servers</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
@@ -592,7 +614,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">__nexuswriter_device</span> <span class="o">=</span> <span class="kc">None</span>
 
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__nexuswriter_device</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="kn">from</span> <span class="nn">nxswriter</span> <span class="k">import</span> <span class="n">TangoDataWriter</span>
+                <span class="kn">from</span> <span class="nn">nxswriter</span> <span class="kn">import</span> <span class="n">TangoDataWriter</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">__nexuswriter_device</span> <span class="o">=</span> <span class="n">TangoDataWriter</span><span class="o">.</span><span class="n">TangoDataWriter</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">__get_alias</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
@@ -1168,6 +1190,9 @@
         <span class="n">beamtimeid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">beamtime_id</span><span class="p">(</span><span class="n">bmtfpath</span><span class="p">,</span> <span class="n">bmtfprefix</span><span class="p">,</span> <span class="n">bmtfext</span><span class="p">)</span>
         <span class="n">beamtimeid</span> <span class="o">=</span> <span class="n">beamtimeid</span> <span class="ow">or</span> <span class="s2">&quot;00000000&quot;</span>
         <span class="n">defprefix</span> <span class="o">=</span> <span class="s2">&quot;scicat-datasets-&quot;</span>
+        <span class="n">defaulthost</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__getEnvVar</span><span class="p">(</span><span class="s2">&quot;SciCatDatasetListFileLocal&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">defaulthost</span><span class="p">:</span>
+            <span class="n">hostname</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">gethostname</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">hostname</span> <span class="ow">and</span> <span class="n">hostname</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">True</span> <span class="ow">and</span> <span class="n">hostname</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="s2">&quot;true&quot;</span><span class="p">:</span>
             <span class="n">defprefix</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s%s</span><span class="s2">-&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">defprefix</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">hostname</span><span class="p">))</span>
         <span class="n">dslprefix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__getEnvVar</span><span class="p">(</span><span class="s2">&quot;SciCatDatasetListFilePrefix&quot;</span><span class="p">,</span> <span class="n">defprefix</span><span class="p">)</span>
@@ -1219,7 +1244,7 @@
         &copy; Copyright 2012-2018 DESY, Jan Kotanski &lt;jkotan@mail.desy.de&gt;
 
 GNU GENERAL PUBLIC LICENSE, version 3.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.4.3.<br/>
     </p>
   </div>
 </footer>

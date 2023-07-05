@@ -1,21 +1,16 @@
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>sardananxsrecorder package &#8212; Sardana NeXus Recorder 3.11.0 documentation</title>
-    <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>sardananxsrecorder package &#8212; Sardana NeXus Recorder 3.13.1 documentation</title>
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
-    <script type="text/javascript" src="_static/js/jquery-1.11.0.min.js"></script>
-    <script type="text/javascript" src="_static/js/jquery-fix.js"></script>
-    <script type="text/javascript" src="_static/bootstrap-3.3.7/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
+    <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="prev" title="Welcome to sardananxsrecorder’s documentation!" href="index.html" />
@@ -23,6 +18,10 @@
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
 <meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="_static/js/jquery-1.11.0.min.js"></script>
+<script type="text/javascript" src="_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="_static/bootstrap-3.3.7/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
 
   </head><body>
 
@@ -37,7 +36,7 @@
         </button>
         <a class="navbar-brand" href="index.html">
           Sardana NeXus Recorder</a>
-        <span class="navbar-text navbar-version pull-left"><b>3.11</b></span>
+        <span class="navbar-text navbar-version pull-left"><b>3.13</b></span>
       </div>
 
         <div class="collapse navbar-collapse nav-collapse">
@@ -113,7 +112,7 @@
 
 <div class="container">
   <div class="row">
-    <div class="col-md-12 content">
+    <div class="body col-md-12 content" role="main">
       
   <div class="section" id="sardananxsrecorder-package">
 <h1>sardananxsrecorder package<a class="headerlink" href="#sardananxsrecorder-package" title="Permalink to this headline">¶</a></h1>
@@ -123,120 +122,101 @@
 <div class="section" id="module-sardananxsrecorder.nxsrecorder">
 <span id="sardananxsrecorder-nxsrecorder-module"></span><h2>sardananxsrecorder.nxsrecorder module<a class="headerlink" href="#module-sardananxsrecorder.nxsrecorder" title="Permalink to this headline">¶</a></h2>
 <p>This is the macro server scan data NeXus recorder module</p>
-<dl class="class">
+<dl class="py class">
 <dt id="sardananxsrecorder.nxsrecorder.NXS_FileRecorder">
-<em class="property">class </em><code class="descclassname">sardananxsrecorder.nxsrecorder.</code><code class="descname">NXS_FileRecorder</code><span class="sig-paren">(</span><em>filename=None</em>, <em>macro=None</em>, <em>**pars</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sardananxsrecorder/nxsrecorder.html#NXS_FileRecorder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sardananxsrecorder.nxsrecorder.NXS_FileRecorder" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">sardana.macroserver.scan.recorder.storage.BaseFileRecorder</span></code></p>
+<em class="property">class </em><code class="sig-prename descclassname">sardananxsrecorder.nxsrecorder.</code><code class="sig-name descname">NXS_FileRecorder</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">filename</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">macro</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">pars</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sardananxsrecorder/nxsrecorder.html#NXS_FileRecorder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sardananxsrecorder.nxsrecorder.NXS_FileRecorder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://www.sardana-controls.org/devel/api/sardana/macroserver/scan/recorder.html#sardana.macroserver.scan.recorder.BaseFileRecorder" title="(in sardana v3.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sardana.macroserver.scan.recorder.storage.BaseFileRecorder</span></code></a></p>
 <p>This recorder saves data to a NeXus file making use of NexDaTaS Writer</p>
 <p>constructor</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code></a>) – ScanFile name</li>
-<li><strong>macro</strong> (<a class="reference external" href="https://www.sardana-controls.org/devel/api/api_macro.html#sardana.macroserver.macro.Macro" title="(in sardana v3.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sardana.macroserver.macro.Macro</span></code></a>) – macro object</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code></a>) – ScanFile name</p></li>
+<li><p><strong>macro</strong> (<a class="reference external" href="https://www.sardana-controls.org/devel/api/api_macro.html#sardana.macroserver.macro.Macro" title="(in sardana v3.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">sardana.macroserver.macro.Macro</span></code></a>) – macro object</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="method">
+</dd>
+</dl>
+<dl class="py method">
 <dt id="sardananxsrecorder.nxsrecorder.NXS_FileRecorder._addCustomData">
-<code class="descname">_addCustomData</code><span class="sig-paren">(</span><em>value</em>, <em>name</em>, <em>group='data'</em>, <em>remove=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sardananxsrecorder/nxsrecorder.html#NXS_FileRecorder._addCustomData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sardananxsrecorder.nxsrecorder.NXS_FileRecorder._addCustomData" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_addCustomData</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em>, <em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">group</span><span class="o">=</span><span class="default_value">'data'</span></em>, <em class="sig-param"><span class="n">remove</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sardananxsrecorder/nxsrecorder.html#NXS_FileRecorder._addCustomData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sardananxsrecorder.nxsrecorder.NXS_FileRecorder._addCustomData" title="Permalink to this definition">¶</a></dt>
 <dd><p>adds custom data to configuration variables, i.e. from macros</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>value</strong> (<cite>any</cite>) – variable value</li>
-<li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code></a>) – variable name</li>
-<li><strong>group</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code></a>) – variable group inside variable dictionary</li>
-<li><strong>remove</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code></a>) – if True variable will be removed</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>value</strong> (<cite>any</cite>) – variable value</p></li>
+<li><p><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code></a>) – variable name</p></li>
+<li><p><strong>group</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code></a>) – variable group inside variable dictionary</p></li>
+<li><p><strong>remove</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code></a>) – if True variable will be removed</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="sardananxsrecorder.nxsrecorder.NXS_FileRecorder._endRecordList">
-<code class="descname">_endRecordList</code><span class="sig-paren">(</span><em>recordlist</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sardananxsrecorder/nxsrecorder.html#NXS_FileRecorder._endRecordList"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sardananxsrecorder.nxsrecorder.NXS_FileRecorder._endRecordList" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="docutils">
-<dt>ends record process: records in FINAL mode</dt>
-<dd>and closes the nexus file</dd>
+<code class="sig-name descname">_endRecordList</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">recordlist</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sardananxsrecorder/nxsrecorder.html#NXS_FileRecorder._endRecordList"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sardananxsrecorder.nxsrecorder.NXS_FileRecorder._endRecordList" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>ends record process: records in FINAL mode</dt><dd><p>and closes the nexus file</p>
+</dd>
 </dl>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>recordlist</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">sardana.macroserver.scan.scandata.RecordList</span></code>) – sardana record list</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>recordlist</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">sardana.macroserver.scan.scandata.RecordList</span></code>) – sardana record list</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="sardananxsrecorder.nxsrecorder.NXS_FileRecorder._startRecordList">
-<code class="descname">_startRecordList</code><span class="sig-paren">(</span><em>recordlist</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sardananxsrecorder/nxsrecorder.html#NXS_FileRecorder._startRecordList"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sardananxsrecorder.nxsrecorder.NXS_FileRecorder._startRecordList" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="docutils">
-<dt>starts record process: creates configuration</dt>
-<dd>and records in INIT mode</dd>
+<code class="sig-name descname">_startRecordList</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">recordlist</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sardananxsrecorder/nxsrecorder.html#NXS_FileRecorder._startRecordList"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sardananxsrecorder.nxsrecorder.NXS_FileRecorder._startRecordList" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>starts record process: creates configuration</dt><dd><p>and records in INIT mode</p>
+</dd>
 </dl>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>recordlist</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">sardana.macroserver.scan.scandata.RecordList</span></code>) – sardana record list</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>recordlist</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">sardana.macroserver.scan.scandata.RecordList</span></code>) – sardana record list</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="sardananxsrecorder.nxsrecorder.NXS_FileRecorder._writeRecord">
-<code class="descname">_writeRecord</code><span class="sig-paren">(</span><em>record</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sardananxsrecorder/nxsrecorder.html#NXS_FileRecorder._writeRecord"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sardananxsrecorder.nxsrecorder.NXS_FileRecorder._writeRecord" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="docutils">
-<dt>performs record process step: creates configuration</dt>
-<dd>and records in INIT mode</dd>
+<code class="sig-name descname">_writeRecord</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">record</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sardananxsrecorder/nxsrecorder.html#NXS_FileRecorder._writeRecord"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sardananxsrecorder.nxsrecorder.NXS_FileRecorder._writeRecord" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>performs record process step: creates configuration</dt><dd><p>and records in INIT mode</p>
+</dd>
 </dl>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>record</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">sardana.macroserver.scan.scandata.Record</span></code>) – sardana record list</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>record</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">sardana.macroserver.scan.scandata.Record</span></code>) – sardana record list</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="attribute">
+<dl class="py attribute">
 <dt id="sardananxsrecorder.nxsrecorder.NXS_FileRecorder.formats">
-<code class="descname">formats</code><em class="property"> = {'h5': '.h5', 'ndf': '.ndf', 'nx': '.nx', 'nxs': '.nxs'}</em><a class="headerlink" href="#sardananxsrecorder.nxsrecorder.NXS_FileRecorder.formats" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">formats</code><em class="property"> = {'h5': '.h5', 'ndf': '.ndf', 'nx': '.nx', 'nxs': '.nxs'}</em><a class="headerlink" href="#sardananxsrecorder.nxsrecorder.NXS_FileRecorder.formats" title="Permalink to this definition">¶</a></dt>
 <dd><p>(<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.11)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dict</span></code></a> &lt;<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code></a> &gt; ) recoder format</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="sardananxsrecorder.nxsrecorder.NXS_FileRecorder.getFormat">
-<code class="descname">getFormat</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/sardananxsrecorder/nxsrecorder.html#NXS_FileRecorder.getFormat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sardananxsrecorder.nxsrecorder.NXS_FileRecorder.getFormat" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">getFormat</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/sardananxsrecorder/nxsrecorder.html#NXS_FileRecorder.getFormat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sardananxsrecorder.nxsrecorder.NXS_FileRecorder.getFormat" title="Permalink to this definition">¶</a></dt>
 <dd><p>provides the output file format</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the output file format</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code></a></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>the output file format</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code></a></p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="sardananxsrecorder.nxsrecorder.NXS_FileRecorder.numpyEncoder">
-<em class="property">class </em><code class="descname">numpyEncoder</code><span class="sig-paren">(</span><em>*</em>, <em>skipkeys=False</em>, <em>ensure_ascii=True</em>, <em>check_circular=True</em>, <em>allow_nan=True</em>, <em>sort_keys=False</em>, <em>indent=None</em>, <em>separators=None</em>, <em>default=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sardananxsrecorder/nxsrecorder.html#NXS_FileRecorder.numpyEncoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sardananxsrecorder.nxsrecorder.NXS_FileRecorder.numpyEncoder" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-name descname">numpyEncoder</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span></em>, <em class="sig-param"><span class="n">skipkeys</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">ensure_ascii</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">check_circular</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">allow_nan</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">sort_keys</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">indent</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">separators</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">default</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sardananxsrecorder/nxsrecorder.html#NXS_FileRecorder.numpyEncoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sardananxsrecorder.nxsrecorder.NXS_FileRecorder.numpyEncoder" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">json.encoder.JSONEncoder</span></code></p>
 <p>numpy json encoder with list</p>
 <p>Constructor for JSONEncoder, with sensible defaults.</p>
@@ -268,18 +248,15 @@ you should specify (‘,’, ‘:’) to eliminate whitespace.</p>
 <p>If specified, default is a function that gets called for objects
 that can’t otherwise be serialized.  It should return a JSON encodable
 version of the object or raise a <code class="docutils literal notranslate"><span class="pre">TypeError</span></code>.</p>
-<dl class="method">
+<dl class="py method">
 <dt id="sardananxsrecorder.nxsrecorder.NXS_FileRecorder.numpyEncoder.default">
-<code class="descname">default</code><span class="sig-paren">(</span><em>obj</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sardananxsrecorder/nxsrecorder.html#NXS_FileRecorder.numpyEncoder.default"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sardananxsrecorder.nxsrecorder.NXS_FileRecorder.numpyEncoder.default" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">default</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obj</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sardananxsrecorder/nxsrecorder.html#NXS_FileRecorder.numpyEncoder.default"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sardananxsrecorder.nxsrecorder.NXS_FileRecorder.numpyEncoder.default" title="Permalink to this definition">¶</a></dt>
 <dd><p>default encoder</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>obj</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.11)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">object</span></code></a> or <cite>any</cite>) – numpy array object</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>obj</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.11)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">object</span></code></a> or <cite>any</cite>) – numpy array object</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -308,7 +285,7 @@ version of the object or raise a <code class="docutils literal notranslate"><spa
         &copy; Copyright 2012-2018 DESY, Jan Kotanski &lt;jkotan@mail.desy.de&gt;
 
 GNU GENERAL PUBLIC LICENSE, version 3.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.4.3.<br/>
     </p>
   </div>
 </footer>
