@@ -23,6 +23,7 @@
 import sys
 import unittest
 
+import nxsfilerecorder_test
 
 try:
     __import__("PyTango")
@@ -144,9 +145,10 @@ def main():
     # db = PyTango.Database()
     suite = unittest.TestSuite()
 
-    # suite.addTests(
-    #     unittest.defaultTestLoader.loadTestsFromModule(
-    #           DBFieldTagAsynchH5PYTest) )
+    suite.addTests(
+          unittest.defaultTestLoader.loadTestsFromModule(
+              nxsfilerecorder_test)
+    )
 
     # test runner
     runner = unittest.TextTestRunner()
