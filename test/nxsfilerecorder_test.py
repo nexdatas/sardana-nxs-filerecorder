@@ -125,6 +125,12 @@ class NXSFileRecorderTest(unittest.TestCase):
         self.assertTrue("." in ver)
         self.assertTrue(not bool(error))
 
+        # if not error:
+        #     import sardananxsrecorder
+        #     fname = '%s/%s%s.nxs' % (
+        #         os.getcwd(), self.__class__.__name__, fun)
+        #     rec = nxsrecorder.NXS_FileRecorder(fname)
+
 
 if __name__ == '__main__':
     unittest.main()
