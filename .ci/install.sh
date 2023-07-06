@@ -96,13 +96,13 @@ if [[ "$2" == "2" ]]; then
 else
     echo "install sardana, taurus and nexdatas"
     docker exec  --user root ndts /bin/bash -c 'export DEBIAN_FRONTEND=noninteractive; apt-get -qq update; apt-get install -y  nxsconfigserver-db; sleep 10; apt-get -qq install -y python3-nxsconfigserver python3-nxswriter python3-nxstools python3-nxsrecselector python3-setuptools nxsrecselector3 nxswriter3 nxsconfigserver3 nxstools3 python3-packaging'
-    if  [ "$1" = "ubuntu20.04" ] || [ "$1" = "ubuntu20.10" ] || [ "$1" = "debian11" ]  || [ "$1" = "ubuntu22.04" ] ; then
-	docker exec  --user root ndts /bin/bash -c 'export DEBIAN_FRONTEND=noninteractive;  apt-get -qq update; apt-get -qq install -y python3-taurus python3-sardana'
-    else
+    if  [ "$1" == "ubuntu18.04" ] ; then
 	docker exec  --user root ndts /bin/bash -c 'git clone https://gitlab.com/taurus-org/taurus taurus-src; cd taurus-src'
 	docker exec  --user root ndts /bin/bash -c 'cd taurus-src; git checkout tags/4.7.0 -b b4.7.0; python3 setup.py install'
 	docker exec  --user root ndts /bin/bash -c 'git clone https://github.com/sardana-org/sardana sardana-src; cd sardana-src'
 	docker exec  --user root ndts /bin/bash -c 'cd sardana-src; git checkout tags/3.1.0 -b b3.1.0; python3 setup.py install'
+    else
+	docker exec  --user root ndts /bin/bash -c 'export DEBIAN_FRONTEND=noninteractive;  apt-get -qq update; apt-get -qq install -y python3-taurus python3-sardana'
     fi
 fi
 if [ "$?" -ne "0" ]; then exit 255; fi
