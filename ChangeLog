@@ -1,3 +1,7 @@
+2023-07-06 Jan Kotanski <jankotan@gmail.com>
+	* fix serialno for sardana >= 3.4.0 (#68)
+	* tagged as 3.13.2
+
 2023-07-03 Jan Kotanski <jankotan@gmail.com>
 	* fix serialno for sardana >= 3.4.0 (#68)
 	* tagged as 3.13.1

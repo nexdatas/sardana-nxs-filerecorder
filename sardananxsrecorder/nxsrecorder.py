@@ -37,13 +37,14 @@ except Exception:
 
 
 from sardana.macroserver.scan.recorder.storage import BaseFileRecorder
-from sardana import __version__
+
 
 try:
+    from sardana import __version__
     lv = list(map(int, __version__.split(".")))[:2]
     isarver = lv[0] * 100 + lv[1]
 except Exception:
-    isarver = 304
+    isarver = 300
 
 
 __docformat__ = 'restructuredtext'
