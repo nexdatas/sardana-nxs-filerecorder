@@ -35,14 +35,12 @@ except ImportError as e:
 
 try:
     try:
-        __import__("pni.io.nx.h5")
+        __import__("pninexus")
     except Exception:
-        __import__("pni.nx.h5")
-    # if module pni avalable
-    PNI_AVAILABLE = True
+    PNINEXUS_AVAILABLE = True
 except ImportError as e:
-    PNI_AVAILABLE = False
-    print("pni is not available: %s" % e)
+    PNINEXUS_AVAILABLE = False
+    print("pninexus is not available: %s" % e)
 
 try:
     __import__("h5py")
@@ -53,12 +51,12 @@ except ImportError as e:
     print("h5py is not available: %s" % e)
 
 
-if not PNI_AVAILABLE and not H5PY_AVAILABLE:
-    raise Exception("Please install h5py or pni")
+if not PNINEXUS_AVAILABLE and not H5PY_AVAILABLE:
+    raise Exception("Please install h5py or pninexus")
 
-# if PNI_AVAILABLE:
+# if PNINEXUS_AVAILABLE:
 # if H5PY_AVAILABLE:
-# if PNI_AVAILABLE and H5PY_AVAILABLE:
+# if PNINEXUS_AVAILABLE and H5PY_AVAILABLE:
 
 # list of available databases
 DB_AVAILABLE = []
