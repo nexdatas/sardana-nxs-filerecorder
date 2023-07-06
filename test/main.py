@@ -34,9 +34,7 @@ except ImportError as e:
     print("PyTango is not available: %s" % e)
 
 try:
-    try:
-        __import__("pninexus")
-    except Exception:
+    __import__("pninexus")
     PNINEXUS_AVAILABLE = True
 except ImportError as e:
     PNINEXUS_AVAILABLE = False
