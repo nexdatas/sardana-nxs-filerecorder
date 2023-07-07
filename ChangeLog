@@ -1,3 +1,7 @@
+2023-07-07 Jan Kotanski <jankotan@gmail.com>
+	* check if parent obj of datasource is a field (#74)
+	* tagged as 3.14.0
+
 2023-07-06 Jan Kotanski <jankotan@gmail.com>
 	* fix serialno for sardana >= 3.4.0 (#68)
 	* tagged as 3.13.2

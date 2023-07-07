@@ -676,7 +676,10 @@ class NXS_FileRecorder(BaseFileRecorder):
                         self.__command(self.__nexussettings_device,
                                        "componentSources",
                                        [cp]))
-                    allcpdss.extend([ds["dsname"] for ds in cpdss])
+                    allcpdss.extend(
+                        [ds["dsname"] for ds in cpdss
+                         if ("parentobj" not in ds or
+                             ds["parentobj"] not in ["datasource"])])
 
                 else:
                     cpdss = json.loads(
