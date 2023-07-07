@@ -679,7 +679,7 @@ class NXS_FileRecorder(BaseFileRecorder):
                     allcpdss.extend(
                         [ds["dsname"] for ds in cpdss
                          if ("parentobj" not in ds or
-                             ds["parentobj"] not in ["datasource"])])
+                             ds["parentobj"] in ["field"])])
 
                 else:
                     cpdss = json.loads(
