@@ -842,6 +842,11 @@ class NXS_FileRecorder(BaseFileRecorder):
             self.__aliases = [ch for ch in och if ch in allcp]
             if self.__aliases:
                 self.__vars["vars"]["mgchannels"] = " ".join(self.__aliases)
+            timers = self.__command(self.__nexussettings_device,
+                                    "availableTimers")
+            if timers:
+                self.__vars["vars"]["timers"] = " ".join(timers)
+
             self.__vars["vars"]["nexus_components"] = " ".join(nexuscomponents)
             stepdss = [str(ds) for ds in envRec['ref_moveables']
                        if str(ds) in toswitch]
