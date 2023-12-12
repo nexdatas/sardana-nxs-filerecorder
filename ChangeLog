@@ -1,3 +1,7 @@
+2023-12-12 Jan Kotanski <jankotan@gmail.com>
+	* add support for MetadataScript or FioAdditions (#80)
+	* tagged as 3.16.0
+
 2023-08-30 Jan Kotanski <jankotan@gmail.com>
 	* set the timers variable with availableTimers (#77)
 	* tagged as 3.15.0

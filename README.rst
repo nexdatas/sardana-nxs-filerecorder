@@ -218,3 +218,4 @@ The NeXus file recorder uses the following sardana environment variables
 * **SciCatDatasetListFilePrefix** *(str)* - scicat dataset list file prefix, default: ``"scicat-datasets-"``
 * **SciCatDatasetListFileExt** *(str)* - scicat dataset list file extension, default: ``".lst"``
 * **SciCatDatasetListFileLocal** *(bool)* - add the hostname to the scicat dataset list file extension, default: ``False``
+* **MetadataScript** or **FioAdditions** *(str)* - a python module file name containing ``main()``  which provides a dictionary with user metadata stored in the INIT mode, default: ``""``
