@@ -143,6 +143,9 @@ class NXS_FileRecorder(BaseFileRecorder):
         #: (:obj:`dict` <:obj:`str` , :obj:`str`>) NeXus configuration
         self.__conf = {}
 
+        #: (:obj:`dict` <:obj:`str` , `any`>) User data
+        self.__udata = None
+
         #: (:obj:`bool`) external measurement group
         self.__oddmntgrp = False
 
@@ -505,7 +508,7 @@ class NXS_FileRecorder(BaseFileRecorder):
                     self.__nexuswriter_device = None
                     self.warning("Cannot connect to '%s' " % servers[0])
                     if self.__macro:
-                        self.__macro().warning(
+                        self.__macro().Wwarning(
                             "Cannot connect to '%s'" % servers[0])
             else:
                 self.__nexuswriter_device = None
@@ -575,18 +578,21 @@ class NXS_FileRecorder(BaseFileRecorder):
                 else:
                     self.__dynamicDataSources[(str(elm.name))] = None
 
-    def __createDynamicComponent(self, dss, keys, nexuscomponents):
+    def __createDynamicComponent(self, dss, keys, udata, nexuscomponents):
         """ creates a dynamic component
 
         :param dss: datasource list
         :type dss: :obj:`list` <:obj:`str`>
         :param keys: keys without datasources
         :type keys: :obj:`list` <:obj:`str`>
+        :param udata: keys without datasources
+        :type udata: :obj:`dict` <:obj:`str`, `any`>
         :param nexuscomponents: nexus component list
         :type nexuscomponents: :obj:`list` <:obj:`str`>
         """
         self.debug("Step DSs: %s" % dss)
         self.debug("Init DSs: %s" % keys)
+        self.debug("Init User Data: %s" % udata)
         envRec = self.recordlist.getEnviron()
         lddict = []
         tdss = [ds for ds in dss if not ds.startswith("tango://")
@@ -598,7 +604,26 @@ class NXS_FileRecorder(BaseFileRecorder):
                 mdd["name"] = dd.name
                 mdd["shape"] = dd.shape
                 mdd["dtype"] = dd.dtype
+                mdd["strategy"] = 'STEP'
                 lddict.append(mdd)
+        for ky, vl in udata.items():
+            mdd = {}
+            mdd["name"] = ky
+            mdd["shape"] = numpy.shape(vl)
+            try:
+                if mdd["shape"]:
+                    rank = len(mdd["shape"])
+                    for _ in range(rank):
+                        vl = vl[0]
+                mdd["dtype"] = str(type(vl).__name__)
+            except Exception as e:
+                self.warning("Cannot find a type of user data %s %s"
+                             % (ky, str(e)))
+                self.__macro().warning(
+                    "Cannot find a type of user data %s %s" % (ky, str(e)))
+                mdd["dtype"] = 'string'
+            mdd["strategy"] = 'INIT'
+            lddict.append(mdd)
         jddict = json.dumps(lddict, cls=NXS_FileRecorder.numpyEncoder)
         jdss = json.dumps(tdss, cls=NXS_FileRecorder.numpyEncoder)
         jkeys = json.dumps(keys, cls=NXS_FileRecorder.numpyEncoder)
@@ -807,11 +832,15 @@ class NXS_FileRecorder(BaseFileRecorder):
                 "DataSourcePreselection",
                 None, True, pass_default=self.__oddmntgrp)
             ids = [k for (k, vl) in idsdct.items() if vl] if idsdct else None
-        if ids:
-            missingKeys.extend(list(ids))
-        self.__vars["vars"]["nexus_init_datasources"] = " ".join(missingKeys)
+        self.__vars["vars"]["nexus_init_datasources"] = \
+            " ".join(missingKeys + list(ids or []))
+        udata = {str(re.sub('[^0-9a-zA-Z_]+', "_", str(ky))): userdata[ky]
+                 for ky in missingKeys}
+        # udata = {ky: userdata[ky] for ky in missingKeys}
+        if userdata:
+            userdata.update(udata)
         self.__createDynamicComponent(
-            dsNotFound if dyncp else [], missingKeys, nexuscomponents)
+            dsNotFound if dyncp else [], ids or [], udata, nexuscomponents)
         nexuscomponents.append(str(self.__dynamicCP))
 
         if cfm:
@@ -892,6 +921,7 @@ class NXS_FileRecorder(BaseFileRecorder):
             self.__env = self.__macro().getAllEnv() if self.__macro else {}
             if self.__base_filename is None:
                 return
+            self.__udata = None
 
             self.__setNexusDevices()
 
@@ -910,9 +940,9 @@ class NXS_FileRecorder(BaseFileRecorder):
             self.__vars["vars"]["filename"] = str(self.filename)
 
             envrecord = self.__appendRecord(self.__vars, 'INIT')
+            cnfxml = self.__createConfiguration(envrecord["data"])
             rec = json.dumps(
                 envrecord, cls=NXS_FileRecorder.numpyEncoder)
-            cnfxml = self.__createConfiguration(envrecord["data"])
             # self.debug('XML: %s' % str(cnfxml))
             self.__removeDynamicComponent()
 
@@ -953,9 +983,10 @@ class NXS_FileRecorder(BaseFileRecorder):
         dct = self.__getConfVar("UserData", None, True)
         if isinstance(dct, dict):
             nexusrecord = dct
-        if mode in ['INIT']:
-            ms = None
-            msf = None
+
+        ms = None
+        msf = None
+        if not isinstance(self.__udata, dict):
             if 'MetadataScript' in self.__env.keys():
                 msf = self.__env['MetadataScript']
             elif 'FioAdditions' in self.__env.keys():
@@ -969,12 +1000,16 @@ class NXS_FileRecorder(BaseFileRecorder):
                     import imp
                     msm = imp.load_source('', msf)
                     ms = msm.main()
-                if isinstance(ms, dict):
-                    nexusrecord.update(ms)
-                else:
-                    self.warning("NXS_FileRecorder: bad output from %s" % msf)
-                    self.macro().warning(
-                        "NXS_FileRecorder: bad output from %s" % msf)
+                    if not isinstance(ms, dict):
+                        self.warning(
+                            "NXS_FileRecorder: bad output from %s" % msf)
+                        self.macro().warning(
+                            "NXS_FileRecorder: bad output from %s" % msf)
+                        self.__udata = None
+                    else:
+                        self.__udata = ms
+        if isinstance(self.__udata, dict) and isinstance(ms, dict):
+            nexusrecord.update(self.__udata)
 
         record = dict(var)
         record["data"] = dict(var["data"], **nexusrecord)
