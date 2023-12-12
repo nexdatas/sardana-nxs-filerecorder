@@ -953,6 +953,29 @@ class NXS_FileRecorder(BaseFileRecorder):
         dct = self.__getConfVar("UserData", None, True)
         if isinstance(dct, dict):
             nexusrecord = dct
+        if mode in ['INIT']:
+            ms = None
+            msf = None
+            if 'MetadataScript' in env.keys():
+                msf = env['MetadataScript']
+            elif 'FioAdditions' in env.keys():
+                msf = env['FioAdditions']
+            if msf:
+                if not os.path.exists(msf):
+                    self.warning("NXS_FileRecorder: %s does not exist" % msf)
+                    self.macro().warning(
+                        "NXS_FileRecorder: %s does not exist" % msf)
+                else:
+                    import imp
+                    msm = imp.load_source('', msf)
+                    ms = msm.main()
+                if isinstance(ms, dict):
+                    nexusrecord.update(ms)
+                else:
+                    self.warning("NXS_FileRecorder: bad output from %s" % msf)
+                    self.macro().warning(
+                        "NXS_FileRecorder: bad output from %s" % msf)
+
         record = dict(var)
         record["data"] = dict(var["data"], **nexusrecord)
         if mode == 'INIT':
