@@ -1,4 +1,8 @@
 2023-12-12 Jan Kotanski <jankotan@gmail.com>
+	* improve support for MetadataScript or FioAdditions (#83)
+	* tagged as 3.16.1
+
+2023-12-12 Jan Kotanski <jankotan@gmail.com>
 	* add support for MetadataScript or FioAdditions (#80)
 	* tagged as 3.16.0
 
