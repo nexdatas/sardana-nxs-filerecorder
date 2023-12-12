@@ -956,10 +956,10 @@ class NXS_FileRecorder(BaseFileRecorder):
         if mode in ['INIT']:
             ms = None
             msf = None
-            if 'MetadataScript' in env.keys():
-                msf = env['MetadataScript']
-            elif 'FioAdditions' in env.keys():
-                msf = env['FioAdditions']
+            if 'MetadataScript' in self.__env.keys():
+                msf = self.__env['MetadataScript']
+            elif 'FioAdditions' in self.__env.keys():
+                msf = self.__env['FioAdditions']
             if msf:
                 if not os.path.exists(msf):
                     self.warning("NXS_FileRecorder: %s does not exist" % msf)
