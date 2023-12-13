@@ -597,6 +597,8 @@ class NXS_FileRecorder(BaseFileRecorder):
         lddict = []
         tdss = [ds for ds in dss if not ds.startswith("tango://")
                 and ds not in nexuscomponents]
+
+        fields = []
         for dd in envRec['datadesc']:
             alias = self.__get_alias(str(dd.name))
             if alias in tdss and alias not in nexuscomponents:
@@ -606,24 +608,44 @@ class NXS_FileRecorder(BaseFileRecorder):
                 mdd["dtype"] = dd.dtype
                 mdd["strategy"] = 'STEP'
                 lddict.append(mdd)
+
+        fields = {}
         for ky, vl in udata.items():
-            mdd = {}
-            mdd["name"] = ky
-            mdd["shape"] = numpy.shape(vl)
-            try:
-                if mdd["shape"]:
-                    rank = len(mdd["shape"])
-                    for _ in range(rank):
-                        vl = vl[0]
-                mdd["dtype"] = str(type(vl).__name__)
-            except Exception as e:
-                self.warning("Cannot find a type of user data %s %s"
-                             % (ky, str(e)))
-                self.__macro().warning(
-                    "Cannot find a type of user data %s %s" % (ky, str(e)))
-                mdd["dtype"] = 'string'
-            mdd["strategy"] = 'INIT'
+            if "@" not in ky:
+                mdd = {}
+                mdd["name"] = ky
+                mdd["shape"] = numpy.shape(vl)
+                try:
+                    if mdd["shape"]:
+                        rank = len(mdd["shape"])
+                        for _ in range(rank):
+                            vl = vl[0]
+                    mdd["dtype"] = str(type(vl).__name__)
+                except Exception as e:
+                    self.warning("Cannot find a type of user data %s %s"
+                                 % (ky, str(e)))
+                    self.__macro().warning(
+                        "Cannot find a type of user data %s %s" % (ky, str(e)))
+                    mdd["dtype"] = 'string'
+                mdd["strategy"] = 'INIT'
+                fields[ky] = mdd
+
+        for ky, vl in udata.items():
+            if "@" in ky:
+                fld, att = ky.split("@")[:2]
+                if fld and att:
+                    if fld in fields.keys():
+                        fields[fld][att] = vl
+                    else:
+                        fields[fld] = {
+                            "name": fld,
+                            "dtype": "string",
+                            "shape": tuple(),
+                            att: vl}
+
+        for mdd in fields.values():
             lddict.append(mdd)
+
         jddict = json.dumps(lddict, cls=NXS_FileRecorder.numpyEncoder)
         jdss = json.dumps(tdss, cls=NXS_FileRecorder.numpyEncoder)
         jkeys = json.dumps(keys, cls=NXS_FileRecorder.numpyEncoder)
@@ -834,7 +856,7 @@ class NXS_FileRecorder(BaseFileRecorder):
             ids = [k for (k, vl) in idsdct.items() if vl] if idsdct else None
         self.__vars["vars"]["nexus_init_datasources"] = \
             " ".join(missingKeys + list(ids or []))
-        udata = {str(re.sub('[^0-9a-zA-Z_]+', "_", str(ky))): userdata[ky]
+        udata = {str(re.sub('[^0-9a-zA-Z@_]+', "_", str(ky))): userdata[ky]
                  for ky in missingKeys}
         # udata = {ky: userdata[ky] for ky in missingKeys}
         if userdata:
