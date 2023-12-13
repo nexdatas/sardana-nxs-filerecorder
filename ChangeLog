@@ -1,4 +1,8 @@
 2023-12-12 Jan Kotanski <jankotan@gmail.com>
+	* add support for user data units and other attributes (#85)
+	* tagged as 3.17.0
+
+2023-12-12 Jan Kotanski <jankotan@gmail.com>
 	* improve support for MetadataScript or FioAdditions (#83)
 	* tagged as 3.16.1
 
