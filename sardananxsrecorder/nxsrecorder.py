@@ -1011,13 +1011,14 @@ class NXS_FileRecorder(BaseFileRecorder):
         if not isinstance(self.__udata, dict):
             if 'MetadataScript' in self.__env.keys():
                 msf = self.__env['MetadataScript']
-            elif 'FioAdditions' in self.__env.keys():
-                msf = self.__env['FioAdditions']
+            # elif 'FioAdditions' in self.__env.keys():
+            #     msf = self.__env['FioAdditions']
             if msf:
                 if not os.path.exists(msf):
                     self.warning("NXS_FileRecorder: %s does not exist" % msf)
-                    self.macro().warning(
-                        "NXS_FileRecorder: %s does not exist" % msf)
+                    if self.__macro:
+                        self.__macro().warning(
+                            "NXS_FileRecorder: %s does not exist" % msf)
                 else:
                     import imp
                     msm = imp.load_source('', msf)
@@ -1025,8 +1026,9 @@ class NXS_FileRecorder(BaseFileRecorder):
                     if not isinstance(ms, dict):
                         self.warning(
                             "NXS_FileRecorder: bad output from %s" % msf)
-                        self.macro().warning(
-                            "NXS_FileRecorder: bad output from %s" % msf)
+                        if self.__macro:
+                            self.__macro().warning(
+                                "NXS_FileRecorder: bad output from %s" % msf)
                         self.__udata = None
                     else:
                         self.__udata = ms

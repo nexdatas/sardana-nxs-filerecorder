@@ -1,4 +1,8 @@
 2023-12-12 Jan Kotanski <jankotan@gmail.com>
+	* fix typo in in printing error message (#85)
+	* tagged as 3.17.1
+
+2023-12-12 Jan Kotanski <jankotan@gmail.com>
 	* add support for user data units and other attributes (#85)
 	* tagged as 3.17.0
 
