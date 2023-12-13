@@ -1029,7 +1029,7 @@ class NXS_FileRecorder(BaseFileRecorder):
                         if self.__macro:
                             self.__macro().warning(
                                 "NXS_FileRecorder: bad output from %s" % msf)
-                        self.__udata = None
+                        self.__udata = {}
                     else:
                         self.__udata = ms
         if isinstance(self.__udata, dict) and isinstance(ms, dict):
