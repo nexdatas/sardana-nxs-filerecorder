@@ -1190,10 +1190,7 @@ class NXS_FileRecorder(BaseFileRecorder):
 
         entryname = "scan"
         appendentry = self.__getConfVar("AppendEntry", False)
-        try:
-            variables = json.loads(self.__getConfVar("AppendEntry", "{}"))
-        except Exception:
-            variables = {}
+        variables = self.__getConfVar("ConfigVariables", None, True)
         if isinstance(variables, dict) and "entryname" in variables:
             entryname = variables["entryname"]
         if appendentry is True:
