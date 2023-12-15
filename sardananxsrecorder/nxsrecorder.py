@@ -1187,6 +1187,18 @@ class NXS_FileRecorder(BaseFileRecorder):
         dslfile = "%s%s%s" % (dslprefix, beamtimeid, dslext)
         if fdir:
             dslfile = os.path.join(fdir, dslfile)
+
+        entryname = "scan"
+        appendentry = self.__getConfVar("AppendEntry", False)
+        try:
+            variables = json.loads(self.__getConfVar("AppendEntry", "{}"))
+        except Exception:
+            variables = {}
+        if isinstance(variables, dict) and "entryname" in variables:
+            entryname = variables["entryname"]
+        if appendentry is True:
+            sid = self.__getEnvVar("ScanID", 0)
+            sname = "%s::/%s%05i;%s_%05i" % (sname, entryname, sid, sname, sid)
         with open(dslfile, "a+") as fl:
             fl.write("\n%s" % sname)
 
