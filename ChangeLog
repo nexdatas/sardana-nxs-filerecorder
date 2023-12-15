@@ -1,3 +1,7 @@
+2023-12-15 Jan Kotanski <jankotan@gmail.com>
+	* add support for fetching metadata from multi-scan NeXus files (#90)
+	* tagged as 3.18.0
+
 2023-12-13 Jan Kotanski <jankotan@gmail.com>
 	* reduce a number of error messages for wrong user data (#86)
 	* tagged as 3.17.2
