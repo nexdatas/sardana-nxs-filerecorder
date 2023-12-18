@@ -1195,9 +1195,9 @@ class NXS_FileRecorder(BaseFileRecorder):
         if isinstance(variables, dict) and "entryname" in variables:
             entryname = variables["entryname"]
         try:
-            scanname = bfname % ""
+            scanname, _  = os.path.splitext(bfname % "")
         except Exception:
-            scanname = bfname
+            scanname, _  = os.path.splitext(bfname)
 
         if appendentry is True:
             sid = self.__getEnvVar("ScanID", 0)
@@ -1208,7 +1208,6 @@ class NXS_FileRecorder(BaseFileRecorder):
         grouping = bool(self.__getEnvVar('SciCatAutoGrouping', False))
         if grouping:
             commands = []
-            fdir = self.__getEnvVar('ScanDir')
             try:
                 sm = dict(self.__getEnvVar('SciCatMeasurements', {}))
             except Exception:
@@ -1224,7 +1223,7 @@ class NXS_FileRecorder(BaseFileRecorder):
                 commands.append("__command__ start %s" % scanname)
             commands.append(sname)
             commands.append("__command__ stop")
-            commands.append(scanname)
+            commands.append("%s:%s" % (scanname, time.time()))
             commands.append("__command__ start %s" % scanname)
             sname = "\n".join(commands)
 
