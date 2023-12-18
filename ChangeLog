@@ -1,5 +1,6 @@
 2023-12-15 Jan Kotanski <jankotan@gmail.com>
 	* add support for fetching metadata from multi-scan NeXus files (#90)
+	* add support for SciCatAutoGrouping flag (#92)
 	* tagged as 3.18.0
 
 2023-12-13 Jan Kotanski <jankotan@gmail.com>

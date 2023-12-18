@@ -1168,6 +1168,7 @@ class NXS_FileRecorder(BaseFileRecorder):
         """ append dataset to SciCat ingestion list """
 
         fdir, fname = os.path.split(self.filename)
+        _, bfname = os.path.split(self.__base_filename)
         sname, fext = os.path.splitext(fname)
 
         bmtfpath = self.__getEnvVar("BeamtimeFilePath", "/gpfs/current")
@@ -1193,9 +1194,43 @@ class NXS_FileRecorder(BaseFileRecorder):
         variables = self.__getConfVar("ConfigVariables", None, True)
         if isinstance(variables, dict) and "entryname" in variables:
             entryname = variables["entryname"]
+        try:
+            scanname = bfname % ""
+        except Exception:
+            scanname = bfname
+
         if appendentry is True:
             sid = self.__getEnvVar("ScanID", 0)
-            sname = "%s::/%s%05i;%s_%05i" % (sname, entryname, sid, sname, sid)
+            sname = "%s::/%s%05i;%s_%05i" % (
+                scanname, entryname, sid, scanname, sid)
+
+        # auto grouping
+        grouping = bool(self.__getEnvVar('SciCatAutoGrouping', False))
+        if grouping:
+            commands = []
+            fdir = self.__getEnvVar('ScanDir')
+            try:
+                sm = dict(self.__getEnvVar('SciCatMeasurements', {}))
+            except Exception:
+                sm = {}
+
+            if fdir in sm.keys():
+                cgrp = sm[fdir]
+                if cgrp != scanname:
+                    commands.append("__command__ stop")
+                    commands.append(cgrp)
+                    commands.append("__command__ start %s" % scanname)
+            else:
+                commands.append("__command__ start %s" % scanname)
+            commands.append(sname)
+            commands.append("__command__ stop")
+            commands.append(scanname)
+            commands.append("__command__ start %s" % scanname)
+            sname = "\n".join(commands)
+
+            sm[fdir] = scanname
+            self.__env['SciCatMeasurements'] = sm
+
         with open(dslfile, "a+") as fl:
             fl.write("\n%s" % sname)
 
