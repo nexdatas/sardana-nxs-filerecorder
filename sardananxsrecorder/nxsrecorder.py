@@ -1195,9 +1195,9 @@ class NXS_FileRecorder(BaseFileRecorder):
         if isinstance(variables, dict) and "entryname" in variables:
             entryname = variables["entryname"]
         try:
-            scanname, _  = os.path.splitext(bfname % "")
+            scanname, _ = os.path.splitext(bfname % "")
         except Exception:
-            scanname, _  = os.path.splitext(bfname)
+            scanname, _ = os.path.splitext(bfname)
 
         if appendentry is True:
             sid = self.__getEnvVar("ScanID", 0)
@@ -1217,7 +1217,7 @@ class NXS_FileRecorder(BaseFileRecorder):
                 cgrp = sm[fdir]
                 if cgrp != scanname:
                     commands.append("__command__ stop")
-                    commands.append(cgrp)
+                    commands.append("%s:%s" % (cgrp, time.time()))
                     commands.append("__command__ start %s" % scanname)
             else:
                 commands.append("__command__ start %s" % scanname)
