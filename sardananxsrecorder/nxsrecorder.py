@@ -1201,7 +1201,7 @@ class NXS_FileRecorder(BaseFileRecorder):
 
         if appendentry is True:
             sid = self.__getEnvVar("ScanID", 0)
-            sname = "%s::/%s%05i;%s_%05i" % (
+            sname = "%s::/%s%i;%s_%05i" % (
                 scanname, entryname, sid, scanname, sid)
 
         # auto grouping
