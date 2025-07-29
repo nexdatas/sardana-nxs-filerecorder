@@ -27,7 +27,7 @@ level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
 .\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
 .in \\n[rst2man-indent\\n[rst2man-indent-level]]u
 ..
-.TH "SARDANANXSRECORDER" "1" "Nov 07, 2024" "3.29" "Sardana NeXus Recorder"
+.TH "SARDANANXSRECORDER" "1" "Jul 29, 2025" "3.30" "Sardana NeXus Recorder"
 .SH NAME
 sardananxsrecorder \- sardananxsrecorder Documentation
 .sp
@@ -356,9 +356,9 @@ constructor
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBfilename\fP (\fI\%str\fP) – ScanFile name
+\fBfilename\fP (\fI\%str\fP) \-\- ScanFile name
 .IP \(bu 2
-\fBmacro\fP (\fI\%sardana.macroserver.macro.Macro\fP) – macro object
+\fBmacro\fP (\fI\%sardana.macroserver.macro.Macro\fP) \-\- macro object
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -370,13 +370,13 @@ adds custom data to configuration variables, i.e. from macros
 .B Parameters
 .INDENT 7.0
 .IP \(bu 2
-\fBvalue\fP (\fIany\fP) – variable value
+\fBvalue\fP (\fIany\fP) \-\- variable value
 .IP \(bu 2
-\fBname\fP (\fI\%str\fP) – variable name
+\fBname\fP (\fI\%str\fP) \-\- variable name
 .IP \(bu 2
-\fBgroup\fP (\fI\%str\fP) – variable group inside variable dictionary
+\fBgroup\fP (\fI\%str\fP) \-\- variable group inside variable dictionary
 .IP \(bu 2
-\fBremove\fP (\fI\%bool\fP) – if True variable will be removed
+\fBremove\fP (\fI\%bool\fP) \-\- if True variable will be removed
 .UNINDENT
 .UNINDENT
 .UNINDENT
@@ -391,7 +391,7 @@ and closes the nexus file
 .INDENT 7.0
 .TP
 .B Parameters
-\fBrecordlist\fP (\fBsardana.macroserver.scan.scandata.RecordList\fP) – sardana record list
+\fBrecordlist\fP (\fBsardana.macroserver.scan.scandata.RecordList\fP) \-\- sardana record list
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -405,7 +405,7 @@ and records in INIT mode
 .INDENT 7.0
 .TP
 .B Parameters
-\fBrecordlist\fP (\fBsardana.macroserver.scan.scandata.RecordList\fP) – sardana record list
+\fBrecordlist\fP (\fBsardana.macroserver.scan.scandata.RecordList\fP) \-\- sardana record list
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -419,7 +419,7 @@ and records in INIT mode
 .INDENT 7.0
 .TP
 .B Parameters
-\fBrecord\fP (\fBsardana.macroserver.scan.scandata.Record\fP) – sardana record list
+\fBrecord\fP (\fBsardana.macroserver.scan.scandata.Record\fP) \-\- sardana record list
 .UNINDENT
 .UNINDENT
 .INDENT 7.0
@@ -477,12 +477,12 @@ indent level.  An indent level of 0 will only insert newlines.
 None is the most compact representation.
 .sp
 If specified, separators should be an (item_separator, key_separator)
-tuple.  The default is (’, ‘, ‘: ‘) if \fIindent\fP is \fBNone\fP and
-(‘,’, ‘: ‘) otherwise.  To get the most compact JSON representation,
-you should specify (‘,’, ‘:’) to eliminate whitespace.
+tuple.  The default is (\(aq, \(aq, \(aq: \(aq) if \fIindent\fP is \fBNone\fP and
+(\(aq,\(aq, \(aq: \(aq) otherwise.  To get the most compact JSON representation,
+you should specify (\(aq,\(aq, \(aq:\(aq) to eliminate whitespace.
 .sp
 If specified, default is a function that gets called for objects
-that can’t otherwise be serialized.  It should return a JSON encodable
+that can\(aqt otherwise be serialized.  It should return a JSON encodable
 version of the object or raise a \fBTypeError\fP\&.
 .INDENT 7.0
 .TP
@@ -491,7 +491,7 @@ default encoder
 .INDENT 7.0
 .TP
 .B Parameters
-\fBobj\fP (\fI\%object\fP or \fIany\fP) – numpy array object
+\fBobj\fP (\fI\%object\fP or \fIany\fP) \-\- numpy array object
 .UNINDENT
 .UNINDENT
 .UNINDENT

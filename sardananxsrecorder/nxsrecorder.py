@@ -600,6 +600,26 @@ class NXS_FileRecorder(BaseFileRecorder):
             alias = None
         return alias
 
+    def __short_name(self, name):
+        """ provides a device alias
+
+        :param name: device name
+        :type name: :obj:`str`
+        :returns: device alias
+        :rtype: :obj:`str`
+        """
+        # if name does not contain a "/" it's probably an alias
+        if name.startswith("tango://"):
+            name = name[8:]
+        if name.find("/") == -1:
+            return name
+
+        # haso107klx:10000/expchan/hasysis3820ctrl/1
+        if name.find(':') >= 0:
+            lst = name.split("/")
+            name = "/".join(lst[1:])
+        return name
+
     def __collectAliases(self, envRec):
         """ sets deviceAlaises and dynamicDataSources from env record
 
@@ -656,6 +676,9 @@ class NXS_FileRecorder(BaseFileRecorder):
         lddict = []
         tdss = [ds for ds in dss if not ds.startswith("tango://")
                 and ds not in nexuscomponents]
+        tgdss = [self.__short_name(ds)
+                 for ds in dss if ds.startswith("tango://")
+                 and ds not in nexuscomponents]
 
         fields = []
         for dd in envRec['datadesc']:
@@ -705,10 +728,13 @@ class NXS_FileRecorder(BaseFileRecorder):
         for mdd in fields.values():
             lddict.append(mdd)
 
+        tdss.extend(tgdss)
         jddict = json.dumps(lddict, cls=NXS_FileRecorder.numpyEncoder)
         jdss = json.dumps(tdss, cls=NXS_FileRecorder.numpyEncoder)
         jkeys = json.dumps(keys, cls=NXS_FileRecorder.numpyEncoder)
-        # self.debug("JDD: %s" % jddict)
+        self.debug("JDD: %s" % jddict)
+        self.debug("JDs: %s" % tdss)
+        self.debug("Jk: %s" % jkeys)
         self.__dynamicCP = \
             self.__command(self.__nexussettings_device,
                            "createDynamicComponent",

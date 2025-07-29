@@ -1,3 +1,7 @@
+2025-07-29 Jan Kotanski <jankotan@gmail.com>
+	* add support for tango datasources from defmeas macro (#155)
+	* tagged as 3.30.0
+
 2024-12-11 Jan Kotanski <jankotan@gmail.com>
 	* reset SciCatMeasurements if not dict (#149)
 	* tagged as 3.29.1
