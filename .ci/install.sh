@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # workaround for a bug in debian9, i.e. starting mysql hangs
-if [ "$1" = "debian11" ] || [ "$1" = "debian12" ] || [ "$1" = "ubuntu24.04" ] || [ "$1" = "ubuntu24.10" ] || [ "$1" = "ubuntu25.04" ]; then
+if [ "$1" = "debian11" ] || [ "$1" = "debian12" ]  || [ "$1" = "debian13" ] || [ "$1" = "ubuntu24.04" ] || [ "$1" = "ubuntu24.10" ] || [ "$1" = "ubuntu25.04" ]; then
     docker exec --user root ndts service mariadb restart
 else
     docker exec --user root ndts service mysql stop
@@ -67,13 +67,13 @@ else
 	docker exec  --user root ndts /bin/bash -c 'cd itango-src; git checkout tags/v0.1.7 -b b0.1.7; python3 setup.py install'
 	# docker exec  --user root ndts /bin/bash -c 'cd taurus-src; git checkout; python3 setup.py install'
     fi
-    if [ "$1" = "debian10" ] || [ "$1" = "ubuntu20.04" ] || [ "$1" = "ubuntu22.04" ] || [ "$1" = "ubuntu24.04" ] || [ "$1" = "ubuntu24.10" ] || [ "$1" = "ubuntu25.04" ] || [ "$1" = "ubuntu20.10" ] || [ "$1" = "debian11" ] || [ "$1" = "debian12" ] ; then
+    if [ "$1" = "debian10" ] || [ "$1" = "ubuntu20.04" ] || [ "$1" = "ubuntu22.04" ] || [ "$1" = "ubuntu24.04" ] || [ "$1" = "ubuntu24.10" ] || [ "$1" = "ubuntu25.04" ] || [ "$1" = "ubuntu20.10" ] || [ "$1" = "debian11" ] || [ "$1" = "debian12" ] || [ "$1" = "debian13" ] ; then
 	docker exec  --user root ndts /bin/bash -c 'export DEBIAN_FRONTEND=noninteractive; apt-get -qq update; apt-get install -y git python3-six python3-numpy graphviz python3-sphinx g++ build-essential python3-dev pkg-config python3-all-dev  python3-setuptools libtango-dev python3-setuptools python3-tango python3-tz; apt-get -qq install -y nxsconfigserver-db; sleep 10'
     else
 	docker exec  --user root ndts /bin/bash -c 'export DEBIAN_FRONTEND=noninteractive; apt-get -qq update; apt-get install -y git python3-six python3-numpy graphviz python3-sphinx g++ build-essential python3-dev pkg-config python3-all-dev  python3-setuptools libtango-dev python3-setuptools python3-pytango python3-tz; apt-get -qq install -y nxsconfigserver-db; sleep 10'
     fi
     docker exec  --user root ndts /bin/bash -c 'export DEBIAN_FRONTEND=noninteractive; apt-get -qq update; apt-get install -y libboost-python-dev libboost-dev python3-h5py python3-qtpy  python3-click python3-setuptools  python3-pint'
-    if [ "$1" = "ubuntu20.04" ] || [ "$1" = "ubuntu20.10" ] || [ "$1" = "ubuntu21.04" ]  || [ "$1" = "ubuntu22.04" ]|| [ "$1" = "ubuntu24.04" ] || [ "$1" = "ubuntu24.10" ] || [ "$1" = "ubuntu25.04" ] || [ "$1" = "debian11" ] || [ "$1" = "debian12" ] || [ "$1" = "debian10" ]; then
+    if [ "$1" = "ubuntu20.04" ] || [ "$1" = "ubuntu20.10" ] || [ "$1" = "ubuntu21.04" ]  || [ "$1" = "ubuntu22.04" ]|| [ "$1" = "ubuntu24.04" ] || [ "$1" = "ubuntu24.10" ] || [ "$1" = "ubuntu25.04" ] || [ "$1" = "debian11" ] || [ "$1" = "debian12" ] [ "$1" = "debian13" ] || [ "$1" = "debian10" ]; then
 	echo " "
     else
 	docker exec  --user root ndts /bin/bash -c 'export DEBIAN_FRONTEND=noninteractive; apt-get -qq update; apt-get install -y libtango-dev python3-dev'
@@ -91,7 +91,7 @@ fi
 if [ "$?" -ne "0" ]; then exit 255; fi
 
 echo "install qt5"
-if [ "$1" = "debian12" ] ||[ "$1" = "debian11" ] || [ "$1" = "ubuntu22.04" ] || [ "$1" = "ubuntu24.04" ] || [ "$1" = "ubuntu24.10" ] || [ "$1" = "ubuntu25.04" ]; then
+if [ "$1" = "debian12" ] ||  [ "$1" = "debian13" ] || [ "$1" = "debian11" ] || [ "$1" = "ubuntu22.04" ] || [ "$1" = "ubuntu24.04" ] || [ "$1" = "ubuntu24.10" ] || [ "$1" = "ubuntu25.04" ]; then
     docker exec  --user root ndts /bin/bash -c 'export DEBIAN_FRONTEND=noninteractive;  apt-get -qq update; apt-get -qq install -y  qtbase5-dev-tools'
 else
     docker exec  --user root ndts /bin/bash -c 'export DEBIAN_FRONTEND=noninteractive;  apt-get -qq update; apt-get -qq install -y  qtbase5-dev-tools qt5-default'
@@ -105,7 +105,7 @@ if [ "$2" = "2" ]; then
     echo "install pytango and nxsconfigserver-db"
     docker exec  --user root ndts /bin/bash -c 'apt-get -qq update; apt-get install -y   python-pytango  nxsconfigserver-db ; sleep 10'
 else
-    if [ "$1" = "debian10" ] || [ "$1" = "ubuntu24.04" ] || [ "$1" = "ubuntu24.10" ] || [ "$1" = "ubuntu25.04" ] || [ "$1" = "ubuntu22.04" ] || [ "$1" = "ubuntu20.04" ] || [ "$1" = "ubuntu20.10" ] || [ "$1" = "debian11" ] || [ "$1" = "debian12" ] ; then
+    if [ "$1" = "debian10" ] || [ "$1" = "ubuntu24.04" ] || [ "$1" = "ubuntu24.10" ] || [ "$1" = "ubuntu25.04" ] || [ "$1" = "ubuntu22.04" ] || [ "$1" = "ubuntu20.04" ] || [ "$1" = "ubuntu20.10" ] || [ "$1" = "debian11" ] || [ "$1" = "debian12" ]  || [ "$1" = "debian13" ] ; then
 	echo "install pytango"
 	docker exec --user root ndts /bin/bash -c 'apt-get -qq update; apt-get install -y   python3-tango'
 	echo "install nxsconfigserver-db"
