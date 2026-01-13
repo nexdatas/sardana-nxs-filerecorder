@@ -99,6 +99,7 @@ class NXS_FileRecorder(BaseFileRecorder):
         :type macro: :class:`sardana.macroserver.macro.Macro`
         """
         BaseFileRecorder.__init__(self)
+        self.debug('__init__:  Init NXS_FileRecorder: %s' % str(filename))
         #: (:obj:`str`) base filename
         self.__base_filename = filename
         #: (:obj:`str`) raw filename
@@ -116,7 +117,8 @@ class NXS_FileRecorder(BaseFileRecorder):
         self.__nexussettings_device = None
 
         #: (:obj:`int`) device proxy timeout
-        self.__timeout = 100000
+        # self.__timeout = 100000
+        self.__timeout = 10000000
         #: (:obj:`dict` <:obj:`str`, :obj:`list` <:obj:`str`>
         #:     or :obj:`dict` <:obj:`str` , `any`> > ) Custom variables
         self.__vars = {"data": {},
@@ -167,13 +169,17 @@ class NXS_FileRecorder(BaseFileRecorder):
         #: (:obj:`bool`) external measurement group
         self.__oddmntgrp = False
 
+        self.debug('__init__:  Set NeXus: %s' % str(filename))
         self.__setNexusDevices(onlyconfig=True)
 
+        self.debug('__init__:  Set Append Entry: %s' % str(filename))
         appendentry = self.__getConfVar("AppendEntry", True)
         scanID = self.__env["ScanID"] \
             if "ScanID" in self.__env.keys() else -1
+        self.debug('__init__:  Set FileName: %s' % str(filename))
         self.__setFileName(
             self.__base_filename, not appendentry, scanID)
+        self.debug('__init__:  Done: %s' % str(filename))
 
     def _serial(self, scanID):
         serial = None
@@ -411,7 +417,8 @@ class NXS_FileRecorder(BaseFileRecorder):
                 subs = False
         if not self.__raw_filename:
             self.__raw_filename = self.__rawfilename(self.__serial)
-        self.debug('Raw Filename: %s' % str(self.__raw_filename))
+        self.debug('__setFileName:  '
+                   'Raw Filename: %s' % str(self.__raw_filename))
         if not subs and self.__raw_filename and \
            "{ScanID" in self.__raw_filename:
             try:
@@ -453,6 +460,9 @@ class NXS_FileRecorder(BaseFileRecorder):
                            profile configuration of NXSRecSelector
         :type onlyconfig: :obj:`bool`
         """
+        self.debug(
+            '__setNexusDevices:  NXSRecSelector: %s'
+            % str(self.__raw_filename))
         vl = self.__getEnvVar("NeXusSelectorDevice", None)
         if vl is None:
             servers = self.__db.get_device_exported_for_class(
@@ -474,6 +484,8 @@ class NXS_FileRecorder(BaseFileRecorder):
                         "Cannot connect to '%s'" % servers[0])
         else:
             self.__nexussettings_device = None
+        self.debug('__setNexusDevices:  import profile: %s'
+                   % str(self.__raw_filename))
         if self.__nexussettings_device is None:
             from nxsrecconfig import Settings
             self.__nexussettings_device = Settings.Settings()
@@ -483,10 +495,13 @@ class NXS_FileRecorder(BaseFileRecorder):
             raise Exception("NXSRecSelector (%s) version below 2.0.0" %
                             (servers[0] if servers else "module"))
 
+        self.debug('__setNexusDevices:  set MG: %s' % str(self.__raw_filename))
         mntgrp = self.__getServerVar("mntGrp", None)
         amntgrp = self.__getEnvVar("ActiveMntGrp", None)
         if mntgrp and amntgrp != mntgrp:
             self.__nexussettings_device.mntgrp = amntgrp
+        self.debug('__setNexusDevices:  list profile: %s'
+                   % str(self.__raw_filename))
         if amntgrp not in self.__command(
                 self.__nexussettings_device, "availableProfiles"):
             if onlyconfig:
@@ -507,15 +522,29 @@ class NXS_FileRecorder(BaseFileRecorder):
                 self.info(
                     "NXS_FileRecorer: descriptive components will be reset")
             else:
+                self.debug('__setNexusDevices:  fetch profile: %s'
+                           % str(self.__raw_filename))
                 self.__command(self.__nexussettings_device, "fetchProfile")
+                self.debug('__setNexusDevices:  reset profile: %s'
+                           % str(self.__raw_filename))
                 self.__asynchcommand(self.__nexussettings_device,
                                      "resetPreselectedComponents")
+                self.debug('__setNexusDevices:  reset profile Done: %s'
+                           % str(self.__raw_filename))
             self.__oddmntgrp = True
         else:
+            self.debug('__setNexusDevices:  '
+                       'fetch profile 2: %s' % str(self.__raw_filename))
             self.__command(self.__nexussettings_device, "fetchProfile")
+            self.debug('__setNexusDevices:  fetch profile 2 Done: %s' %
+                       str(self.__raw_filename))
         self.__vars["vars"]["measurement_group"] = amntgrp
 
+        self.debug('__setNexusDevices:  '
+                   'profile config: %s' % str(self.__raw_filename))
         self.__conf = self.__getServerVar("profileConfiguration", {}, True)
+        self.debug('__setNexusDevices:  '
+                   'MG config: %s' % str(self.__raw_filename))
         if not self.__oddmntgrp and not onlyconfig:
             if "MntGrpConfiguration" in self.__conf.keys():
                 poolmg = self.__command(
@@ -525,9 +554,9 @@ class NXS_FileRecorder(BaseFileRecorder):
                 poolmg = None
                 profmg = None
             if not poolmg or not profmg or poolmg != profmg:
-                self.debug(
-                    "ActiveMntGrp created outside NXSRecSelector v3. "
-                    "Updating ActiveMntGrp")
+                self.debug("__setNexusDevices:  "
+                           "ActiveMntGrp created outside NXSRecSelector v3. "
+                           "Updating ActiveMntGrp")
                 if self.__macro:
                     self.__macro().debug(
                         "ActiveMntGrp created outside NXSRecSelector v3. "
@@ -535,6 +564,8 @@ class NXS_FileRecorder(BaseFileRecorder):
                 self.__command(self.__nexussettings_device, "importMntGrp")
                 self.__command(self.__nexussettings_device, "updateMntGrp")
 
+        self.debug('__setNexusDevices: '
+                   'Writer Device: %s' % str(self.__raw_filename))
         if not onlyconfig:
             vl = self.__getConfVar("WriterDevice", None)
             if not vl:
@@ -560,6 +591,8 @@ class NXS_FileRecorder(BaseFileRecorder):
             else:
                 self.__nexuswriter_device = None
 
+            self.debug('__setNexusDevices:  Writer Device Properties: %s'
+                       % str(self.__raw_filename))
             if self.__nexuswriter_device is None:
                 from nxswriter import TangoDataWriter
                 self.__nexuswriter_device = TangoDataWriter.TangoDataWriter()
@@ -575,6 +608,7 @@ class NXS_FileRecorder(BaseFileRecorder):
                 for ky, vl in properties.items():
                     if hasattr(self.__nexuswriter_device, ky):
                         setattr(self.__nexuswriter_device, ky, vl)
+        self.debug('__setNexusDevices:  End: %s' % str(self.__raw_filename))
 
     def __get_alias(self, name):
         """ provides a device alias
@@ -669,9 +703,9 @@ class NXS_FileRecorder(BaseFileRecorder):
         :param nexuscomponents: nexus component list
         :type nexuscomponents: :obj:`list` <:obj:`str`>
         """
-        self.debug("Step DSs: %s" % dss)
-        self.debug("Init DSs: %s" % keys)
-        self.debug("Init User Data: %s" % udata)
+        self.debug("__createDynamicComponent:  Step DSs: %s" % dss)
+        self.debug("__createDynamicComponent:  Init DSs: %s" % keys)
+        self.debug("__createDynamicComponent:  Init User Data: %s" % udata)
         envRec = self.recordlist.getEnviron()
         lddict = []
         tdss = [ds for ds in dss if not ds.startswith("tango://")
@@ -732,9 +766,12 @@ class NXS_FileRecorder(BaseFileRecorder):
         jddict = json.dumps(lddict, cls=NXS_FileRecorder.numpyEncoder)
         jdss = json.dumps(tdss, cls=NXS_FileRecorder.numpyEncoder)
         jkeys = json.dumps(keys, cls=NXS_FileRecorder.numpyEncoder)
-        self.debug("JDD: %s" % jddict)
-        self.debug("JDs: %s" % tdss)
-        self.debug("Jk: %s" % jkeys)
+        self.debug("__createDynamicComponent:  "
+                   "tango STEP datasources: %s" % tdss)
+        self.debug("__createDynamicComponent:  "
+                   "sardana STEP datasources: %s" % jddict)
+        self.debug("__createDynamicComponent:  "
+                   "INIT datasources: %s" % jkeys)
         self.__dynamicCP = \
             self.__command(self.__nexussettings_device,
                            "createDynamicComponent",
@@ -778,6 +815,8 @@ class NXS_FileRecorder(BaseFileRecorder):
         :rtype: (`list` <:obj:`str`>, `list` <:obj:`str`>,
                  `list` <:obj:`str`>, `list` <:obj:`str`>)
         """
+        self.debug("__searchDataSources: Init: %s"
+                   % str([nexuscomponents, cfm, dyncp, userkeys]))
         dsFound = {}
         dsNotFound = []
 
@@ -793,6 +832,8 @@ class NXS_FileRecorder(BaseFileRecorder):
         else:
             cmps = list(set(nexuscomponents) &
                         set(self.__availableComponents()))
+        self.debug("__searchDataSources:  Get selected DSs: %s"
+                   % str([cfm, dyncp]))
         if self.__oddmntgrp:
             nds = []
         else:
@@ -800,8 +841,17 @@ class NXS_FileRecorder(BaseFileRecorder):
                                  "selectedDataSources")
         nds = nds if nds else []
         datasources = list(set(nds) | set(self.__deviceAliases.keys()))
+        self.debug("__searchDataSources:  Get components DSs: %s"
+                   % str([cfm, dyncp]))
         hascpsrcs = hasattr(self.__nexussettings_device, 'componentSources')
+        # aacpdss = json.loads(
+        #     self.__command(self.__nexussettings_device,
+        #                    "componentSources",
+        #                    cmps))
+        self.debug("__searchDataSources:  component loop: %s"
+                   % str([cfm, dyncp]))
         for cp in cmps:
+            self.debug("__searchDataSources:  component item: %s" % cp)
             try:
                 if hascpsrcs:
                     cpdss = json.loads(
@@ -833,28 +883,38 @@ class NXS_FileRecorder(BaseFileRecorder):
                             "Component '%s' wrongly defined in DB!" % cp)
                         # self.__macro().warning("Error: '%s'" % str(e))
                 else:
-                    self.debug("Component '%s' wrongly defined in DB!" % cp)
+                    self.debug(
+                        "__searchDataSources:  "
+                        "Component '%s' wrongly defined in DB!" % cp)
                     self.warning("Error: '%s'" % str(e))
                     if self.__macro:
                         self.__macro().debug(
+                            "__searchDataSources:  "
                             "Component '%s' wrongly defined in DB!" % cp)
                     self.__macro.debug("Error: '%s'" % str(e))
                 dss = []
             if dss:
                 cdss = list(set(dss) & set(datasources))
                 for ds in cdss:
-                    self.debug("'%s' found in '%s'" % (ds, cp))
+                    self.debug("__searchDataSources:  '%s' found in '%s'"
+                               % (ds, cp))
                     if ds not in dsFound.keys():
                         dsFound[ds] = []
                     dsFound[ds].append(cp)
                     if cp not in cpReq.keys():
                         cpReq[cp] = []
                     cpReq[cp].append(ds)
+        self.debug("__searchDataSources:  "
+                   "component loop end: %s" % str([cfm, dyncp]))
         missingKeys = set(userkeys) - keyFound
 
+        self.debug("__searchDataSources:  "
+                   "dynamic component loop: %s" % str([cfm, dyncp]))
         datasources.extend(self.__dynamicDataSources.keys())
         #: get not found datasources
         for ds in datasources:
+            self.debug("__searchDataSources:  "
+                       " dynamic component item: %s" % ds)
             if ds not in dsFound.keys() and ds not in allcpdss:
                 dsNotFound.append(ds)
                 if not dyncp:
@@ -883,6 +943,8 @@ class NXS_FileRecorder(BaseFileRecorder):
                                 "It was not found in User Components!"
                                 " Consider setting: "
                                 "NeXusDynamicComponents=True" % ds)
+        self.debug("__searchDataSources:  "
+                   "dynamic component loop end: %s" % str([cfm, dyncp]))
         return (nds, dsNotFound, cpReq, list(missingKeys))
 
     def __createConfiguration(self, userdata):
@@ -893,14 +955,19 @@ class NXS_FileRecorder(BaseFileRecorder):
         :returns: configuration xml string
         :rtype: :obj:`str`
         """
+        self.debug("__createConfiguration:  Init: %s" % self.__oddmntgrp)
         cfm = self.__getConfVar("ComponentsFromMntGrp",
                                 False, pass_default=self.__oddmntgrp)
         dyncp = self.__getConfVar("DynamicComponents",
                                   True, pass_default=self.__oddmntgrp)
 
         envRec = self.recordlist.getEnviron()
+        self.debug("__createConfiguration:  CollectAllises: %s"
+                   % self.__oddmntgrp)
         self.__collectAliases(envRec)
 
+        self.debug("__createConfiguration:  Get Components: %s"
+                   % self.__oddmntgrp)
         mandatory = self.__command(self.__nexussettings_device,
                                    "mandatoryComponents")
         self.info("Default Components %s" % str(mandatory))
@@ -922,13 +989,19 @@ class NXS_FileRecorder(BaseFileRecorder):
         self.info("Available Components %s" % str(
             self.__availableComponents()))
 
+        self.debug("__createConfiguration:  Search DataSources: %s"
+                   % self.__oddmntgrp)
         nds, dsNotFound, cpReq, missingKeys = self.__searchDataSources(
             list(set(nexuscomponents) | set(mandatory)),
             cfm, dyncp, userdata.keys())
+        self.debug("__createConfiguration:  Get User data: %s"
+                   % self.__oddmntgrp)
 
-        self.debug("DataSources Not Found : %s" % dsNotFound)
-        self.debug("Components required : %s" % cpReq)
-        self.debug("Missing User Data : %s" % missingKeys)
+        self.debug("__createConfiguration:  DataSources Not Found : %s"
+                   % dsNotFound)
+        self.debug("__createConfiguration:  Components required : %s" % cpReq)
+        self.debug("__createConfiguration:  Missing User Data : %s"
+                   % missingKeys)
         if "InitDataSources" in self.__conf.keys():
             # compatibility with version 2
             ids = self.__getConfVar(
@@ -946,9 +1019,13 @@ class NXS_FileRecorder(BaseFileRecorder):
         # udata = {ky: userdata[ky] for ky in missingKeys}
         if userdata:
             userdata.update(udata)
+        self.debug("__createConfiguration:  Create dynamic components: %s"
+                   % self.__oddmntgrp)
         self.__createDynamicComponent(
             dsNotFound if dyncp else [], ids or [], udata, nexuscomponents)
         nexuscomponents.append(str(self.__dynamicCP))
+        self.debug("__createConfiguration:  Add Components: %s"
+                   % self.__oddmntgrp)
 
         if cfm:
             self.info("Sardana Components %s" % cpReq.keys())
@@ -996,25 +1073,38 @@ class NXS_FileRecorder(BaseFileRecorder):
             if self.__macro:
                 self.__macro().debug(
                     "VAR %s" % self.__nexussettings_device.configVariables)
+            self.debug("__createConfiguration:  Update Config Varialels: %s"
+                       % self.__oddmntgrp)
             self.__command(self.__nexussettings_device,
                            "updateConfigVariables")
 
-            self.debug("Aliases: %s" % str(self.__aliases))
-            self.debug("Switching to STEP mode: %s" % stepdss)
+            self.debug("__createConfiguration:  Aliases: %s"
+                       % str(self.__aliases))
+            self.debug("__createConfiguration:  Switching to STEP mode: %s"
+                       % stepdss)
             oldtoswitch = self.__getServerVar("stepdatasources", "[]", False)
             stepdss = str(json.dumps(list(toswitch)))
+            self.debug("__createConfiguration:  Set STEP datasources: %s"
+                       % self.__oddmntgrp)
             self.__nexussettings_device.stepdatasources = stepdss
+            self.debug("__createConfiguration:   Set LINK datasources: %s"
+                       % self.__oddmntgrp)
             if hasattr(self.__nexussettings_device, "linkdatasources"):
                 self.__nexussettings_device.linkdatasources = stepdss
+            self.debug("__createConfiguration:  "
+                       "Create Writer configuration: %s" % self.__oddmntgrp)
             cnfxml = self.__command(
                 self.__nexussettings_device, "createWriterConfiguration",
                 nexuscomponents)
         finally:
+            self.debug("__createConfiguration:   Reset variables: %s"
+                       % self.__oddmntgrp)
             self.__nexussettings_device.configVariables = json.dumps(
                 nexusvariables)
             if oldtoswitch is not None:
                 self.__nexussettings_device.stepdatasources = oldtoswitch
 
+        self.debug("__createConfiguration:  End: %s" % self.__oddmntgrp)
         return cnfxml
 
     def _startRecordList(self, recordlist):
@@ -1025,12 +1115,17 @@ class NXS_FileRecorder(BaseFileRecorder):
         :type recordlist: :class:`sardana.macroserver.scan.scandata.RecordList`
         """
         try:
+            self.debug('_startRecordList:  Start %s' % self.__base_filename)
             self.__env = self.__macro().getAllEnv() if self.__macro else {}
             if self.__base_filename is None:
                 return
             self.__udata = None
 
+            self.debug('_startRecordList:  Set NeXus %s'
+                       % self.__base_filename)
             self.__setNexusDevices()
+            self.debug('_startRecordList:  Set Variables %s'
+                       % self.__base_filename)
 
             appendentry = self.__getConfVar("AppendEntry", True)
             appendscanid = not self.__setFileName(
@@ -1056,7 +1151,11 @@ class NXS_FileRecorder(BaseFileRecorder):
             self.__vars["vars"]["filename"] = str(self.filename)
 
             envrecord = self.__appendRecord(self.__vars, 'INIT')
+            self.debug('_startRecordList:  Create Configuration %s'
+                       % self.__base_filename)
             cnfxml = self.__createConfiguration(envrecord["data"])
+            self.debug('_startRecordList:  Set Remove dynamic components %s'
+                       % self.__base_filename)
             rec = json.dumps(
                 envrecord, cls=NXS_FileRecorder.numpyEncoder)
             # self.debug('XML: %s' % str(cnfxml))
@@ -1074,24 +1173,31 @@ class NXS_FileRecorder(BaseFileRecorder):
             self.__vars["data"]["beamtime_id"] = \
                 self.__vars["vars"]["beamtime_id"]
 
+            self.debug('_startRecordList:  Init writer %s'
+                       % self.__base_filename)
             if hasattr(self.__nexuswriter_device, 'Init'):
                 self.__command(self.__nexuswriter_device, "Init")
             self.__nexuswriter_device.fileName = str(self.filename)
             self.__command(self.__nexuswriter_device, "openFile")
             self.__nexuswriter_device.xmlsettings = cnfxml
 
-            # self.debug('START_DATA: %s' % str(envRec))
+            if "DEBUG_INIT_DATA" in self.writerModes:
+                self.debug('_startRecordList:  INIT_DATA: %s' % str(envRec))
 
+            self.debug('_startRecordList: Set JSON %s' % self.__base_filename)
             self.__nexuswriter_device.jsonrecord = rec
             self.writerModes = self.__variableList(
                 "NeXusWriterModes")
             if "NOINIT" in self.writerModes:
                 self.__nexuswriter_device.skipAcquisition = True
 
+            self.debug('_startRecordList SE: Open Entry %s' %
+                       self.__base_filename)
             self.__command(self.__nexuswriter_device, "openEntry")
         except Exception:
             self.__removeDynamicComponent()
             raise
+        self.debug('_startRecordList SE: END %s' % self.__base_filename)
 
     def __appendRecord(self, var, mode=None):
         """ merges userdata with variable dictionary
@@ -1177,9 +1283,10 @@ class NXS_FileRecorder(BaseFileRecorder):
             if "NOSTEP" in self.writerModes:
                 self.__nexuswriter_device.skipAcquisition = True
 
-            # self.debug('DATA: {"data":%s}' % json.dumps(
-            #     record.data,
-            #     cls=NXS_FileRecorder.numpyEncoder))
+            if "DEBUG_STEP_DATA" in self.writerModes:
+                self.debug('_writeRecord DATA: {"data":%s}' % json.dumps(
+                    record.data,
+                    cls=NXS_FileRecorder.numpyEncoder))
 
             jsonString = '{"data":%s}' % json.dumps(
                 record.data,
@@ -1243,7 +1350,8 @@ class NXS_FileRecorder(BaseFileRecorder):
             self.__env = self.__macro().getAllEnv() if self.__macro else {}
             envRec = recordlist.getEnviron()
 
-            # self.debug('END_DATA: %s ' % str(envRec))
+            if "DEBUG_FINAL_DATA" in self.writerModes:
+                self.debug('_endRecordList:  FINAL_DATA: %s ' % str(envRec))
 
             tzone = self.__getConfVar("TimeZone", self.__timezone)
             self.__vars["data"]["end_time"] = \
@@ -1312,7 +1420,7 @@ class NXS_FileRecorder(BaseFileRecorder):
         if isinstance(msvar, str):
             msvar = re.split(r"[-;,.\s]\s*", msvar)
         if msvar:
-            self.debug('%s: %s' % (variable, str(msvar)))
+            self.debug('__variableList:   %s: %s' % (variable, str(msvar)))
         return msvar
 
     def __rawfilename(self, serial):
@@ -1517,7 +1625,8 @@ class NXS_FileRecorder(BaseFileRecorder):
                                   (pdir, fname, entryname), rt, sname)
                 else:
                     h5writer.link("%s:/%s" % (fname, entryname), rt, sname)
-                self.debug("Link  '%s' in '%s' created " % (sname, mntname))
+                self.debug("__createMeasurementFile:  "
+                           "Link  '%s' in '%s' created " % (sname, mntname))
             rt.close()
             fl.close()
 
