@@ -1,3 +1,7 @@
+2026-01-16 Jan Kotanski <jankotan@gmail.com>
+	* add support for cache configuration
+	* tagged as 3.31.0
+
 2026-01-13 Jan Kotanski <jankotan@gmail.com>
 	* add debug info
 	* tagged as 3.30.1
