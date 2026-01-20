@@ -752,12 +752,13 @@ class NXS_FileRecorder(BaseFileRecorder):
                 if fld and att:
                     if fld in fields.keys():
                         fields[fld][att] = vl
-                    else:
-                        fields[fld] = {
-                            "name": fld,
-                            "dtype": "string",
-                            "shape": tuple(),
-                            att: vl}
+                    # else:
+                    #     fields[fld] = {
+                    #         "name": fld,
+                    #         "strategy": "INIT",
+                    #         "dtype": "string",
+                    #         "shape": tuple(),
+                    #         att: vl}
 
         for mdd in fields.values():
             lddict.append(mdd)
@@ -979,6 +980,15 @@ class NXS_FileRecorder(BaseFileRecorder):
             nexuscomponents.extend(lst)
         self.info("User Components %s" % str(nexuscomponents))
 
+        ccomp = None
+        if hasattr(self.__nexussettings_device, "cachecomponent"):
+            ccomp = self.__nexussettings_device.cachecomponent
+            allnexuscomponents = list(set(nexuscomponents) | set(mandatory))
+        if ccomp:
+            self.info("Cache Component %s" % str(ccomp))
+            nexuscomponents = [ccomp]
+            allnexuscomponents = [ccomp]
+
         self.__availableComps = []
         lst = self.__getConfVar("OptionalComponents",
                                 None, True, pass_default=self.__oddmntgrp)
@@ -992,7 +1002,7 @@ class NXS_FileRecorder(BaseFileRecorder):
         self.debug("__createConfiguration:  Search DataSources: %s"
                    % self.__oddmntgrp)
         nds, dsNotFound, cpReq, missingKeys = self.__searchDataSources(
-            list(set(nexuscomponents) | set(mandatory)),
+            allnexuscomponents,
             cfm, dyncp, userdata.keys())
         self.debug("__createConfiguration:  Get User data: %s"
                    % self.__oddmntgrp)
