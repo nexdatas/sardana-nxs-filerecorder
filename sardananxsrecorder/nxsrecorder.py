@@ -563,6 +563,15 @@ class NXS_FileRecorder(BaseFileRecorder):
                         "Updating ActiveMntGrp")
                 self.__command(self.__nexussettings_device, "importMntGrp")
                 self.__command(self.__nexussettings_device, "updateMntGrp")
+                if hasattr(self.__nexussettings_device, "cachecomponent"):
+                    ccomp = self.__nexussettings_device.cachecomponent
+                    if ccomp:
+                        self.debug('__setNexusDevices: '
+                                   'Cache Writer Configuration: %s'
+                                   % str(ccomp))
+                        self.__command(
+                            self.__nexussettings_device,
+                            "cacheWriterConfiguration", [])
 
         self.debug('__setNexusDevices: '
                    'Writer Device: %s' % str(self.__raw_filename))
