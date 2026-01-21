@@ -1,3 +1,7 @@
+2026-01-21 Jan Kotanski <jankotan@gmail.com>
+	* update configuration cache when profile created outside  the nxselector #167
+	* tagged as 3.32.0
+
 2026-01-16 Jan Kotanski <jankotan@gmail.com>
 	* add support for cache configuration
 	* tagged as 3.31.0
