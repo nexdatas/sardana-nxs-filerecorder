@@ -153,6 +153,9 @@ class NXS_FileRecorder(BaseFileRecorder):
         #: (:obj:`str`) module lable
         self.__moduleLabel = 'module'
 
+        #: (:obj:`str`) cache component prefix
+        self.__cacheCpPrefix = "__configuration_"
+
         #: (:obj:`int`) serialno
         self.__serial = 0
 
@@ -832,6 +835,7 @@ class NXS_FileRecorder(BaseFileRecorder):
 
         # (:obj:`list` <:obj:`str`>) all component source names
         allcpdss = []
+        cachedss = []
         cpReq = {}
         keyFound = set()
 
@@ -872,6 +876,11 @@ class NXS_FileRecorder(BaseFileRecorder):
                         [ds["dsname"] for ds in cpdss
                          if ("parentobj" not in ds or
                              ds["parentobj"] in ["field"])])
+                    if cp.startswith(self.__cacheCpPrefix):
+                        cachedss.extend(
+                            [ds["dsname"] for ds in cpdss
+                             if ("parentobj" not in ds or
+                                 ds["parentobj"] in ["field"])])
 
                 else:
                     cpdss = json.loads(
@@ -955,7 +964,7 @@ class NXS_FileRecorder(BaseFileRecorder):
                                 "NeXusDynamicComponents=True" % ds)
         self.debug("__searchDataSources:  "
                    "dynamic component loop end: %s" % str([cfm, dyncp]))
-        return (nds, dsNotFound, cpReq, list(missingKeys))
+        return (nds, dsNotFound, cpReq, list(missingKeys), cachedss)
 
     def __createConfiguration(self, userdata):
         """ create NeXus configuration
@@ -1010,9 +1019,10 @@ class NXS_FileRecorder(BaseFileRecorder):
 
         self.debug("__createConfiguration:  Search DataSources: %s"
                    % self.__oddmntgrp)
-        nds, dsNotFound, cpReq, missingKeys = self.__searchDataSources(
-            allnexuscomponents,
-            cfm, dyncp, userdata.keys())
+        nds, dsNotFound, cpReq, missingKeys, cachedss = \
+            self.__searchDataSources(
+                allnexuscomponents,
+                cfm, dyncp, userdata.keys())
         self.debug("__createConfiguration:  Get User data: %s"
                    % self.__oddmntgrp)
 
@@ -1038,10 +1048,11 @@ class NXS_FileRecorder(BaseFileRecorder):
         # udata = {ky: userdata[ky] for ky in missingKeys}
         if userdata:
             userdata.update(udata)
+        ids = (set(ids or []) - set(cachedss))
         self.debug("__createConfiguration:  Create dynamic components: %s"
                    % self.__oddmntgrp)
         self.__createDynamicComponent(
-            dsNotFound if dyncp else [], ids or [], udata, nexuscomponents)
+            dsNotFound if dyncp else [], ids, udata, nexuscomponents)
         nexuscomponents.append(str(self.__dynamicCP))
         self.debug("__createConfiguration:  Add Components: %s"
                    % self.__oddmntgrp)
