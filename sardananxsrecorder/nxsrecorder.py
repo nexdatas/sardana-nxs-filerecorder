@@ -134,6 +134,8 @@ class NXS_FileRecorder(BaseFileRecorder):
 
         #: (:obj:`str`) dynamic components
         self.__dynamicCP = "__dynamic_component__"
+        #: (:obj:`str`) cache component prefix
+        self.__cacheCPPrefix = "__configuration_"
 
         #: (:obj:`dict` <:obj:`str` , `any`> ) environment
         self.__env = macro.getAllEnv() if macro else {}
@@ -152,9 +154,6 @@ class NXS_FileRecorder(BaseFileRecorder):
 
         #: (:obj:`str`) module lable
         self.__moduleLabel = 'module'
-
-        #: (:obj:`str`) cache component prefix
-        self.__cacheCpPrefix = "__configuration_"
 
         #: (:obj:`int`) serialno
         self.__serial = 0
@@ -863,7 +862,7 @@ class NXS_FileRecorder(BaseFileRecorder):
         #                    "componentSources",
         #                    cmps))
         self.debug("__searchDataSources:  component loop: %s"
-                   % str([cfm, dyncp]))
+                   % str([cfm, dyncp, hascpsrcs]))
         for cp in cmps:
             self.debug("__searchDataSources:  component item: %s" % cp)
             try:
@@ -876,7 +875,7 @@ class NXS_FileRecorder(BaseFileRecorder):
                         [ds["dsname"] for ds in cpdss
                          if ("parentobj" not in ds or
                              ds["parentobj"] in ["field"])])
-                    if cp.startswith(self.__cacheCpPrefix):
+                    if cp.startswith(self.__cacheCPPrefix):
                         cachedss.extend(
                             [ds["dsname"] for ds in cpdss
                              if ("parentobj" not in ds or
@@ -1048,7 +1047,7 @@ class NXS_FileRecorder(BaseFileRecorder):
         # udata = {ky: userdata[ky] for ky in missingKeys}
         if userdata:
             userdata.update(udata)
-        ids = (set(ids or []) - set(cachedss))
+        ids = list(set(ids or []) - set(cachedss))
         self.debug("__createConfiguration:  Create dynamic components: %s"
                    % self.__oddmntgrp)
         self.__createDynamicComponent(
