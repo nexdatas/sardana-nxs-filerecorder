@@ -1,3 +1,7 @@
+2026-02-05 Jan Kotanski <jankotan@gmail.com>
+	* skip cached init datasource for dynamic component (#170)
+	* tagged as 3.33.0
+
 2026-01-21 Jan Kotanski <jankotan@gmail.com>
 	* update configuration cache when profile created outside  the nxselector #167
 	* tagged as 3.32.0
