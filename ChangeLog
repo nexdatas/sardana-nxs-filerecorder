@@ -1,4 +1,8 @@
 2026-02-05 Jan Kotanski <jankotan@gmail.com>
+	* add moveable client datasourcesto dynamic component (#176)
+	* tagged as 3.33.2
+
+2026-02-05 Jan Kotanski <jankotan@gmail.com>
 	* add datasources moveable to dynamic component (#173)
 	* tagged as 3.33.1
 

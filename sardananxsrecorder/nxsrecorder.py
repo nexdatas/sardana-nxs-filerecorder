@@ -30,6 +30,7 @@ import time
 import weakref
 import socket
 
+
 try:
     import tango
 except Exception:
@@ -688,7 +689,7 @@ class NXS_FileRecorder(BaseFileRecorder):
                     self.__deviceAliases[alias] = str(elm)
                 else:
                     self.__dynamicDataSources[(str(elm))] = None
-                self.__moveableDataSources.append(alias or str(elm))
+                # self.__moveableDataSources.append(alias or str(elm))
         if 'column_desc' in envRec:
             for elm in envRec['column_desc']:
                 if "name" in elm.keys():
@@ -874,15 +875,25 @@ class NXS_FileRecorder(BaseFileRecorder):
                         self.__command(self.__nexussettings_device,
                                        "componentSources",
                                        [cp]))
-                    allcpdss.extend(
-                        [ds["dsname"] for ds in cpdss
-                         if ("parentobj" not in ds or
-                             ds["parentobj"] in ["field"])])
+                    adss = [ds["dsname"] for ds in cpdss
+                            if ("parentobj" not in ds or
+                                ds["parentobj"] in ["field"])]
+                    allcpdss.extend(adss)
                     if cp.startswith(self.__cacheCPPrefix):
-                        cachedss.extend(
-                            [ds["dsname"] for ds in cpdss
-                             if ("parentobj" not in ds or
-                                 ds["parentobj"] in ["field"])])
+                        cachedss.extend(adss)
+                        if self.__macro:
+                            cldss = [ds["dsname"] for ds in cpdss
+                                     if (("parentobj" not in ds or
+                                          ds["parentobj"] in ["field"])
+                                     and ds["dstype"] == "CLIENT")]
+
+                            pools = self.__macro().getPools()
+                            motors = []
+                            for pool in pools:
+                                motors.append(pool.MotorList)
+                            mnames = [json.loads(m[0])["name"] for m in motors]
+                            self.__moveableDataSources.extend(
+                                list(set(cldss) & set(mnames)))
 
                 else:
                     cpdss = json.loads(
@@ -898,11 +909,11 @@ class NXS_FileRecorder(BaseFileRecorder):
             except Exception as e:
                 if cp in nexuscomponents:
                     self.warning("Component '%s' wrongly defined in DB!" % cp)
-                    self.warning("Error: '%s'" % str(e))
+                    # self.warning("Error: '%s'" % str(e))
                     if self.__macro:
                         self.__macro().warning(
                             "Component '%s' wrongly defined in DB!" % cp)
-                        # self.__macro().warning("Error: '%s'" % str(e))
+                        self.__macro().warning("Error: '%s'" % str(e))
                 else:
                     self.debug(
                         "__searchDataSources:  "
@@ -912,7 +923,7 @@ class NXS_FileRecorder(BaseFileRecorder):
                         self.__macro().debug(
                             "__searchDataSources:  "
                             "Component '%s' wrongly defined in DB!" % cp)
-                    self.__macro.debug("Error: '%s'" % str(e))
+                    self.__macro().debug("Error: '%s'" % str(e))
                 dss = []
             if dss:
                 cdss = list(set(dss) & set(datasources))
@@ -1050,8 +1061,8 @@ class NXS_FileRecorder(BaseFileRecorder):
         # udata = {ky: userdata[ky] for ky in missingKeys}
         if userdata:
             userdata.update(udata)
-        ids = list(set(ids or [])
-                   - (set(cachedss) - set(self.__moveableDataSources)))
+        ids = list((set(ids or []) - set(cachedss))
+                   | set(self.__moveableDataSources))
         # ids = list(set(ids or []))
         self.debug("__createConfiguration:  Create dynamic components: %s"
                    % self.__oddmntgrp)
