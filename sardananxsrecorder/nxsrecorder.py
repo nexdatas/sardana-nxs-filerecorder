@@ -131,6 +131,8 @@ class NXS_FileRecorder(BaseFileRecorder):
         self.__deviceAliases = {}
         #: (:obj:`dict` <:obj:`str` , `None`>) dynamic datasources
         self.__dynamicDataSources = {}
+        #: (:obj:`list` <:obj:`str`>) movable device aliases
+        self.__moveableDataSources = []
 
         #: (:obj:`str`) dynamic components
         self.__dynamicCP = "__dynamic_component__"
@@ -686,6 +688,7 @@ class NXS_FileRecorder(BaseFileRecorder):
                     self.__deviceAliases[alias] = str(elm)
                 else:
                     self.__dynamicDataSources[(str(elm))] = None
+                self.__moveableDataSources.append(alias or str(elm))
         if 'column_desc' in envRec:
             for elm in envRec['column_desc']:
                 if "name" in elm.keys():
@@ -1047,7 +1050,9 @@ class NXS_FileRecorder(BaseFileRecorder):
         # udata = {ky: userdata[ky] for ky in missingKeys}
         if userdata:
             userdata.update(udata)
-        ids = list(set(ids or []) - set(cachedss))
+        ids = list(set(ids or [])
+                   - (set(cachedss) - set(self.__moveableDataSources)))
+        # ids = list(set(ids or []))
         self.debug("__createConfiguration:  Create dynamic components: %s"
                    % self.__oddmntgrp)
         self.__createDynamicComponent(
