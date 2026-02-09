@@ -30,7 +30,6 @@ import time
 import weakref
 import socket
 
-
 try:
     import tango
 except Exception:
@@ -890,8 +889,9 @@ class NXS_FileRecorder(BaseFileRecorder):
                             pools = self.__macro().getPools()
                             motors = []
                             for pool in pools:
-                                motors.append(pool.MotorList)
-                            mnames = [json.loads(m[0])["name"] for m in motors]
+                                motors.extend(pool.MotorList)
+                            mnames = [json.loads(m)["name"] for m in motors]
+
                             self.__moveableDataSources.extend(
                                 list(set(cldss) & set(mnames)))
 
