@@ -883,9 +883,9 @@ class NXS_FileRecorder(BaseFileRecorder):
                         if self.__macro:
                             cldss = [ds["dsname"] for ds in cpdss
                                      if (("parentobj" not in ds or
-                                          ds["parentobj"] \
+                                          ds["parentobj"]
                                           in ["field", "map", "vds"])
-                                     and ds["dstype"] == "CLIENT")]
+                                         and ds["dstype"] == "CLIENT")]
 
                             pools = self.__macro().getPools()
                             motors = []
