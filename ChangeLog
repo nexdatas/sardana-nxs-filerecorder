@@ -1,3 +1,7 @@
+2026-04-17 Jan Kotanski <jankotan@gmail.com>
+	* add support for vds and map datasources (#183)
+	* tagged as 3.34.0
+
 2026-02-05 Jan Kotanski <jankotan@gmail.com>
 	* fix typo in collecting motor list (#180)
 	* tagged as 3.33.3
