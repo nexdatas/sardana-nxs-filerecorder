@@ -1186,7 +1186,14 @@ class NXS_FileRecorder(BaseFileRecorder):
                 if hasattr(self.__macro(), "integ_time"):
                     self.__vars["vars"]["count_time"] = \
                         self.__macro().integ_time
-                if hasattr(self.__macro(), "nb_points"):
+                if hasattr(self.__macro(), "nr_points") \
+                        and hasattr(self.__macro(), "nb_repeat"):
+                    self.__vars["vars"]["npoints"] = \
+                        self.__macro().nr_points * self.__macro().nb_repeat
+                elif hasattr(self.__macro(), "nr_points"):
+                    self.__vars["vars"]["npoints"] = \
+                        self.__macro().nr_points
+                elif hasattr(self.__macro(), "nb_points"):
                     self.__vars["vars"]["npoints"] = \
                         self.__macro().nb_points
             self.__vars["vars"]["beamtime_id"] = self.beamtimeid()
