@@ -1,3 +1,7 @@
+2026-04-17 Jan Kotanski <jankotan@gmail.com>
+	* add support for vds and map datasources (#183)
+	* tagged as 3.34.0
+
 2026-02-05 Jan Kotanski <jankotan@gmail.com>
 	* add support for npoints variable of *_repeat macros (#188)
 	* tagged as 3.34,0

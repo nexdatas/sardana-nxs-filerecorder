@@ -876,15 +876,16 @@ class NXS_FileRecorder(BaseFileRecorder):
                                        [cp]))
                     adss = [ds["dsname"] for ds in cpdss
                             if ("parentobj" not in ds or
-                                ds["parentobj"] in ["field"])]
+                                ds["parentobj"] in ["field", "map", "vds"])]
                     allcpdss.extend(adss)
                     if cp.startswith(self.__cacheCPPrefix):
                         cachedss.extend(adss)
                         if self.__macro:
                             cldss = [ds["dsname"] for ds in cpdss
                                      if (("parentobj" not in ds or
-                                          ds["parentobj"] in ["field"])
-                                     and ds["dstype"] == "CLIENT")]
+                                          ds["parentobj"]
+                                          in ["field", "map", "vds"])
+                                         and ds["dstype"] == "CLIENT")]
 
                             pools = self.__macro().getPools()
                             motors = []
