@@ -3,6 +3,10 @@
 	* tagged as 3.34.0
 
 2026-02-05 Jan Kotanski <jankotan@gmail.com>
+	* add support for npoints variable of *_repeat macros (#188)
+	* tagged as 3.34,0
+
+2026-02-05 Jan Kotanski <jankotan@gmail.com>
 	* fix typo in collecting motor list (#180)
 	* tagged as 3.33.3
 
