@@ -1,4 +1,8 @@
 2026-05-13 Jan Kotanski <jankotan@gmail.com>
+	* change nr_points to nb_points (#190)
+	* tagged as 3.35.1
+
+2026-05-13 Jan Kotanski <jankotan@gmail.com>
 	* add support for npoints variable of *_repeat macros (#188)
 	* tagged as 3.35.0
 
