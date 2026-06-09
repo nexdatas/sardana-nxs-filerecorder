@@ -1331,7 +1331,9 @@ class NXS_FileRecorder(BaseFileRecorder):
         try:
             if self.filename is None:
                 return
-            self.__env = self.__macro().getAllEnv() if self.__macro else {}
+            if self.__env is None:
+                self.__env = self.__macro().getAllEnv() \
+                    if self.__macro else {}
             envrecord = self.__appendRecord(self.__vars, 'STEP')
             rec = json.dumps(
                 envrecord, cls=NXS_FileRecorder.numpyEncoder)
