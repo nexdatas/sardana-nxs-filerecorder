@@ -1,3 +1,7 @@
+2026-06-09 Jan Kotanski <jankotan@gmail.com>
+	* avoid calling getAllEnv in the record method (#193)
+	* tagged as 3.35.2
+
 2026-05-13 Jan Kotanski <jankotan@gmail.com>
 	* change nr_points to nb_points (#190)
 	* tagged as 3.35.1
