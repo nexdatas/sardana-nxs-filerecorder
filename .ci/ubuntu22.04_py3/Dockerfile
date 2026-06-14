@@ -2,7 +2,7 @@ FROM ubuntu:22.04
 
 MAINTAINER DESY, Jan Kotanski <jankotan@gmail.com>
 
-RUN apt-get -qq update && export DEBIAN_FRONTEND=noninteractive && apt-get -qq install -y software-properties-common curl
+RUN apt-get -qq update && apt-get dist-upgrade && export DEBIAN_FRONTEND=noninteractive && apt-get -qq install -y software-properties-common curl
 RUN curl https://repos.pni-hdri.de/debian_repo.pub.gpg | apt-key add -
 RUN add-apt-repository "deb https://repos.pni-hdri.de/apt/ubuntu jammy main" -y
 RUN apt-get -qq update && export DEBIAN_FRONTEND=noninteractive && apt-get -qq dist-upgrade
