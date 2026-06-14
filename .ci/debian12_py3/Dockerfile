@@ -2,7 +2,8 @@ FROM debian:bookworm
 
 MAINTAINER DESY, Jan Kotanski <jankotan@gmail.com>
 # RUN /bin/bash -c 'echo "deb http://ftp.de.debian.org/debian bookworm main" > /etc/apt/sources.list.d/debiande.list'
-RUN apt-get update
+RUN apt-get -qq update && export DEBIAN_FRONTEND=noninteractive && apt-get purge curl wget
+RUN apt-get -qq update && export DEBIAN_FRONTEND=noninteractive && apt-get -qq dist-upgrade
 RUN apt-get install -y base-passwd
 RUN apt-get -qq update && apt-get -qq install -y libterm-readline-gnu-perl software-properties-common coreutils gnupg2 procps apt-utils curl apt-transport-https gnupg2 ca-certificates wget 
 RUN apt-get -qq update && export DEBIAN_FRONTEND=noninteractive && apt-get -qq dist-upgrade
