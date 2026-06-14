@@ -46,6 +46,7 @@ except Exception:
 
 
 from sardana.macroserver.scan.recorder.storage import BaseFileRecorder
+from sardana.macroserver.macro import StopException
 
 
 try:
@@ -1331,9 +1332,12 @@ class NXS_FileRecorder(BaseFileRecorder):
         try:
             if self.filename is None:
                 return
-            if self.__env is None:
+            try:
                 self.__env = self.__macro().getAllEnv() \
                     if self.__macro else {}
+            except StopException as e:
+                self.warning(
+                    "Environment cannot be read: %s" % (str(e)))
             envrecord = self.__appendRecord(self.__vars, 'STEP')
             rec = json.dumps(
                 envrecord, cls=NXS_FileRecorder.numpyEncoder)
