@@ -1,10 +1,11 @@
 FROM debian:trixie
 
 # MAINTAINER DESY, Jan Kotanski <jankotan@gmail.com>
-RUN /bin/bash -c 'echo "deb http://ftp.de.debian.org/debian trixie main" > /etc/apt/sources.list.d/debiande.list'
-RUN apt-get update
+# RUN /bin/bash -c 'echo "deb http://ftp.de.debian.org/debian trixie main" > /etc/apt/sources.list.d/debiande.list'
+RUN apt-get -qq update && export DEBIAN_FRONTEND=noninteractive && apt-get purge curl wget
+RUN apt-get -qq update && export DEBIAN_FRONTEND=noninteractive && apt-get -qq dist-upgrade
 RUN apt-get install -y base-passwd
-RUN apt-get -qq update && apt-get -qq install -y libterm-readline-gnu-perl coreutils gnupg2 procps apt-utils curl apt-transport-https gnupg2 ca-certificates wget
+RUN apt-get -qq update  && apt-get -qq install -y libterm-readline-gnu-perl coreutils gnupg2 procps apt-utils curl apt-transport-https gnupg2 ca-certificates wget
 
 RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
 RUN curl --retry 10 -s https://repos.pni-hdri.de/debian_repo.pub.gpg  | gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/debian-hdri-repo.gpg --import
