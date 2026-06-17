@@ -48,6 +48,11 @@ except Exception:
 from sardana.macroserver.scan.recorder.storage import BaseFileRecorder
 from sardana.macroserver.macro import StopException
 
+try:
+    from sardana.macroserver.scan.gscan import ScanEndStatus
+except Exception:
+    ScanEndStatus = None
+
 
 try:
     from sardana import __version__
@@ -58,6 +63,19 @@ except Exception:
 
 
 __docformat__ = 'restructuredtext'
+
+
+#: (:obj:`dict` <:obj:`str`, :obj:`str`>) maps a Sardana scan end status to
+#:    the blissdata "end_reason" convention. Consumers such as daiquiri map
+#:    SUCCESS -> FINISHED, USER_ABORT -> ABORTED and FAILURE/DELETION ->
+#:    FAILED. A stopped or aborted scan is user driven, so both map to
+#:    USER_ABORT; an exception is reported as a failure.
+END_REASON_BY_END_STATUS = {
+    "Normal": "SUCCESS",
+    "Stop": "USER_ABORT",
+    "Abort": "USER_ABORT",
+    "Exception": "FAILURE",
+}
 
 
 class NXS_FileRecorder(BaseFileRecorder):
@@ -1398,6 +1416,23 @@ class NXS_FileRecorder(BaseFileRecorder):
 
         return str(starttime.strftime(fmt))
 
+    def __endReason(self, envRec):
+        """ maps the Sardana scan end status to a blissdata end_reason
+
+        :param envRec: record list environment
+        :type envRec: :obj:`dict` <:obj:`str`, :obj:`any`>
+        :returns: scan end reason, e.g. SUCCESS, USER_ABORT or FAILURE
+        :rtype: :obj:`str`
+        """
+        endstatus = (envRec or {}).get("endstatus")
+        if endstatus is None or ScanEndStatus is None:
+            return "SUCCESS"
+        try:
+            name = ScanEndStatus.whatis(endstatus)
+        except Exception:
+            name = endstatus
+        return END_REASON_BY_END_STATUS.get(name, "SUCCESS")
+
     def _endRecordList(self, recordlist):
         """ ends record process: records in FINAL mode
             and closes the nexus file
@@ -1418,6 +1453,7 @@ class NXS_FileRecorder(BaseFileRecorder):
             tzone = self.__getConfVar("TimeZone", self.__timezone)
             self.__vars["data"]["end_time"] = \
                 self.__timeToString(envRec['endtime'], tzone)
+            self.__vars["data"]["end_reason"] = self.__endReason(envRec)
 
             envrecord = self.__appendRecord(self.__vars, 'FINAL')
 
