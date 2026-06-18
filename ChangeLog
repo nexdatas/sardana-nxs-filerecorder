@@ -1,3 +1,7 @@
+2026-06-17 Jan Kotanski <jankotan@gmail.com>
+	* added end reason by Udai (#200)
+	* tagged as 3.36.0
+
 2026-06-09 Jan Kotanski <jankotan@gmail.com>
 	* catch StopException frm getAllEnv in the record method (#198)
 	* tagged as 3.35.3

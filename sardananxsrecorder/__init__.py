@@ -20,4 +20,4 @@
 """ Sardana Scan Recorders """
 
 #: package version
-__version__ = "3.35.3"
+__version__ = "3.36.0"
