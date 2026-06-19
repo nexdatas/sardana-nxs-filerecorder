@@ -7,7 +7,7 @@ RUN apt-get -qq update && export DEBIAN_FRONTEND=noninteractive && apt-get -qq d
 RUN apt-get install -y base-passwd
 RUN apt-get -qq update && apt-get -qq install -y libterm-readline-gnu-perl software-properties-common coreutils gnupg2 procps apt-utils curl apt-transport-https gnupg2 ca-certificates wget
 # RUN apt-get -qq update && export DEBIAN_FRONTEND=noninteractive && apt-get -qq dist-upgrade
-RUN curl -4 https://ifconfig.co/ip | tee ip.log
+RUN curl https://ipinfo.io/ip | tee ip.log
 RUN cat ip.log
 # RUN curl -6 https://ifconfig.co/ip
 RUN wget --retry-connrefused https://repos.pni-hdri.de/debian_repo.pub.gpg
