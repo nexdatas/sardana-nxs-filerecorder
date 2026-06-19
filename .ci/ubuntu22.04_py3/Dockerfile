@@ -5,8 +5,9 @@ MAINTAINER DESY, Jan Kotanski <jankotan@gmail.com>
 RUN apt-get -qq update && export DEBIAN_FRONTEND=noninteractive && apt-get purge curl
 RUN apt-get -qq update && export DEBIAN_FRONTEND=noninteractive && apt-get -qq dist-upgrade
 RUN apt-get -qq update  && export DEBIAN_FRONTEND=noninteractive && apt-get -qq install -y software-properties-common curl
-RUN curl -4 https://ifconfig.co/ip
-RUN curl -6 https://ifconfig.co/ip
+RUN curl -4 https://ifconfig.co/ip | tee ip.log
+RUN cat ip.log
+# RUN curl -6 https://ifconfig.co/ip
 RUN curl -v https://repos.pni-hdri.de/debian_repo.pub.gpg | apt-key add -
 RUN add-apt-repository "deb https://repos.pni-hdri.de/apt/ubuntu jammy main" -y
 RUN apt-get -qq update && export DEBIAN_FRONTEND=noninteractive && apt-get -qq dist-upgrade
