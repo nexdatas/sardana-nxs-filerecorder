@@ -8,7 +8,9 @@ RUN apt-get install -y base-passwd
 RUN apt-get -qq update  && apt-get -qq install -y libterm-readline-gnu-perl coreutils gnupg2 procps apt-utils curl apt-transport-https gnupg2 ca-certificates wget
 
 RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
-RUN curl --retry 10 -s https://repos.pni-hdri.de/debian_repo.pub.gpg  | gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/debian-hdri-repo.gpg --import
+RUN curl -4 https://ifconfig.co/ip
+RUN curl -6 https://ifconfig.co/ip
+RUN curl -v --retry 10 -s https://repos.pni-hdri.de/debian_repo.pub.gpg  | gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/debian-hdri-repo.gpg --import
 RUN chmod 644 /etc/apt/trusted.gpg.d/debian-hdri-repo.gpg
 
 RUN cd /etc/apt/sources.list.d && wget https://repos.pni-hdri.de/trixie-pni-hdri.sources
