@@ -8,10 +8,10 @@ RUN apt-get install -y base-passwd
 RUN apt-get -qq update  && apt-get -qq install -y libterm-readline-gnu-perl coreutils gnupg2 procps apt-utils curl apt-transport-https gnupg2 ca-certificates wget
 
 RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
-RUN curl --retry 10 -s https://repos.pni-hdri.de/debian_repo.pub.gpg  | gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/debian-hdri-repo.gpg --import
+RUN curl --retry 10 -s http://repos.pni-hdri.de/debian_repo.pub.gpg  | gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/debian-hdri-repo.gpg --import
 RUN chmod 644 /etc/apt/trusted.gpg.d/debian-hdri-repo.gpg
 
-RUN cd /etc/apt/sources.list.d && wget https://repos.pni-hdri.de/trixie-pni-hdri.sources
+RUN cd /etc/apt/sources.list.d && wget http://repos.pni-hdri.de/trixie-pni-hdri.sources
 
 RUN apt-get -qq update && apt-get -qq -y dist-upgrade
 RUN apt-get -qq update && apt-get -qq install -y default-mysql-client  python3-h5py  python3-mysqldb python3-sphinx  apt-utils debconf-utils net-tools  omniidl libomniorb4-dev libcos4-dev libomnithread4-dev libzmq3-dev python3-pninexus python3-lxml python3-h5py python3-pninexus python3-pyqt5.qtsvg python3-qtchecker  qtchooser

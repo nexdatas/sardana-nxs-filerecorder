@@ -7,10 +7,10 @@ RUN apt-get -qq update && export DEBIAN_FRONTEND=noninteractive && apt-get -qq d
 RUN apt-get install -y base-passwd
 RUN apt-get -qq update && apt-get -qq install -y libterm-readline-gnu-perl software-properties-common coreutils gnupg2 procps apt-utils curl apt-transport-https gnupg2 ca-certificates wget 
 RUN apt-get -qq update && export DEBIAN_FRONTEND=noninteractive && apt-get -qq dist-upgrade
-RUN wget --retry-connrefused https://repos.pni-hdri.de/debian_repo.pub.gpg
+RUN wget --retry-connrefused http://repos.pni-hdri.de/debian_repo.pub.gpg
 RUN apt-key add debian_repo.pub.gpg
-# RUN add-apt-repository "deb https://repos.pni-hdri.de/apt/debian bookworm main" -y
-RUN cd /etc/apt/sources.list.d && wget https://repos.pni-hdri.de/bookworm-pni-hdri.list
+# RUN add-apt-repository "deb http://repos.pni-hdri.de/apt/debian bookworm main" -y
+RUN cd /etc/apt/sources.list.d && wget http://repos.pni-hdri.de/bookworm-pni-hdri.list
 
 RUN apt-get -qq update && apt-get -qq -y dist-upgrade
 RUN apt-get -qq update && apt-get -qq install -y default-mysql-client  python3-h5py  python3-mysqldb python3-sphinx  apt-utils debconf-utils net-tools  omniidl libomniorb4-dev libcos4-dev libomnithread4-dev libzmq3-dev python3-pninexus python3-lxml python3-h5py python3-pninexus python3-pyqt5.qtsvg python3-qtchecker  qtchooser
