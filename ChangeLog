@@ -1,3 +1,7 @@
+2026-09-07 Jan Kotanski <jankotan@gmail.com>
+	* calculate npoints for mesh repeat (#203)
+	* tagged as 3.37.0
+
 2026-06-17 Jan Kotanski <jankotan@gmail.com>
 	* added end reason by Udai (#200)
 	* tagged as 3.36.0
