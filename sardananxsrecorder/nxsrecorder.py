@@ -1218,6 +1218,9 @@ class NXS_FileRecorder(BaseFileRecorder):
                 if hasattr(self.__macro(), "nb_repeat"):
                     self.__vars["vars"]["npoints"] = \
                         npoints * self.__macro().nb_repeat
+                if hasattr(self.__macro(), "nb_repetitions"):
+                    self.__vars["vars"]["npoints"] = \
+                        npoints * self.__macro().nb_repetitions
 
             self.__vars["vars"]["beamtime_id"] = self.beamtimeid()
             tzone = self.__getConfVar("TimeZone", self.__timezone)
