@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>Welcome to sardananxsrecorder’s documentation! &#8212; Sardana NeXus Recorder 3.29.0 documentation</title>
+    <title>Welcome to sardananxsrecorder’s documentation! &#8212; Sardana NeXus Recorder 3.37.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/bootstrap-sphinx.css" />
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
@@ -39,7 +39,7 @@
         </button>
         <a class="navbar-brand" href="#">
           Sardana NeXus Recorder</a>
-        <span class="navbar-text navbar-version pull-left"><b>3.29</b></span>
+        <span class="navbar-text navbar-version pull-left"><b>3.37</b></span>
       </div>
 
         <div class="collapse navbar-collapse nav-collapse">
@@ -152,7 +152,7 @@ NeXDatas Tango Server or packages, i.e. NXSDataWriter, NXSConfigServer, NXSRecSe
 <div class="line"><a class="reference external" href="https://github.com/nexdatas/sardana-nxs-filerecorder">https://github.com/nexdatas/sardana-nxs-filerecorder</a></div>
 </div>
 <p>Extract sources and run</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>python<span class="w"> </span>setup.py<span class="w"> </span>install
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>python3<span class="w"> </span>setup.py<span class="w"> </span>install
 </pre></div>
 </div>
 <p>and add an <em>RecorderPath</em> property of <em>MacroServer</em> with its value
@@ -163,45 +163,32 @@ defining the package location, e.g.</p>
 </section>
 <section id="debian-packages">
 <h3>Debian packages<a class="headerlink" href="#debian-packages" title="Permalink to this heading">¶</a></h3>
-<p>Debian Bookworm, Bullseye, Buster and Ubuntu Lunar, Jammy and Focal packages can be found in the HDRI repository.</p>
+<p>Debian Trixie, Bookworm, Bullseye and Ubuntu Resolute, Noble Jammy packages can be found in the HDRI repository.</p>
 <p>To install the debian packages, add the PGP repository key</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>sudo<span class="w"> </span>su
-<span class="gp">$ </span>wget<span class="w"> </span>-q<span class="w"> </span>-O<span class="w"> </span>-<span class="w"> </span>http://repos.pni-hdri.de/debian_repo.pub.gpg<span class="w"> </span><span class="p">|</span><span class="w"> </span>apt-key<span class="w"> </span>add<span class="w"> </span>-
+<span class="gp">$ </span>curl<span class="w"> </span>-s<span class="w"> </span>http://repos.pni-hdri.de/debian_repo.pub.gpg<span class="w"> </span><span class="p">|</span><span class="w"> </span>gpg<span class="w"> </span>--no-default-keyring<span class="w"> </span>--keyring<span class="w"> </span>gnupg-ring:/etc/apt/trusted.gpg.d/debian-hdri-repo.gpg<span class="w"> </span>--import
+<span class="gp">$ </span>chmod<span class="w"> </span><span class="m">644</span><span class="w"> </span>/etc/apt/trusted.gpg.d/debian-hdri-repo.gpg
 </pre></div>
 </div>
 <p>and then download the corresponding source list</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>/etc/apt/sources.list.d
-<span class="gp">$ </span>wget<span class="w"> </span>http://repos.pni-hdri.de/bookworm-pni-hdri.list
+<span class="gp">$ </span>wget<span class="w"> </span>http://repos.pni-hdri.de/trixie-pni-hdri.sources
 </pre></div>
 </div>
 <p>Finally, for python2.7</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>apt-get<span class="w"> </span>update
-<span class="gp">$ </span>apt-get<span class="w"> </span>install<span class="w"> </span>python-sardana-nxsrecorder
+<span class="gp">$ </span>apt-get<span class="w"> </span>install<span class="w"> </span>python3-sardana-nxsrecorder
 </pre></div>
 </div>
 <p>and set the RecoderPath property of MacroServer with</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>apt-get<span class="w"> </span>install<span class="w"> </span>sardana-nxsrecorder
 </pre></div>
 </div>
-<p>For python3</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>apt-get<span class="w"> </span>update
-<span class="gp">$ </span>apt-get<span class="w"> </span>install<span class="w"> </span>python3-sardana-nxsrecorder
-<span class="gp">$ </span>apt-get<span class="w"> </span>install<span class="w"> </span>sardana-nxsrecorder3
-</pre></div>
-</div>
 <p>To instal other NexDaTaS packages</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>apt-get<span class="w"> </span>install<span class="w"> </span>python-nxswriter<span class="w"> </span>nxsconfigserver-db<span class="w"> </span>python-nxsconfigserver<span class="w"> </span>nxsconfigtool<span class="w"> </span>python-nxstools<span class="w"> </span>nxswriter<span class="w"> </span>nxsconfigserver<span class="w"> </span>nxsrecselector
-</pre></div>
-</div>
-<p>or for python 3</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>apt-get<span class="w"> </span>install<span class="w"> </span>python3-nxswriter<span class="w"> </span>nxsconfigserver-db<span class="w"> </span>python3-nxsconfigserver<span class="w"> </span>nxsconfigtool3<span class="w"> </span>python3-nxstools<span class="w"> </span>nxswriter3<span class="w"> </span>nxsconfigserver3
 </pre></div>
 </div>
 <p>and</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>apt-get<span class="w"> </span>install<span class="w"> </span>python-nxsrecselector<span class="w"> </span>nxsrecselector<span class="w"> </span>nxselector
-</pre></div>
-</div>
-<p>or for python3</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>apt-get<span class="w"> </span>install<span class="w"> </span>python3-nxsrecselector<span class="w"> </span>nxsrecselector3<span class="w"> </span>nxselector3
 </pre></div>
 </div>

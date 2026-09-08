@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>sardananxsrecorder.nxsrecorder &#8212; Sardana NeXus Recorder 3.29.0 documentation</title>
+    <title>sardananxsrecorder.nxsrecorder &#8212; Sardana NeXus Recorder 3.37.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-sphinx.css" />
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
@@ -37,7 +37,7 @@
         </button>
         <a class="navbar-brand" href="../../index.html">
           Sardana NeXus Recorder</a>
-        <span class="navbar-text navbar-version pull-left"><b>3.29</b></span>
+        <span class="navbar-text navbar-version pull-left"><b>3.37</b></span>
       </div>
 
         <div class="collapse navbar-collapse nav-collapse">
@@ -152,6 +152,12 @@
 
 
 <span class="kn">from</span> <span class="nn">sardana.macroserver.scan.recorder.storage</span> <span class="kn">import</span> <span class="n">BaseFileRecorder</span>
+<span class="kn">from</span> <span class="nn">sardana.macroserver.macro</span> <span class="kn">import</span> <span class="n">StopException</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">sardana.macroserver.scan.gscan</span> <span class="kn">import</span> <span class="n">ScanEndStatus</span>
+<span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+    <span class="n">ScanEndStatus</span> <span class="o">=</span> <span class="kc">None</span>
 
 
 <span class="k">try</span><span class="p">:</span>
@@ -163,6 +169,19 @@
 
 
 <span class="n">__docformat__</span> <span class="o">=</span> <span class="s1">&#39;restructuredtext&#39;</span>
+
+
+<span class="c1">#: (:obj:`dict` &lt;:obj:`str`, :obj:`str`&gt;) maps a Sardana scan end status to</span>
+<span class="c1">#:    the blissdata &quot;end_reason&quot; convention. Consumers such as daiquiri map</span>
+<span class="c1">#:    SUCCESS -&gt; FINISHED, USER_ABORT -&gt; ABORTED and FAILURE/DELETION -&gt;</span>
+<span class="c1">#:    FAILED. A stopped or aborted scan is user driven, so both map to</span>
+<span class="c1">#:    USER_ABORT; an exception is reported as a failure.</span>
+<span class="n">END_REASON_BY_END_STATUS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;Normal&quot;</span><span class="p">:</span> <span class="s2">&quot;SUCCESS&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Stop&quot;</span><span class="p">:</span> <span class="s2">&quot;USER_ABORT&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Abort&quot;</span><span class="p">:</span> <span class="s2">&quot;USER_ABORT&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Exception&quot;</span><span class="p">:</span> <span class="s2">&quot;FAILURE&quot;</span><span class="p">,</span>
+<span class="p">}</span>
 
 
 <div class="viewcode-block" id="NXS_FileRecorder"><a class="viewcode-back" href="../../sardananxsrecorder.html#sardananxsrecorder.nxsrecorder.NXS_FileRecorder">[docs]</a><span class="k">class</span> <span class="nc">NXS_FileRecorder</span><span class="p">(</span><span class="n">BaseFileRecorder</span><span class="p">):</span>
@@ -205,6 +224,7 @@
 <span class="sd">        :type macro: :class:`sardana.macroserver.macro.Macro`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">BaseFileRecorder</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;__init__:  Init NXS_FileRecorder: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
         <span class="c1">#: (:obj:`str`) base filename</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__base_filename</span> <span class="o">=</span> <span class="n">filename</span>
         <span class="c1">#: (:obj:`str`) raw filename</span>
@@ -222,7 +242,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">__nexussettings_device</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="c1">#: (:obj:`int`) device proxy timeout</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__timeout</span> <span class="o">=</span> <span class="mi">100000</span>
+        <span class="c1"># self.__timeout = 100000</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__timeout</span> <span class="o">=</span> <span class="mi">10000000</span>
         <span class="c1">#: (:obj:`dict` &lt;:obj:`str`, :obj:`list` &lt;:obj:`str`&gt;</span>
         <span class="c1">#:     or :obj:`dict` &lt;:obj:`str` , `any`&gt; &gt; ) Custom variables</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__vars</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="p">{},</span>
@@ -235,9 +256,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">__deviceAliases</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="c1">#: (:obj:`dict` &lt;:obj:`str` , `None`&gt;) dynamic datasources</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__dynamicDataSources</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c1">#: (:obj:`list` &lt;:obj:`str`&gt;) movable device aliases</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__moveableDataSources</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="c1">#: (:obj:`str`) dynamic components</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__dynamicCP</span> <span class="o">=</span> <span class="s2">&quot;__dynamic_component__&quot;</span>
+        <span class="c1">#: (:obj:`str`) cache component prefix</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__cacheCPPrefix</span> <span class="o">=</span> <span class="s2">&quot;__configuration_&quot;</span>
 
         <span class="c1">#: (:obj:`dict` &lt;:obj:`str` , `any`&gt; ) environment</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__env</span> <span class="o">=</span> <span class="n">macro</span><span class="o">.</span><span class="n">getAllEnv</span><span class="p">()</span> <span class="k">if</span> <span class="n">macro</span> <span class="k">else</span> <span class="p">{}</span>
@@ -273,13 +298,17 @@
         <span class="c1">#: (:obj:`bool`) external measurement group</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__oddmntgrp</span> <span class="o">=</span> <span class="kc">False</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;__init__:  Set NeXus: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__setNexusDevices</span><span class="p">(</span><span class="n">onlyconfig</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;__init__:  Set Append Entry: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
         <span class="n">appendentry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__getConfVar</span><span class="p">(</span><span class="s2">&quot;AppendEntry&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
         <span class="n">scanID</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__env</span><span class="p">[</span><span class="s2">&quot;ScanID&quot;</span><span class="p">]</span> \
             <span class="k">if</span> <span class="s2">&quot;ScanID&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__env</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;__init__:  Set FileName: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__setFileName</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__base_filename</span><span class="p">,</span> <span class="ow">not</span> <span class="n">appendentry</span><span class="p">,</span> <span class="n">scanID</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;__init__:  Done: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">_serial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scanID</span><span class="p">):</span>
         <span class="n">serial</span> <span class="o">=</span> <span class="kc">None</span>
@@ -517,7 +546,8 @@
                 <span class="n">subs</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">__raw_filename</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__raw_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__rawfilename</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__serial</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;Raw Filename: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__raw_filename</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;__setFileName:  &#39;</span>
+                   <span class="s1">&#39;Raw Filename: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__raw_filename</span><span class="p">))</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">subs</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">__raw_filename</span> <span class="ow">and</span> \
            <span class="s2">&quot;{ScanID&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__raw_filename</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
@@ -559,6 +589,9 @@
 <span class="sd">                           profile configuration of NXSRecSelector</span>
 <span class="sd">        :type onlyconfig: :obj:`bool`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s1">&#39;__setNexusDevices:  NXSRecSelector: </span><span class="si">%s</span><span class="s1">&#39;</span>
+            <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__raw_filename</span><span class="p">))</span>
         <span class="n">vl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__getEnvVar</span><span class="p">(</span><span class="s2">&quot;NeXusSelectorDevice&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">vl</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">servers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__db</span><span class="o">.</span><span class="n">get_device_exported_for_class</span><span class="p">(</span>
@@ -580,6 +613,8 @@
                         <span class="s2">&quot;Cannot connect to &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">servers</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__nexussettings_device</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;__setNexusDevices:  import profile: </span><span class="si">%s</span><span class="s1">&#39;</span>
+                   <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__raw_filename</span><span class="p">))</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__nexussettings_device</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="kn">from</span> <span class="nn">nxsrecconfig</span> <span class="kn">import</span> <span class="n">Settings</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__nexussettings_device</span> <span class="o">=</span> <span class="n">Settings</span><span class="o">.</span><span class="n">Settings</span><span class="p">()</span>
@@ -589,10 +624,13 @@
             <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;NXSRecSelector (</span><span class="si">%s</span><span class="s2">) version below 2.0.0&quot;</span> <span class="o">%</span>
                             <span class="p">(</span><span class="n">servers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">servers</span> <span class="k">else</span> <span class="s2">&quot;module&quot;</span><span class="p">))</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;__setNexusDevices:  set MG: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__raw_filename</span><span class="p">))</span>
         <span class="n">mntgrp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__getServerVar</span><span class="p">(</span><span class="s2">&quot;mntGrp&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="n">amntgrp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__getEnvVar</span><span class="p">(</span><span class="s2">&quot;ActiveMntGrp&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">mntgrp</span> <span class="ow">and</span> <span class="n">amntgrp</span> <span class="o">!=</span> <span class="n">mntgrp</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__nexussettings_device</span><span class="o">.</span><span class="n">mntgrp</span> <span class="o">=</span> <span class="n">amntgrp</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;__setNexusDevices:  list profile: </span><span class="si">%s</span><span class="s1">&#39;</span>
+                   <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__raw_filename</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">amntgrp</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__command</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">__nexussettings_device</span><span class="p">,</span> <span class="s2">&quot;availableProfiles&quot;</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">onlyconfig</span><span class="p">:</span>
@@ -613,15 +651,29 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
                     <span class="s2">&quot;NXS_FileRecorer: descriptive components will be reset&quot;</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;__setNexusDevices:  fetch profile: </span><span class="si">%s</span><span class="s1">&#39;</span>
+                           <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__raw_filename</span><span class="p">))</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">__command</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__nexussettings_device</span><span class="p">,</span> <span class="s2">&quot;fetchProfile&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;__setNexusDevices:  reset profile: </span><span class="si">%s</span><span class="s1">&#39;</span>
+                           <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__raw_filename</span><span class="p">))</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">__asynchcommand</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__nexussettings_device</span><span class="p">,</span>
                                      <span class="s2">&quot;resetPreselectedComponents&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;__setNexusDevices:  reset profile Done: </span><span class="si">%s</span><span class="s1">&#39;</span>
+                           <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__raw_filename</span><span class="p">))</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__oddmntgrp</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;__setNexusDevices:  &#39;</span>
+                       <span class="s1">&#39;fetch profile 2: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__raw_filename</span><span class="p">))</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__command</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__nexussettings_device</span><span class="p">,</span> <span class="s2">&quot;fetchProfile&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;__setNexusDevices:  fetch profile 2 Done: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span>
+                       <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__raw_filename</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__vars</span><span class="p">[</span><span class="s2">&quot;vars&quot;</span><span class="p">][</span><span class="s2">&quot;measurement_group&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">amntgrp</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;__setNexusDevices:  &#39;</span>
+                   <span class="s1">&#39;profile config: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__raw_filename</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__conf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__getServerVar</span><span class="p">(</span><span class="s2">&quot;profileConfiguration&quot;</span><span class="p">,</span> <span class="p">{},</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;__setNexusDevices:  &#39;</span>
+                   <span class="s1">&#39;MG config: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__raw_filename</span><span class="p">))</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">__oddmntgrp</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">onlyconfig</span><span class="p">:</span>
             <span class="k">if</span> <span class="s2">&quot;MntGrpConfiguration&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__conf</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                 <span class="n">poolmg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__command</span><span class="p">(</span>
@@ -631,16 +683,27 @@
                 <span class="n">poolmg</span> <span class="o">=</span> <span class="kc">None</span>
                 <span class="n">profmg</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">poolmg</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">profmg</span> <span class="ow">or</span> <span class="n">poolmg</span> <span class="o">!=</span> <span class="n">profmg</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                    <span class="s2">&quot;ActiveMntGrp created outside NXSRecSelector v3. &quot;</span>
-                    <span class="s2">&quot;Updating ActiveMntGrp&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;__setNexusDevices:  &quot;</span>
+                           <span class="s2">&quot;ActiveMntGrp created outside NXSRecSelector v3. &quot;</span>
+                           <span class="s2">&quot;Updating ActiveMntGrp&quot;</span><span class="p">)</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__macro</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">__macro</span><span class="p">()</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
                         <span class="s2">&quot;ActiveMntGrp created outside NXSRecSelector v3. &quot;</span>
                         <span class="s2">&quot;Updating ActiveMntGrp&quot;</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">__command</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__nexussettings_device</span><span class="p">,</span> <span class="s2">&quot;importMntGrp&quot;</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">__command</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__nexussettings_device</span><span class="p">,</span> <span class="s2">&quot;updateMntGrp&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__nexussettings_device</span><span class="p">,</span> <span class="s2">&quot;cachecomponent&quot;</span><span class="p">):</span>
+                    <span class="n">ccomp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__nexussettings_device</span><span class="o">.</span><span class="n">cachecomponent</span>
+                    <span class="k">if</span> <span class="n">ccomp</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;__setNexusDevices: &#39;</span>
+                                   <span class="s1">&#39;Cache Writer Configuration: </span><span class="si">%s</span><span class="s1">&#39;</span>
+                                   <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">ccomp</span><span class="p">))</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">__command</span><span class="p">(</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">__nexussettings_device</span><span class="p">,</span>
+                            <span class="s2">&quot;cacheWriterConfiguration&quot;</span><span class="p">,</span> <span class="p">[])</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;__setNexusDevices: &#39;</span>
+                   <span class="s1">&#39;Writer Device: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__raw_filename</span><span class="p">))</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">onlyconfig</span><span class="p">:</span>
             <span class="n">vl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__getConfVar</span><span class="p">(</span><span class="s2">&quot;WriterDevice&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">vl</span><span class="p">:</span>
@@ -666,6 +729,8 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">__nexuswriter_device</span> <span class="o">=</span> <span class="kc">None</span>
 
+            <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;__setNexusDevices:  Writer Device Properties: </span><span class="si">%s</span><span class="s1">&#39;</span>
+                       <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__raw_filename</span><span class="p">))</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__nexuswriter_device</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="kn">from</span> <span class="nn">nxswriter</span> <span class="kn">import</span> <span class="n">TangoDataWriter</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">__nexuswriter_device</span> <span class="o">=</span> <span class="n">TangoDataWriter</span><span class="o">.</span><span class="n">TangoDataWriter</span><span class="p">()</span>
@@ -681,6 +746,7 @@
                 <span class="k">for</span> <span class="n">ky</span><span class="p">,</span> <span class="n">vl</span> <span class="ow">in</span> <span class="n">properties</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                     <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__nexuswriter_device</span><span class="p">,</span> <span class="n">ky</span><span class="p">):</span>
                         <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__nexuswriter_device</span><span class="p">,</span> <span class="n">ky</span><span class="p">,</span> <span class="n">vl</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;__setNexusDevices:  End: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__raw_filename</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">__get_alias</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; provides a device alias</span>
@@ -706,6 +772,26 @@
             <span class="n">alias</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="n">alias</span>
 
+    <span class="k">def</span> <span class="nf">__short_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; provides a device alias</span>
+
+<span class="sd">        :param name: device name</span>
+<span class="sd">        :type name: :obj:`str`</span>
+<span class="sd">        :returns: device alias</span>
+<span class="sd">        :rtype: :obj:`str`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># if name does not contain a &quot;/&quot; it&#39;s probably an alias</span>
+        <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;tango://&quot;</span><span class="p">):</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="p">[</span><span class="mi">8</span><span class="p">:]</span>
+        <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">name</span>
+
+        <span class="c1"># haso107klx:10000/expchan/hasysis3820ctrl/1</span>
+        <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">lst</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;/&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lst</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+        <span class="k">return</span> <span class="n">name</span>
+
     <span class="k">def</span> <span class="nf">__collectAliases</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">envRec</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; sets deviceAlaises and dynamicDataSources from env record</span>
 
@@ -727,6 +813,7 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">__deviceAliases</span><span class="p">[</span><span class="n">alias</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">elm</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">__dynamicDataSources</span><span class="p">[(</span><span class="nb">str</span><span class="p">(</span><span class="n">elm</span><span class="p">))]</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="c1"># self.__moveableDataSources.append(alias or str(elm))</span>
         <span class="k">if</span> <span class="s1">&#39;column_desc&#39;</span> <span class="ow">in</span> <span class="n">envRec</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">elm</span> <span class="ow">in</span> <span class="n">envRec</span><span class="p">[</span><span class="s1">&#39;column_desc&#39;</span><span class="p">]:</span>
                 <span class="k">if</span> <span class="s2">&quot;name&quot;</span> <span class="ow">in</span> <span class="n">elm</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
@@ -755,13 +842,16 @@
 <span class="sd">        :param nexuscomponents: nexus component list</span>
 <span class="sd">        :type nexuscomponents: :obj:`list` &lt;:obj:`str`&gt;</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Step DSs: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">dss</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Init DSs: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">keys</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Init User Data: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">udata</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;__createDynamicComponent:  Step DSs: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">dss</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;__createDynamicComponent:  Init DSs: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">keys</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;__createDynamicComponent:  Init User Data: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">udata</span><span class="p">)</span>
         <span class="n">envRec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">recordlist</span><span class="o">.</span><span class="n">getEnviron</span><span class="p">()</span>
         <span class="n">lddict</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">tdss</span> <span class="o">=</span> <span class="p">[</span><span class="n">ds</span> <span class="k">for</span> <span class="n">ds</span> <span class="ow">in</span> <span class="n">dss</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">ds</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;tango://&quot;</span><span class="p">)</span>
                 <span class="ow">and</span> <span class="n">ds</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">nexuscomponents</span><span class="p">]</span>
+        <span class="n">tgdss</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__short_name</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+                 <span class="k">for</span> <span class="n">ds</span> <span class="ow">in</span> <span class="n">dss</span> <span class="k">if</span> <span class="n">ds</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;tango://&quot;</span><span class="p">)</span>
+                 <span class="ow">and</span> <span class="n">ds</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">nexuscomponents</span><span class="p">]</span>
 
         <span class="n">fields</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">dd</span> <span class="ow">in</span> <span class="n">envRec</span><span class="p">[</span><span class="s1">&#39;datadesc&#39;</span><span class="p">]:</span>
@@ -801,20 +891,27 @@
                 <span class="k">if</span> <span class="n">fld</span> <span class="ow">and</span> <span class="n">att</span><span class="p">:</span>
                     <span class="k">if</span> <span class="n">fld</span> <span class="ow">in</span> <span class="n">fields</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                         <span class="n">fields</span><span class="p">[</span><span class="n">fld</span><span class="p">][</span><span class="n">att</span><span class="p">]</span> <span class="o">=</span> <span class="n">vl</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="n">fields</span><span class="p">[</span><span class="n">fld</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-                            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">fld</span><span class="p">,</span>
-                            <span class="s2">&quot;dtype&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;shape&quot;</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">(),</span>
-                            <span class="n">att</span><span class="p">:</span> <span class="n">vl</span><span class="p">}</span>
+                    <span class="c1"># else:</span>
+                    <span class="c1">#     fields[fld] = {</span>
+                    <span class="c1">#         &quot;name&quot;: fld,</span>
+                    <span class="c1">#         &quot;strategy&quot;: &quot;INIT&quot;,</span>
+                    <span class="c1">#         &quot;dtype&quot;: &quot;string&quot;,</span>
+                    <span class="c1">#         &quot;shape&quot;: tuple(),</span>
+                    <span class="c1">#         att: vl}</span>
 
         <span class="k">for</span> <span class="n">mdd</span> <span class="ow">in</span> <span class="n">fields</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="n">lddict</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mdd</span><span class="p">)</span>
 
+        <span class="n">tdss</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">tgdss</span><span class="p">)</span>
         <span class="n">jddict</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">lddict</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="n">NXS_FileRecorder</span><span class="o">.</span><span class="n">numpyEncoder</span><span class="p">)</span>
         <span class="n">jdss</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">tdss</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="n">NXS_FileRecorder</span><span class="o">.</span><span class="n">numpyEncoder</span><span class="p">)</span>
         <span class="n">jkeys</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">keys</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="n">NXS_FileRecorder</span><span class="o">.</span><span class="n">numpyEncoder</span><span class="p">)</span>
-        <span class="c1"># self.debug(&quot;JDD: %s&quot; % jddict)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;__createDynamicComponent:  &quot;</span>
+                   <span class="s2">&quot;tango STEP datasources: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">tdss</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;__createDynamicComponent:  &quot;</span>
+                   <span class="s2">&quot;sardana STEP datasources: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">jddict</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;__createDynamicComponent:  &quot;</span>
+                   <span class="s2">&quot;INIT datasources: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">jkeys</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__dynamicCP</span> <span class="o">=</span> \
             <span class="bp">self</span><span class="o">.</span><span class="n">__command</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__nexussettings_device</span><span class="p">,</span>
                            <span class="s2">&quot;createDynamicComponent&quot;</span><span class="p">,</span>
@@ -858,11 +955,14 @@
 <span class="sd">        :rtype: (`list` &lt;:obj:`str`&gt;, `list` &lt;:obj:`str`&gt;,</span>
 <span class="sd">                 `list` &lt;:obj:`str`&gt;, `list` &lt;:obj:`str`&gt;)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;__searchDataSources: Init: </span><span class="si">%s</span><span class="s2">&quot;</span>
+                   <span class="o">%</span> <span class="nb">str</span><span class="p">([</span><span class="n">nexuscomponents</span><span class="p">,</span> <span class="n">cfm</span><span class="p">,</span> <span class="n">dyncp</span><span class="p">,</span> <span class="n">userkeys</span><span class="p">]))</span>
         <span class="n">dsFound</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">dsNotFound</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="c1"># (:obj:`list` &lt;:obj:`str`&gt;) all component source names</span>
         <span class="n">allcpdss</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">cachedss</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">cpReq</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">keyFound</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 
@@ -873,6 +973,8 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">cmps</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">nexuscomponents</span><span class="p">)</span> <span class="o">&amp;</span>
                         <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__availableComponents</span><span class="p">()))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;__searchDataSources:  Get selected DSs: </span><span class="si">%s</span><span class="s2">&quot;</span>
+                   <span class="o">%</span> <span class="nb">str</span><span class="p">([</span><span class="n">cfm</span><span class="p">,</span> <span class="n">dyncp</span><span class="p">]))</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__oddmntgrp</span><span class="p">:</span>
             <span class="n">nds</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">else</span><span class="p">:</span>
@@ -880,18 +982,44 @@
                                  <span class="s2">&quot;selectedDataSources&quot;</span><span class="p">)</span>
         <span class="n">nds</span> <span class="o">=</span> <span class="n">nds</span> <span class="k">if</span> <span class="n">nds</span> <span class="k">else</span> <span class="p">[]</span>
         <span class="n">datasources</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">nds</span><span class="p">)</span> <span class="o">|</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__deviceAliases</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;__searchDataSources:  Get components DSs: </span><span class="si">%s</span><span class="s2">&quot;</span>
+                   <span class="o">%</span> <span class="nb">str</span><span class="p">([</span><span class="n">cfm</span><span class="p">,</span> <span class="n">dyncp</span><span class="p">]))</span>
         <span class="n">hascpsrcs</span> <span class="o">=</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__nexussettings_device</span><span class="p">,</span> <span class="s1">&#39;componentSources&#39;</span><span class="p">)</span>
+        <span class="c1"># aacpdss = json.loads(</span>
+        <span class="c1">#     self.__command(self.__nexussettings_device,</span>
+        <span class="c1">#                    &quot;componentSources&quot;,</span>
+        <span class="c1">#                    cmps))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;__searchDataSources:  component loop: </span><span class="si">%s</span><span class="s2">&quot;</span>
+                   <span class="o">%</span> <span class="nb">str</span><span class="p">([</span><span class="n">cfm</span><span class="p">,</span> <span class="n">dyncp</span><span class="p">,</span> <span class="n">hascpsrcs</span><span class="p">]))</span>
         <span class="k">for</span> <span class="n">cp</span> <span class="ow">in</span> <span class="n">cmps</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;__searchDataSources:  component item: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">cp</span><span class="p">)</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">hascpsrcs</span><span class="p">:</span>
                     <span class="n">cpdss</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">__command</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__nexussettings_device</span><span class="p">,</span>
                                        <span class="s2">&quot;componentSources&quot;</span><span class="p">,</span>
                                        <span class="p">[</span><span class="n">cp</span><span class="p">]))</span>
-                    <span class="n">allcpdss</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
-                        <span class="p">[</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;dsname&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">ds</span> <span class="ow">in</span> <span class="n">cpdss</span>
-                         <span class="k">if</span> <span class="p">(</span><span class="s2">&quot;parentobj&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span> <span class="ow">or</span>
-                             <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;parentobj&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;field&quot;</span><span class="p">])])</span>
+                    <span class="n">adss</span> <span class="o">=</span> <span class="p">[</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;dsname&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">ds</span> <span class="ow">in</span> <span class="n">cpdss</span>
+                            <span class="k">if</span> <span class="p">(</span><span class="s2">&quot;parentobj&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span> <span class="ow">or</span>
+                                <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;parentobj&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;field&quot;</span><span class="p">,</span> <span class="s2">&quot;map&quot;</span><span class="p">,</span> <span class="s2">&quot;vds&quot;</span><span class="p">])]</span>
+                    <span class="n">allcpdss</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">adss</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">cp</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__cacheCPPrefix</span><span class="p">):</span>
+                        <span class="n">cachedss</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">adss</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__macro</span><span class="p">:</span>
+                            <span class="n">cldss</span> <span class="o">=</span> <span class="p">[</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;dsname&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">ds</span> <span class="ow">in</span> <span class="n">cpdss</span>
+                                     <span class="k">if</span> <span class="p">((</span><span class="s2">&quot;parentobj&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span> <span class="ow">or</span>
+                                          <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;parentobj&quot;</span><span class="p">]</span>
+                                          <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;field&quot;</span><span class="p">,</span> <span class="s2">&quot;map&quot;</span><span class="p">,</span> <span class="s2">&quot;vds&quot;</span><span class="p">])</span>
+                                         <span class="ow">and</span> <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;dstype&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;CLIENT&quot;</span><span class="p">)]</span>
+
+                            <span class="n">pools</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__macro</span><span class="p">()</span><span class="o">.</span><span class="n">getPools</span><span class="p">()</span>
+                            <span class="n">motors</span> <span class="o">=</span> <span class="p">[]</span>
+                            <span class="k">for</span> <span class="n">pool</span> <span class="ow">in</span> <span class="n">pools</span><span class="p">:</span>
+                                <span class="n">motors</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">pool</span><span class="o">.</span><span class="n">MotorList</span><span class="p">)</span>
+                            <span class="n">mnames</span> <span class="o">=</span> <span class="p">[</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">m</span><span class="p">)[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">motors</span><span class="p">]</span>
+
+                            <span class="bp">self</span><span class="o">.</span><span class="n">__moveableDataSources</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                                <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">cldss</span><span class="p">)</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">mnames</span><span class="p">)))</span>
 
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">cpdss</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span>
@@ -907,34 +1035,44 @@
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">cp</span> <span class="ow">in</span> <span class="n">nexuscomponents</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Component &#39;</span><span class="si">%s</span><span class="s2">&#39; wrongly defined in DB!&quot;</span> <span class="o">%</span> <span class="n">cp</span><span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Error: &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+                    <span class="c1"># self.warning(&quot;Error: &#39;%s&#39;&quot; % str(e))</span>
                     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__macro</span><span class="p">:</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">__macro</span><span class="p">()</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                             <span class="s2">&quot;Component &#39;</span><span class="si">%s</span><span class="s2">&#39; wrongly defined in DB!&quot;</span> <span class="o">%</span> <span class="n">cp</span><span class="p">)</span>
-                        <span class="c1"># self.__macro().warning(&quot;Error: &#39;%s&#39;&quot; % str(e))</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">__macro</span><span class="p">()</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Error: &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Component &#39;</span><span class="si">%s</span><span class="s2">&#39; wrongly defined in DB!&quot;</span> <span class="o">%</span> <span class="n">cp</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                        <span class="s2">&quot;__searchDataSources:  &quot;</span>
+                        <span class="s2">&quot;Component &#39;</span><span class="si">%s</span><span class="s2">&#39; wrongly defined in DB!&quot;</span> <span class="o">%</span> <span class="n">cp</span><span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Error: &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
                     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__macro</span><span class="p">:</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">__macro</span><span class="p">()</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                            <span class="s2">&quot;__searchDataSources:  &quot;</span>
                             <span class="s2">&quot;Component &#39;</span><span class="si">%s</span><span class="s2">&#39; wrongly defined in DB!&quot;</span> <span class="o">%</span> <span class="n">cp</span><span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">__macro</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Error: &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">__macro</span><span class="p">()</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Error: &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
                 <span class="n">dss</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">if</span> <span class="n">dss</span><span class="p">:</span>
                 <span class="n">cdss</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">dss</span><span class="p">)</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">datasources</span><span class="p">))</span>
                 <span class="k">for</span> <span class="n">ds</span> <span class="ow">in</span> <span class="n">cdss</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;&#39;</span><span class="si">%s</span><span class="s2">&#39; found in &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">cp</span><span class="p">))</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;__searchDataSources:  &#39;</span><span class="si">%s</span><span class="s2">&#39; found in &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span>
+                               <span class="o">%</span> <span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">cp</span><span class="p">))</span>
                     <span class="k">if</span> <span class="n">ds</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dsFound</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                         <span class="n">dsFound</span><span class="p">[</span><span class="n">ds</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
                     <span class="n">dsFound</span><span class="p">[</span><span class="n">ds</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cp</span><span class="p">)</span>
                     <span class="k">if</span> <span class="n">cp</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cpReq</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
                         <span class="n">cpReq</span><span class="p">[</span><span class="n">cp</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
                     <span class="n">cpReq</span><span class="p">[</span><span class="n">cp</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;__searchDataSources:  &quot;</span>
+                   <span class="s2">&quot;component loop end: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">([</span><span class="n">cfm</span><span class="p">,</span> <span class="n">dyncp</span><span class="p">]))</span>
         <span class="n">missingKeys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">userkeys</span><span class="p">)</span> <span class="o">-</span> <span class="n">keyFound</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;__searchDataSources:  &quot;</span>
+                   <span class="s2">&quot;dynamic component loop: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">([</span><span class="n">cfm</span><span class="p">,</span> <span class="n">dyncp</span><span class="p">]))</span>
         <span class="n">datasources</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__dynamicDataSources</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
         <span class="c1">#: get not found datasources</span>
         <span class="k">for</span> <span class="n">ds</span> <span class="ow">in</span> <span class="n">datasources</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;__searchDataSources:  &quot;</span>
+                       <span class="s2">&quot; dynamic component item: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ds</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">ds</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dsFound</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">and</span> <span class="n">ds</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">allcpdss</span><span class="p">:</span>
                 <span class="n">dsNotFound</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">dyncp</span><span class="p">:</span>
@@ -963,7 +1101,9 @@
                                 <span class="s2">&quot;It was not found in User Components!&quot;</span>
                                 <span class="s2">&quot; Consider setting: &quot;</span>
                                 <span class="s2">&quot;NeXusDynamicComponents=True&quot;</span> <span class="o">%</span> <span class="n">ds</span><span class="p">)</span>
-        <span class="k">return</span> <span class="p">(</span><span class="n">nds</span><span class="p">,</span> <span class="n">dsNotFound</span><span class="p">,</span> <span class="n">cpReq</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">missingKeys</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;__searchDataSources:  &quot;</span>
+                   <span class="s2">&quot;dynamic component loop end: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">([</span><span class="n">cfm</span><span class="p">,</span> <span class="n">dyncp</span><span class="p">]))</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">nds</span><span class="p">,</span> <span class="n">dsNotFound</span><span class="p">,</span> <span class="n">cpReq</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">missingKeys</span><span class="p">),</span> <span class="n">cachedss</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__createConfiguration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">userdata</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; create NeXus configuration</span>
@@ -973,14 +1113,19 @@
 <span class="sd">        :returns: configuration xml string</span>
 <span class="sd">        :rtype: :obj:`str`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;__createConfiguration:  Init: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">__oddmntgrp</span><span class="p">)</span>
         <span class="n">cfm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__getConfVar</span><span class="p">(</span><span class="s2">&quot;ComponentsFromMntGrp&quot;</span><span class="p">,</span>
                                 <span class="kc">False</span><span class="p">,</span> <span class="n">pass_default</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__oddmntgrp</span><span class="p">)</span>
         <span class="n">dyncp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__getConfVar</span><span class="p">(</span><span class="s2">&quot;DynamicComponents&quot;</span><span class="p">,</span>
                                   <span class="kc">True</span><span class="p">,</span> <span class="n">pass_default</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__oddmntgrp</span><span class="p">)</span>
 
         <span class="n">envRec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">recordlist</span><span class="o">.</span><span class="n">getEnviron</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;__createConfiguration:  CollectAllises: </span><span class="si">%s</span><span class="s2">&quot;</span>
+                   <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">__oddmntgrp</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__collectAliases</span><span class="p">(</span><span class="n">envRec</span><span class="p">)</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;__createConfiguration:  Get Components: </span><span class="si">%s</span><span class="s2">&quot;</span>
+                   <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">__oddmntgrp</span><span class="p">)</span>
         <span class="n">mandatory</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__command</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__nexussettings_device</span><span class="p">,</span>
                                    <span class="s2">&quot;mandatoryComponents&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Default Components </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">mandatory</span><span class="p">))</span>
@@ -992,6 +1137,15 @@
             <span class="n">nexuscomponents</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">lst</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;User Components </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">nexuscomponents</span><span class="p">))</span>
 
+        <span class="n">ccomp</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__nexussettings_device</span><span class="p">,</span> <span class="s2">&quot;cachecomponent&quot;</span><span class="p">):</span>
+            <span class="n">ccomp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__nexussettings_device</span><span class="o">.</span><span class="n">cachecomponent</span>
+            <span class="n">allnexuscomponents</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">nexuscomponents</span><span class="p">)</span> <span class="o">|</span> <span class="nb">set</span><span class="p">(</span><span class="n">mandatory</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">ccomp</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Cache Component </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">ccomp</span><span class="p">))</span>
+            <span class="n">nexuscomponents</span> <span class="o">=</span> <span class="p">[</span><span class="n">ccomp</span><span class="p">]</span>
+            <span class="n">allnexuscomponents</span> <span class="o">=</span> <span class="p">[</span><span class="n">ccomp</span><span class="p">]</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">__availableComps</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">lst</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__getConfVar</span><span class="p">(</span><span class="s2">&quot;OptionalComponents&quot;</span><span class="p">,</span>
                                 <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">pass_default</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__oddmntgrp</span><span class="p">)</span>
@@ -1002,13 +1156,20 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Available Components </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__availableComponents</span><span class="p">()))</span>
 
-        <span class="n">nds</span><span class="p">,</span> <span class="n">dsNotFound</span><span class="p">,</span> <span class="n">cpReq</span><span class="p">,</span> <span class="n">missingKeys</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__searchDataSources</span><span class="p">(</span>
-            <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">nexuscomponents</span><span class="p">)</span> <span class="o">|</span> <span class="nb">set</span><span class="p">(</span><span class="n">mandatory</span><span class="p">)),</span>
-            <span class="n">cfm</span><span class="p">,</span> <span class="n">dyncp</span><span class="p">,</span> <span class="n">userdata</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;__createConfiguration:  Search DataSources: </span><span class="si">%s</span><span class="s2">&quot;</span>
+                   <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">__oddmntgrp</span><span class="p">)</span>
+        <span class="n">nds</span><span class="p">,</span> <span class="n">dsNotFound</span><span class="p">,</span> <span class="n">cpReq</span><span class="p">,</span> <span class="n">missingKeys</span><span class="p">,</span> <span class="n">cachedss</span> <span class="o">=</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">__searchDataSources</span><span class="p">(</span>
+                <span class="n">allnexuscomponents</span><span class="p">,</span>
+                <span class="n">cfm</span><span class="p">,</span> <span class="n">dyncp</span><span class="p">,</span> <span class="n">userdata</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;__createConfiguration:  Get User data: </span><span class="si">%s</span><span class="s2">&quot;</span>
+                   <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">__oddmntgrp</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;DataSources Not Found : </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">dsNotFound</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Components required : </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">cpReq</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Missing User Data : </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">missingKeys</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;__createConfiguration:  DataSources Not Found : </span><span class="si">%s</span><span class="s2">&quot;</span>
+                   <span class="o">%</span> <span class="n">dsNotFound</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;__createConfiguration:  Components required : </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">cpReq</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;__createConfiguration:  Missing User Data : </span><span class="si">%s</span><span class="s2">&quot;</span>
+                   <span class="o">%</span> <span class="n">missingKeys</span><span class="p">)</span>
         <span class="k">if</span> <span class="s2">&quot;InitDataSources&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__conf</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="c1"># compatibility with version 2</span>
             <span class="n">ids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__getConfVar</span><span class="p">(</span>
@@ -1026,9 +1187,16 @@
         <span class="c1"># udata = {ky: userdata[ky] for ky in missingKeys}</span>
         <span class="k">if</span> <span class="n">userdata</span><span class="p">:</span>
             <span class="n">userdata</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">udata</span><span class="p">)</span>
+        <span class="n">ids</span> <span class="o">=</span> <span class="nb">list</span><span class="p">((</span><span class="nb">set</span><span class="p">(</span><span class="n">ids</span> <span class="ow">or</span> <span class="p">[])</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">cachedss</span><span class="p">))</span>
+                   <span class="o">|</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__moveableDataSources</span><span class="p">))</span>
+        <span class="c1"># ids = list(set(ids or []))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;__createConfiguration:  Create dynamic components: </span><span class="si">%s</span><span class="s2">&quot;</span>
+                   <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">__oddmntgrp</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__createDynamicComponent</span><span class="p">(</span>
-            <span class="n">dsNotFound</span> <span class="k">if</span> <span class="n">dyncp</span> <span class="k">else</span> <span class="p">[],</span> <span class="n">ids</span> <span class="ow">or</span> <span class="p">[],</span> <span class="n">udata</span><span class="p">,</span> <span class="n">nexuscomponents</span><span class="p">)</span>
+            <span class="n">dsNotFound</span> <span class="k">if</span> <span class="n">dyncp</span> <span class="k">else</span> <span class="p">[],</span> <span class="n">ids</span><span class="p">,</span> <span class="n">udata</span><span class="p">,</span> <span class="n">nexuscomponents</span><span class="p">)</span>
         <span class="n">nexuscomponents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__dynamicCP</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;__createConfiguration:  Add Components: </span><span class="si">%s</span><span class="s2">&quot;</span>
+                   <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">__oddmntgrp</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">cfm</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Sardana Components </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">cpReq</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
@@ -1076,25 +1244,38 @@
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__macro</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">__macro</span><span class="p">()</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
                     <span class="s2">&quot;VAR </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">__nexussettings_device</span><span class="o">.</span><span class="n">configVariables</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;__createConfiguration:  Update Config Varialels: </span><span class="si">%s</span><span class="s2">&quot;</span>
+                       <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">__oddmntgrp</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__command</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__nexussettings_device</span><span class="p">,</span>
                            <span class="s2">&quot;updateConfigVariables&quot;</span><span class="p">)</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Aliases: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__aliases</span><span class="p">))</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Switching to STEP mode: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">stepdss</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;__createConfiguration:  Aliases: </span><span class="si">%s</span><span class="s2">&quot;</span>
+                       <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__aliases</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;__createConfiguration:  Switching to STEP mode: </span><span class="si">%s</span><span class="s2">&quot;</span>
+                       <span class="o">%</span> <span class="n">stepdss</span><span class="p">)</span>
             <span class="n">oldtoswitch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__getServerVar</span><span class="p">(</span><span class="s2">&quot;stepdatasources&quot;</span><span class="p">,</span> <span class="s2">&quot;[]&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
             <span class="n">stepdss</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">toswitch</span><span class="p">)))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;__createConfiguration:  Set STEP datasources: </span><span class="si">%s</span><span class="s2">&quot;</span>
+                       <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">__oddmntgrp</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__nexussettings_device</span><span class="o">.</span><span class="n">stepdatasources</span> <span class="o">=</span> <span class="n">stepdss</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;__createConfiguration:   Set LINK datasources: </span><span class="si">%s</span><span class="s2">&quot;</span>
+                       <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">__oddmntgrp</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__nexussettings_device</span><span class="p">,</span> <span class="s2">&quot;linkdatasources&quot;</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">__nexussettings_device</span><span class="o">.</span><span class="n">linkdatasources</span> <span class="o">=</span> <span class="n">stepdss</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;__createConfiguration:  &quot;</span>
+                       <span class="s2">&quot;Create Writer configuration: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">__oddmntgrp</span><span class="p">)</span>
             <span class="n">cnfxml</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__command</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">__nexussettings_device</span><span class="p">,</span> <span class="s2">&quot;createWriterConfiguration&quot;</span><span class="p">,</span>
                 <span class="n">nexuscomponents</span><span class="p">)</span>
         <span class="k">finally</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;__createConfiguration:   Reset variables: </span><span class="si">%s</span><span class="s2">&quot;</span>
+                       <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">__oddmntgrp</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__nexussettings_device</span><span class="o">.</span><span class="n">configVariables</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span>
                 <span class="n">nexusvariables</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">oldtoswitch</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">__nexussettings_device</span><span class="o">.</span><span class="n">stepdatasources</span> <span class="o">=</span> <span class="n">oldtoswitch</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;__createConfiguration:  End: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">__oddmntgrp</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">cnfxml</span>
 
 <div class="viewcode-block" id="NXS_FileRecorder._startRecordList"><a class="viewcode-back" href="../../sardananxsrecorder.html#sardananxsrecorder.nxsrecorder.NXS_FileRecorder._startRecordList">[docs]</a>    <span class="k">def</span> <span class="nf">_startRecordList</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">recordlist</span><span class="p">):</span>
@@ -1105,12 +1286,17 @@
 <span class="sd">        :type recordlist: :class:`sardana.macroserver.scan.scandata.RecordList`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;_startRecordList:  Start </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">__base_filename</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__env</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__macro</span><span class="p">()</span><span class="o">.</span><span class="n">getAllEnv</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__macro</span> <span class="k">else</span> <span class="p">{}</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__base_filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">return</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__udata</span> <span class="o">=</span> <span class="kc">None</span>
 
+            <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;_startRecordList:  Set NeXus </span><span class="si">%s</span><span class="s1">&#39;</span>
+                       <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">__base_filename</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__setNexusDevices</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;_startRecordList:  Set Variables </span><span class="si">%s</span><span class="s1">&#39;</span>
+                       <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">__base_filename</span><span class="p">)</span>
 
             <span class="n">appendentry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__getConfVar</span><span class="p">(</span><span class="s2">&quot;AppendEntry&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
             <span class="n">appendscanid</span> <span class="o">=</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">__setFileName</span><span class="p">(</span>
@@ -1126,9 +1312,22 @@
                 <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__macro</span><span class="p">(),</span> <span class="s2">&quot;integ_time&quot;</span><span class="p">):</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">__vars</span><span class="p">[</span><span class="s2">&quot;vars&quot;</span><span class="p">][</span><span class="s2">&quot;count_time&quot;</span><span class="p">]</span> <span class="o">=</span> \
                         <span class="bp">self</span><span class="o">.</span><span class="n">__macro</span><span class="p">()</span><span class="o">.</span><span class="n">integ_time</span>
+                <span class="n">npoints</span> <span class="o">=</span> <span class="mi">0</span>
                 <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__macro</span><span class="p">(),</span> <span class="s2">&quot;nb_points&quot;</span><span class="p">):</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">__vars</span><span class="p">[</span><span class="s2">&quot;vars&quot;</span><span class="p">][</span><span class="s2">&quot;npoints&quot;</span><span class="p">]</span> <span class="o">=</span> \
                         <span class="bp">self</span><span class="o">.</span><span class="n">__macro</span><span class="p">()</span><span class="o">.</span><span class="n">nb_points</span>
+                    <span class="n">npoints</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__macro</span><span class="p">()</span><span class="o">.</span><span class="n">nb_points</span>
+                <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__macro</span><span class="p">(),</span> <span class="s2">&quot;nr_points&quot;</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">__vars</span><span class="p">[</span><span class="s2">&quot;vars&quot;</span><span class="p">][</span><span class="s2">&quot;npoints&quot;</span><span class="p">]</span> <span class="o">=</span> \
+                        <span class="bp">self</span><span class="o">.</span><span class="n">__macro</span><span class="p">()</span><span class="o">.</span><span class="n">nr_points</span>
+                    <span class="n">npoints</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__macro</span><span class="p">()</span><span class="o">.</span><span class="n">nr_points</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__macro</span><span class="p">(),</span> <span class="s2">&quot;nb_repeat&quot;</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">__vars</span><span class="p">[</span><span class="s2">&quot;vars&quot;</span><span class="p">][</span><span class="s2">&quot;npoints&quot;</span><span class="p">]</span> <span class="o">=</span> \
+                        <span class="n">npoints</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">__macro</span><span class="p">()</span><span class="o">.</span><span class="n">nb_repeat</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__macro</span><span class="p">(),</span> <span class="s2">&quot;nb_repetitions&quot;</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">__vars</span><span class="p">[</span><span class="s2">&quot;vars&quot;</span><span class="p">][</span><span class="s2">&quot;npoints&quot;</span><span class="p">]</span> <span class="o">=</span> \
+                        <span class="n">npoints</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">__macro</span><span class="p">()</span><span class="o">.</span><span class="n">nb_repetitions</span>
+
             <span class="bp">self</span><span class="o">.</span><span class="n">__vars</span><span class="p">[</span><span class="s2">&quot;vars&quot;</span><span class="p">][</span><span class="s2">&quot;beamtime_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">beamtimeid</span><span class="p">()</span>
             <span class="n">tzone</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__getConfVar</span><span class="p">(</span><span class="s2">&quot;TimeZone&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__timezone</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__vars</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="s2">&quot;start_time&quot;</span><span class="p">]</span> <span class="o">=</span> \
@@ -1136,7 +1335,11 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">__vars</span><span class="p">[</span><span class="s2">&quot;vars&quot;</span><span class="p">][</span><span class="s2">&quot;filename&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span>
 
             <span class="n">envrecord</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__appendRecord</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__vars</span><span class="p">,</span> <span class="s1">&#39;INIT&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;_startRecordList:  Create Configuration </span><span class="si">%s</span><span class="s1">&#39;</span>
+                       <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">__base_filename</span><span class="p">)</span>
             <span class="n">cnfxml</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__createConfiguration</span><span class="p">(</span><span class="n">envrecord</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;_startRecordList:  Set Remove dynamic components </span><span class="si">%s</span><span class="s1">&#39;</span>
+                       <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">__base_filename</span><span class="p">)</span>
             <span class="n">rec</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span>
                 <span class="n">envrecord</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="n">NXS_FileRecorder</span><span class="o">.</span><span class="n">numpyEncoder</span><span class="p">)</span>
             <span class="c1"># self.debug(&#39;XML: %s&#39; % str(cnfxml))</span>
@@ -1154,24 +1357,31 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">__vars</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="s2">&quot;beamtime_id&quot;</span><span class="p">]</span> <span class="o">=</span> \
                 <span class="bp">self</span><span class="o">.</span><span class="n">__vars</span><span class="p">[</span><span class="s2">&quot;vars&quot;</span><span class="p">][</span><span class="s2">&quot;beamtime_id&quot;</span><span class="p">]</span>
 
+            <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;_startRecordList:  Init writer </span><span class="si">%s</span><span class="s1">&#39;</span>
+                       <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">__base_filename</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__nexuswriter_device</span><span class="p">,</span> <span class="s1">&#39;Init&#39;</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">__command</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__nexuswriter_device</span><span class="p">,</span> <span class="s2">&quot;Init&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__nexuswriter_device</span><span class="o">.</span><span class="n">fileName</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__command</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__nexuswriter_device</span><span class="p">,</span> <span class="s2">&quot;openFile&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__nexuswriter_device</span><span class="o">.</span><span class="n">xmlsettings</span> <span class="o">=</span> <span class="n">cnfxml</span>
 
-            <span class="c1"># self.debug(&#39;START_DATA: %s&#39; % str(envRec))</span>
+            <span class="k">if</span> <span class="s2">&quot;DEBUG_INIT_DATA&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">writerModes</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;_startRecordList:  INIT_DATA: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">envRec</span><span class="p">))</span>
 
+            <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;_startRecordList: Set JSON </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">__base_filename</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__nexuswriter_device</span><span class="o">.</span><span class="n">jsonrecord</span> <span class="o">=</span> <span class="n">rec</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">writerModes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__variableList</span><span class="p">(</span>
                 <span class="s2">&quot;NeXusWriterModes&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="s2">&quot;NOINIT&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">writerModes</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">__nexuswriter_device</span><span class="o">.</span><span class="n">skipAcquisition</span> <span class="o">=</span> <span class="kc">True</span>
 
+            <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;_startRecordList SE: Open Entry </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span>
+                       <span class="bp">self</span><span class="o">.</span><span class="n">__base_filename</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__command</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__nexuswriter_device</span><span class="p">,</span> <span class="s2">&quot;openEntry&quot;</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__removeDynamicComponent</span><span class="p">()</span>
-            <span class="k">raise</span></div>
+            <span class="k">raise</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;_startRecordList SE: END </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">__base_filename</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">__appendRecord</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; merges userdata with variable dictionary</span>
@@ -1249,7 +1459,12 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">return</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">__env</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__macro</span><span class="p">()</span><span class="o">.</span><span class="n">getAllEnv</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__macro</span> <span class="k">else</span> <span class="p">{}</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__env</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__macro</span><span class="p">()</span><span class="o">.</span><span class="n">getAllEnv</span><span class="p">()</span> \
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__macro</span> <span class="k">else</span> <span class="p">{}</span>
+            <span class="k">except</span> <span class="n">StopException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="s2">&quot;Environment cannot be read: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)))</span>
             <span class="n">envrecord</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__appendRecord</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__vars</span><span class="p">,</span> <span class="s1">&#39;STEP&#39;</span><span class="p">)</span>
             <span class="n">rec</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span>
                 <span class="n">envrecord</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="n">NXS_FileRecorder</span><span class="o">.</span><span class="n">numpyEncoder</span><span class="p">)</span>
@@ -1257,9 +1472,10 @@
             <span class="k">if</span> <span class="s2">&quot;NOSTEP&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">writerModes</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">__nexuswriter_device</span><span class="o">.</span><span class="n">skipAcquisition</span> <span class="o">=</span> <span class="kc">True</span>
 
-            <span class="c1"># self.debug(&#39;DATA: {&quot;data&quot;:%s}&#39; % json.dumps(</span>
-            <span class="c1">#     record.data,</span>
-            <span class="c1">#     cls=NXS_FileRecorder.numpyEncoder))</span>
+            <span class="k">if</span> <span class="s2">&quot;DEBUG_STEP_DATA&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">writerModes</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;_writeRecord DATA: {&quot;data&quot;:</span><span class="si">%s</span><span class="s1">}&#39;</span> <span class="o">%</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span>
+                    <span class="n">record</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
+                    <span class="bp">cls</span><span class="o">=</span><span class="n">NXS_FileRecorder</span><span class="o">.</span><span class="n">numpyEncoder</span><span class="p">))</span>
 
             <span class="n">jsonString</span> <span class="o">=</span> <span class="s1">&#39;{&quot;data&quot;:</span><span class="si">%s</span><span class="s1">}&#39;</span> <span class="o">%</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span>
                 <span class="n">record</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
@@ -1309,6 +1525,23 @@
 
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">starttime</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">fmt</span><span class="p">))</span>
 
+    <span class="k">def</span> <span class="nf">__endReason</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">envRec</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; maps the Sardana scan end status to a blissdata end_reason</span>
+
+<span class="sd">        :param envRec: record list environment</span>
+<span class="sd">        :type envRec: :obj:`dict` &lt;:obj:`str`, :obj:`any`&gt;</span>
+<span class="sd">        :returns: scan end reason, e.g. SUCCESS, USER_ABORT or FAILURE</span>
+<span class="sd">        :rtype: :obj:`str`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">endstatus</span> <span class="o">=</span> <span class="p">(</span><span class="n">envRec</span> <span class="ow">or</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;endstatus&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">endstatus</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">ScanEndStatus</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;SUCCESS&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">ScanEndStatus</span><span class="o">.</span><span class="n">whatis</span><span class="p">(</span><span class="n">endstatus</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">endstatus</span>
+        <span class="k">return</span> <span class="n">END_REASON_BY_END_STATUS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;SUCCESS&quot;</span><span class="p">)</span>
+
 <div class="viewcode-block" id="NXS_FileRecorder._endRecordList"><a class="viewcode-back" href="../../sardananxsrecorder.html#sardananxsrecorder.nxsrecorder.NXS_FileRecorder._endRecordList">[docs]</a>    <span class="k">def</span> <span class="nf">_endRecordList</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">recordlist</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; ends record process: records in FINAL mode</span>
 <span class="sd">            and closes the nexus file</span>
@@ -1323,11 +1556,13 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">__env</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__macro</span><span class="p">()</span><span class="o">.</span><span class="n">getAllEnv</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__macro</span> <span class="k">else</span> <span class="p">{}</span>
             <span class="n">envRec</span> <span class="o">=</span> <span class="n">recordlist</span><span class="o">.</span><span class="n">getEnviron</span><span class="p">()</span>
 
-            <span class="c1"># self.debug(&#39;END_DATA: %s &#39; % str(envRec))</span>
+            <span class="k">if</span> <span class="s2">&quot;DEBUG_FINAL_DATA&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">writerModes</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;_endRecordList:  FINAL_DATA: </span><span class="si">%s</span><span class="s1"> &#39;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">envRec</span><span class="p">))</span>
 
             <span class="n">tzone</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__getConfVar</span><span class="p">(</span><span class="s2">&quot;TimeZone&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__timezone</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__vars</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="s2">&quot;end_time&quot;</span><span class="p">]</span> <span class="o">=</span> \
                 <span class="bp">self</span><span class="o">.</span><span class="n">__timeToString</span><span class="p">(</span><span class="n">envRec</span><span class="p">[</span><span class="s1">&#39;endtime&#39;</span><span class="p">],</span> <span class="n">tzone</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__vars</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="s2">&quot;end_reason&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__endReason</span><span class="p">(</span><span class="n">envRec</span><span class="p">)</span>
 
             <span class="n">envrecord</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__appendRecord</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__vars</span><span class="p">,</span> <span class="s1">&#39;FINAL&#39;</span><span class="p">)</span>
 
@@ -1392,7 +1627,7 @@
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">msvar</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">msvar</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[-;,.\s]\s*&quot;</span><span class="p">,</span> <span class="n">msvar</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">msvar</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">variable</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">msvar</span><span class="p">)))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;__variableList:   </span><span class="si">%s</span><span class="s1">: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">variable</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">msvar</span><span class="p">)))</span>
         <span class="k">return</span> <span class="n">msvar</span>
 
     <span class="k">def</span> <span class="nf">__rawfilename</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">serial</span><span class="p">):</span>
@@ -1508,6 +1743,8 @@
             <span class="n">commands</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">sm</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__getEnvVar</span><span class="p">(</span><span class="s1">&#39;SciCatMeasurements&#39;</span><span class="p">,</span> <span class="p">{}))</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sm</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                    <span class="n">sm</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
                 <span class="n">sm</span> <span class="o">=</span> <span class="p">{}</span>
 
@@ -1562,6 +1799,8 @@
 
         <span class="k">try</span><span class="p">:</span>
             <span class="n">sm</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__getEnvVar</span><span class="p">(</span><span class="s1">&#39;SciCatMeasurements&#39;</span><span class="p">,</span> <span class="p">{}))</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sm</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="n">sm</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="n">sm</span> <span class="o">=</span> <span class="p">{}</span>
 
@@ -1593,7 +1832,8 @@
                                   <span class="p">(</span><span class="n">pdir</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">entryname</span><span class="p">),</span> <span class="n">rt</span><span class="p">,</span> <span class="n">sname</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">h5writer</span><span class="o">.</span><span class="n">link</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">:/</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">entryname</span><span class="p">),</span> <span class="n">rt</span><span class="p">,</span> <span class="n">sname</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Link  &#39;</span><span class="si">%s</span><span class="s2">&#39; in &#39;</span><span class="si">%s</span><span class="s2">&#39; created &quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">sname</span><span class="p">,</span> <span class="n">mntname</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;__createMeasurementFile:  &quot;</span>
+                           <span class="s2">&quot;Link  &#39;</span><span class="si">%s</span><span class="s2">&#39; in &#39;</span><span class="si">%s</span><span class="s2">&#39; created &quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">sname</span><span class="p">,</span> <span class="n">mntname</span><span class="p">))</span>
             <span class="n">rt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
             <span class="n">fl</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
