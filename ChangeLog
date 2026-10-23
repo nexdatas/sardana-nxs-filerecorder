@@ -1,4 +1,9 @@
 2026-09-07 Jan Kotanski <jankotan@gmail.com>
+	* add scan_command_param_def and nrepetions into nexus variables (#208)
+	* add ref_moveables into nexus variables (#208)
+	* tagged as 3.38.0
+
+2026-09-07 Jan Kotanski <jankotan@gmail.com>
 	* calculate npoints for mesh repeat (#203)
 	* tagged as 3.37.0
 
