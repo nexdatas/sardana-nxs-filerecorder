@@ -1208,19 +1208,45 @@ class NXS_FileRecorder(BaseFileRecorder):
                         self.__macro().integ_time
                 npoints = 0
                 if hasattr(self.__macro(), "nb_points"):
+                    self.__vars["vars"]["nrepetitions"] = 1
                     self.__vars["vars"]["npoints"] = \
                         self.__macro().nb_points
                     npoints = self.__macro().nb_points
                 elif hasattr(self.__macro(), "nr_points"):
+                    self.__vars["vars"]["nrepetitions"] = 1
                     self.__vars["vars"]["npoints"] = \
                         self.__macro().nr_points
                     npoints = self.__macro().nr_points
                 if hasattr(self.__macro(), "nb_repeat"):
+                    self.__vars["vars"]["nrepetitions"] = 1
                     self.__vars["vars"]["npoints"] = \
                         npoints * self.__macro().nb_repeat
+                    self.__vars["vars"]["nrepetitions"] = \
+                        self.__macro().nb_repeat
                 if hasattr(self.__macro(), "nb_repetitions"):
+                    self.__vars["vars"]["nrepetitions"] = \
+                        self.__macro().nb_repetitions
                     self.__vars["vars"]["npoints"] = \
                         npoints * self.__macro().nb_repetitions
+
+                if hasattr(self.__macro(), "param_def"):
+                    json_ready_params = []
+
+                    for item in self.__macro().param_def:
+                        name, param_type, default, description = item
+
+                        json_ready_params.append({
+                            "name": name,
+                            "type": str(param_type),
+                            "default": default,
+                            "description": description
+                        })
+                    self.__vars["vars"]["scan_param_def"] \
+                        = json.dumps(json_ready_params).replace('"', '&quot;')
+
+            if 'ref_moveables' in envRec:
+                self.__vars["vars"]["ref_moveables"] = " ".join(
+                    envRec['ref_moveables'])
 
             self.__vars["vars"]["beamtime_id"] = self.beamtimeid()
             tzone = self.__getConfVar("TimeZone", self.__timezone)
