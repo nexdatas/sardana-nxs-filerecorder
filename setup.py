@@ -34,7 +34,7 @@ except Exception:
 #: package name
 NDTS = "sardananxsrecorder"
 #: nxswriter imported package
-INDTS = __import__(NDTS)
+# INDTS = __import__(NDTS)
 
 needs_pytest = set(['test']).intersection(sys.argv)
 pytest_runner = ['pytest-runner'] if needs_pytest else []
