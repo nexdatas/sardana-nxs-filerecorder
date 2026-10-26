@@ -60,10 +60,14 @@ if not PNINEXUS_AVAILABLE and not H5PY_AVAILABLE:
 DB_AVAILABLE = []
 
 try:
-    import MySQLdb
+    try:
+        import MySQLdb
+    except ImportError:
+        import pymysql as MySQLdb
+        MySQLdb.install_as_MySQLdb()
     # connection arguments to MYSQL DB
     args = {}
-    args["db"] = 'tango'
+    args["database"] = 'tango'
     args["host"] = 'localhost'
     args["read_default_file"] = '/etc/my.cnf'
     # inscance of MySQLdb
@@ -72,11 +76,15 @@ try:
     DB_AVAILABLE.append("MYSQL")
 except Exception:
     try:
-        import MySQLdb
+        try:
+            import MySQLdb
+        except ImportError:
+            import pymysql as MySQLdb
+            MySQLdb.install_as_MySQLdb()
         from os.path import expanduser
         home = expanduser("~")
         # connection arguments to MYSQL DB
-        args2 = {'host': u'localhost', 'db': u'tango',
+        args2 = {'host': u'localhost', 'database': u'tango',
                  'read_default_file': u'%s/.my.cnf' % home,
                  'use_unicode': True}
         # inscance of MySQLdb
