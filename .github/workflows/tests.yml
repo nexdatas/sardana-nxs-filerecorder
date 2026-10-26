@@ -47,7 +47,7 @@ jobs:
 
 
       - name: Append documentation for the latest release version
-        if: (github.ref == 'refs/heads/develop' ||  github.ref == 'refs/heads/issue_1005') &&  matrix.os == 'debian13'
+        if: (github.ref == 'refs/heads/develop' ||  github.ref == 'refs/heads/issue_209') &&  matrix.os == 'debian13'
         run: |
              docker  exec ndts /bin/bash -c "cp doc/index.html doc/_config.yml build"
              docker  exec ndts /bin/bash -c "git config remote.origin.fetch '+refs/heads/*:refs/remotes/origin/*'"

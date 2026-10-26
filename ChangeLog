@@ -1,6 +1,8 @@
 2026-09-07 Jan Kotanski <jankotan@gmail.com>
 	* add scan_command_param_def and nrepetions into nexus variables (#208)
 	* add ref_moveables into nexus variables (#208)
+	* add pyproject file (#210)
+	* do not use HDRI repository for pixi tests (#210)
 	* tagged as 3.38.0
 
 2026-09-07 Jan Kotanski <jankotan@gmail.com>
