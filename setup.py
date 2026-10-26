@@ -22,6 +22,8 @@
 import os
 import sys
 from setuptools import setup
+from importlib.util import module_from_spec, spec_from_file_location
+from pathlib import Path
 
 try:
     from sphinx.setup_command import BuildDoc
@@ -32,7 +34,7 @@ except Exception:
 #: package name
 NDTS = "sardananxsrecorder"
 #: nxswriter imported package
-INDTS = __import__(NDTS)
+# INDTS = __import__(NDTS)
 
 needs_pytest = set(['test']).intersection(sys.argv)
 pytest_runner = ['pytest-runner'] if needs_pytest else []
@@ -42,6 +44,14 @@ def read(fname):
     """ reading a file
     """
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
+
+
+def get_version():
+    path = Path(__file__).parent / "sardananxsrecorder" / "__init__.py"
+    spec = spec_from_file_location("sardananxsrecorder", path.as_posix())
+    module = module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
 #: required python packages
@@ -58,14 +68,14 @@ install_requires = [
 ]
 
 
-release = INDTS.__version__
+release = get_version().__version__
 version = ".".join(release.split(".")[:2])
 name = "Sardana NeXus Recorder"
 
 #: metadata for distutils
 SETUPDATA = dict(
     name="sardana-nxsrecorder",
-    version=INDTS.__version__,
+    version=release,
     author="Jan Kotanski",
     author_email="jankotan@gmail.com",
     description=("NeXus Sardana Scan Recorder"),
@@ -79,18 +89,19 @@ SETUPDATA = dict(
         'Intended Audience :: Science/Research',
         'Topic :: Scientific/Engineering :: Physics',
         'Topic :: Software Development :: Libraries :: Python Modules',
-        'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
+        # 'Programming Language :: Python :: 3',
+        # 'Programming Language :: Python :: 3.4',
+        # 'Programming Language :: Python :: 3.5',
+        # 'Programming Language :: Python :: 3.6',
+        # 'Programming Language :: Python :: 3.7',
+        # 'Programming Language :: Python :: 3.8',
+        # 'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
         'Programming Language :: Python :: 3.12',
         'Programming Language :: Python :: 3.13',
+        'Programming Language :: Python :: 3.14',
+        'Programming Language :: Python :: 3.15',
     ],
     install_requires=install_requires,
     zip_safe=False,
