@@ -1,0 +1,14 @@
+COPYRIGHT
+MANIFEST.in
+README.rst
+pyproject.toml
+setup.py
+man/sardananxsrecorder.1
+sardana_nxsrecorder.egg-info/PKG-INFO
+sardana_nxsrecorder.egg-info/SOURCES.txt
+sardana_nxsrecorder.egg-info/dependency_links.txt
+sardana_nxsrecorder.egg-info/not-zip-safe
+sardana_nxsrecorder.egg-info/requires.txt
+sardana_nxsrecorder.egg-info/top_level.txt
+sardananxsrecorder/__init__.py
+sardananxsrecorder/nxsrecorder.py
