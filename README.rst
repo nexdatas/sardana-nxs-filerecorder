@@ -67,7 +67,7 @@ To install the debian packages, add the PGP repository key
 .. code-block:: console
 
 	  $ sudo su
-	  $ curl -s http://repos.pni-hdri.de/debian_repo.pub.gpg | gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/debian-hdri-repo.gpg --import
+	  $ curl -s https://repos.desy.de/pni-hdri/debian_repo.pub.gpg | gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/debian-hdri-repo.gpg --import
 	  $ chmod 644 /etc/apt/trusted.gpg.d/debian-hdri-repo.gpg
 
 and then download the corresponding source list
@@ -75,7 +75,7 @@ and then download the corresponding source list
 .. code-block:: console
 
 	  $ cd /etc/apt/sources.list.d
-	  $ wget http://repos.pni-hdri.de/trixie-pni-hdri.sources
+	  $ wget https://repos.desy.de/pni-hdri/trixie-pni-hdri.sources
 
 
 Finally, for python2.7

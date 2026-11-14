@@ -5,7 +5,7 @@ RUN apt-get -qq update && export DEBIAN_FRONTEND=noninteractive && apt-get insta
 
 
 RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
-RUN curl --retry 10  -v -s http://repos.pni-hdri.de/debian_repo.pub.gpg  | gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/debian-hdri-repo.gpg --import
+RUN curl --retry 10  -v -s https://repos.desy.de/pni-hdri/debian_repo.pub.gpg  | gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/debian-hdri-repo.gpg --import
 RUN chmod 644 /etc/apt/trusted.gpg.d/debian-hdri-repo.gpg
 
 RUN cd /etc/apt/sources.list.d && wget https://repos.pni-hdri.de/stonking-pni-hdri.sources \
