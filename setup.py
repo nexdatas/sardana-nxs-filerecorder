@@ -104,6 +104,11 @@ SETUPDATA = dict(
         'Programming Language :: Python :: 3.15',
     ],
     install_requires=install_requires,
+    entry_points={
+        'sardana.h5maps': [
+            'nxs = sardananxsrecorder.h5mapbuilder:NXSH5MapBuilder',
+        ],
+    },
     zip_safe=False,
     setup_requires=pytest_runner,
     tests_require=['pytest'],

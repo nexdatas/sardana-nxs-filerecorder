@@ -24,6 +24,7 @@ import sys
 import unittest
 
 import nxsfilerecorder_test
+import h5mapbuilder_test
 
 try:
     __import__("PyTango")
@@ -152,6 +153,10 @@ def main():
     suite.addTests(
           unittest.defaultTestLoader.loadTestsFromModule(
               nxsfilerecorder_test)
+    )
+    suite.addTests(
+          unittest.defaultTestLoader.loadTestsFromModule(
+              h5mapbuilder_test)
     )
 
     # test runner

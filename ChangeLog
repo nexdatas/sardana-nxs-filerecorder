@@ -1,6 +1,7 @@
-2026-XX-YY Jan Kotanski <jankotan@gmail.com>
+2026-11-25 Jan Kotanski <jankotan@gmail.com>
 	* change URL for the HDRI repository (#211)
-	* tagged as 3.38.X
+	* add the nxs h5map builder writing NeXus files via blissdata
+	* tagged as 3.39.0
 
 2026-09-07 Jan Kotanski <jankotan@gmail.com>
 	* add scan_command_param_def and nrepetions into nexus variables (#208)

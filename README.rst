@@ -219,4 +219,23 @@ The NeXus file recorder uses the following sardana environment variables
 
 * **ScanNamesNoGrouping** *(bool)* - do not perform grouping when ``ScanNames`` is ``False``
 * **ScanNamesNoMetadata** *(bool)* - do not perform master file metadata ingestion when ``ScanNames`` is ``False``
+* **BlissdataH5Map** *(str)* - ``nxs`` lets blissdata (e.g. blisswriter) write the NeXus files, see below
+
+---------------------------
+Writing files via blissdata
+---------------------------
+
+With the Sardana blissdata publisher enabled and
+
+.. code-block:: console
+
+	  p09/door/haso.01 [1]: senv BlissdataH5Map nxs
+
+the ``nxs`` h5map builder switches the NeXus recorders of the scan to the h5map mode.
+Their in-process NXSDataWriter with the ``h5map`` writer of nxstools builds the NeXus tree
+configured by NXSRecSelector and NXSConfigServer in memory, and the tree is put into
+the ``h5maps`` of the blissdata scan, so blisswriter writes the file with the same structure.
+INIT data are exported when the scan starts, STEP fields as the blissdata streams of the scan channels
+and FINAL data when the scan ends. The recorders do not write STEP records.
+If the builder fails, the recorders write the files themselves.
  

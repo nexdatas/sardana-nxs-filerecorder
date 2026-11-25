@@ -192,6 +192,13 @@ class NXS_FileRecorder(BaseFileRecorder):
         #: (:obj:`bool`) external measurement group
         self.__oddmntgrp = False
 
+        #: (:obj:`bool`) h5map mode, see :meth:`enable_h5map`
+        self.__h5map = False
+        #: (:obj:`bool`) entry opened in h5map mode
+        self.__h5map_started = False
+        #: (:class:`nxstools.h5mapwriter.H5MapFile`) h5map file tree
+        self.__h5map_file = None
+
         self.debug('__init__:  Set NeXus: %s' % str(filename))
         self.__setNexusDevices(onlyconfig=True)
 
@@ -600,6 +607,9 @@ class NXS_FileRecorder(BaseFileRecorder):
                    'Writer Device: %s' % str(self.__raw_filename))
         if not onlyconfig:
             vl = self.__getConfVar("WriterDevice", None)
+            if self.__h5map:
+                # the in-process writer exporting the tree to an h5map
+                vl = self.__moduleLabel
             if not vl:
                 servers = self.__db.get_device_exported_for_class(
                     "NXSDataWriter").value_string
@@ -640,6 +650,8 @@ class NXS_FileRecorder(BaseFileRecorder):
                 for ky, vl in properties.items():
                     if hasattr(self.__nexuswriter_device, ky):
                         setattr(self.__nexuswriter_device, ky, vl)
+                if self.__h5map:
+                    self.__nexuswriter_device.writer = "h5map"
         self.debug('__setNexusDevices:  End: %s' % str(self.__raw_filename))
 
     def __get_alias(self, name):
@@ -1179,6 +1191,9 @@ class NXS_FileRecorder(BaseFileRecorder):
         :param recordlist: sardana record list
         :type recordlist: :class:`sardana.macroserver.scan.scandata.RecordList`
         """
+        if self.__h5map and self.__h5map_started:
+            # the entry was already opened by the h5map builder
+            return
         try:
             self.debug('_startRecordList:  Start %s' % self.__base_filename)
             self.__env = self.__macro().getAllEnv() if self.__macro else {}
@@ -1283,6 +1298,9 @@ class NXS_FileRecorder(BaseFileRecorder):
                 self.__command(self.__nexuswriter_device, "Init")
             self.__nexuswriter_device.fileName = str(self.filename)
             self.__command(self.__nexuswriter_device, "openFile")
+            if self.__h5map:
+                # closeFile drops the file, the h5maps are exported later
+                self.__h5map_file = self.__nexuswriter_device.getFile()
             self.__nexuswriter_device.xmlsettings = cnfxml
 
             if "DEBUG_INIT_DATA" in self.writerModes:
@@ -1298,6 +1316,8 @@ class NXS_FileRecorder(BaseFileRecorder):
             self.debug('_startRecordList SE: Open Entry %s' %
                        self.__base_filename)
             self.__command(self.__nexuswriter_device, "openEntry")
+            if self.__h5map:
+                self.__h5map_started = True
         except Exception:
             self.__removeDynamicComponent()
             raise
@@ -1378,6 +1398,9 @@ class NXS_FileRecorder(BaseFileRecorder):
         """
         try:
             if self.filename is None:
+                return
+            if self.__h5map:
+                # STEP data goes through blissdata streams
                 return
             try:
                 self.__env = self.__macro().getAllEnv() \
@@ -1496,6 +1519,7 @@ class NXS_FileRecorder(BaseFileRecorder):
         except Exception:
             self.__command(self.__nexuswriter_device, "closeFile")
         finally:
+            self.__h5map_started = False
             self.__removeDynamicComponent()
             vl = self.__getEnvVar("NXSAppendSciCatDataset", None)
             if vl:
@@ -1503,6 +1527,56 @@ class NXS_FileRecorder(BaseFileRecorder):
             cmf = self.__getEnvVar("CreateMeasurementFile", False)
             if cmf and NXSWRITER:
                 self.__createMeasurementFile()
+
+    def enable_h5map(self):
+        """ switches the recorder to the h5map mode
+
+        The NeXus tree is built in memory by an in-process NXSDataWriter
+        with the ``h5map`` writer of nxstools and exported by :meth:`h5maps`
+        to blissdata, which writes the file, e.g. with blisswriter.
+        STEP records are not written, as their data goes through
+        blissdata streams.  It has to be called before the record list
+        is started.
+        """
+        self.__h5map = True
+
+    def disable_h5map(self):
+        """ switches the recorder back to writing the file itself
+
+        The tree built in the h5map mode is dropped.  It has to be called
+        before the record list is started by the scan, e.g. when the
+        h5map builder fails.
+        """
+        if self.__h5map_started:
+            self.__removeDynamicComponent()
+        self.__h5map = False
+        self.__h5map_started = False
+        self.__h5map_file = None
+        self.__nexuswriter_device = None
+
+    @property
+    def h5map_mode(self):
+        """ h5map mode flag
+
+        :returns: True if the recorder works in the h5map mode
+        :rtype: :obj:`bool`
+        """
+        return self.__h5map
+
+    def h5maps(self, streams=None, skip=None):
+        """ exports the NeXus tree to the h5maps of a blissdata scan
+
+        :param streams: stream names of STEP fields or a stream resolver,
+                        see :meth:`nxstools.h5mapwriter.H5MapFile.h5map`
+        :type streams: :obj:`dict` <:obj:`str`, :obj:`str`> or callable
+        :param skip: strategies of fields to be skipped, e.g. ``["FINAL"]``
+        :type skip: :obj:`list` <:obj:`str`>
+        :returns: ``{file name: h5map}`` or an empty dictionary
+        :rtype: :obj:`dict` <:obj:`str`, `any`>
+        """
+        if self.__h5map_file is None:
+            return {}
+        return self.__h5map_file.h5maps(streams, skip)
 
     def beamtime_id(self, bmtfpath, bmtfprefix, bmtfext):
         """ code for beamtimeid  datasource
