@@ -823,6 +823,17 @@ class NXS_FileRecorder(BaseFileRecorder):
                            "createDynamicComponent",
                            [jdss, jddict, jkeys])
 
+    def __skipAcquisition(self):
+        """ skips the acquisition of the next writer command
+
+        The Tango attribute names of NXSDataWriter are case insensitive,
+        while the in-process TangoDataWriter reads ``skipacquisition``.
+        """
+        if hasattr(self.__nexuswriter_device, 'command_inout'):
+            self.__nexuswriter_device.skipAcquisition = True
+        else:
+            self.__nexuswriter_device.skipacquisition = True
+
     def __removeDynamicComponent(self):
         """ removes the dynamic component
         """
@@ -1311,7 +1322,7 @@ class NXS_FileRecorder(BaseFileRecorder):
             self.writerModes = self.__variableList(
                 "NeXusWriterModes")
             if "NOINIT" in self.writerModes:
-                self.__nexuswriter_device.skipAcquisition = True
+                self.__skipAcquisition()
 
             self.debug('_startRecordList SE: Open Entry %s' %
                        self.__base_filename)
@@ -1413,7 +1424,7 @@ class NXS_FileRecorder(BaseFileRecorder):
                 envrecord, cls=NXS_FileRecorder.numpyEncoder)
             self.__nexuswriter_device.jsonrecord = rec
             if "NOSTEP" in self.writerModes:
-                self.__nexuswriter_device.skipAcquisition = True
+                self.__skipAcquisition()
 
             if "DEBUG_STEP_DATA" in self.writerModes:
                 self.debug('_writeRecord DATA: {"data":%s}' % json.dumps(
@@ -1513,7 +1524,7 @@ class NXS_FileRecorder(BaseFileRecorder):
                 envrecord, cls=NXS_FileRecorder.numpyEncoder)
             self.__nexuswriter_device.jsonrecord = rec
             if "NOFINAL" in self.writerModes:
-                self.__nexuswriter_device.skipAcquisition = True
+                self.__skipAcquisition()
             self.__command(self.__nexuswriter_device, "closeEntry")
             self.__command(self.__nexuswriter_device, "closeFile")
         except Exception:

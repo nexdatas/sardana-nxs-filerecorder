@@ -1,6 +1,9 @@
 2026-11-25 Jan Kotanski <jankotan@gmail.com>
 	* change URL for the HDRI repository (#211)
-	* add the nxs h5map builder writing NeXus files via blissdata
+	* add the nxs h5map builder writing NeXus files via blissdata (#215)
+	* fix NOINIT, NOSTEP and NOFINAL modes with the in-process writer  (#215)
+	* add API tests of NXS_FileRecorder  (#215)
+	* remove python2 support (#215)
 	* tagged as 3.39.0
 
 2026-09-07 Jan Kotanski <jankotan@gmail.com>

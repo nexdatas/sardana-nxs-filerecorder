@@ -103,6 +103,7 @@ SETUPDATA = dict(
         'Programming Language :: Python :: 3.14',
         'Programming Language :: Python :: 3.15',
     ],
+    python_requires='>=3',
     install_requires=install_requires,
     entry_points={
         'sardana.h5maps': [
