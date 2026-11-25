@@ -36,7 +36,7 @@
         </button>
         <a class="navbar-brand" href="#">
           sardananxsrecorder</a>
-        <span class="navbar-text navbar-version pull-left"><b>3.38</b></span>
+        <span class="navbar-text navbar-version pull-left"><b>3.39</b></span>
       </div>
 
         <div class="collapse navbar-collapse nav-collapse">
@@ -83,6 +83,7 @@
 </ul>
 </li>
 <li><a class="reference internal" href="#sardana-variables">Sardana Variables</a></li>
+<li><a class="reference internal" href="#writing-files-via-blissdata">Writing files via blissdata</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
@@ -135,6 +136,7 @@
 </ul>
 </li>
 <li><a class="reference internal" href="#sardana-variables">Sardana Variables</a></li>
+<li><a class="reference internal" href="#writing-files-via-blissdata">Writing files via blissdata</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
@@ -146,6 +148,7 @@
       <li><a class="reference external" href="index/../../latest/index.html">v:latest</a></li>
       <li><a class="reference external" href="index/../../stable/index.html">v:stable</a></li>
       
+      <li><a class="reference external" href="index/../../v3.39.0/index.html">v3.39.0</a></li>
       <li><a class="reference external" href="index/../../v3.38.0/index.html">v3.38.0</a></li>
       <li><a class="reference external" href="index/../../v3.37.0/index.html">v3.37.0</a></li>
       
@@ -188,7 +191,7 @@ NeXDatas Tango Server or packages, i.e. NXSDataWriter, NXSConfigServer, NXSRecSe
 <p>and add an <em>RecorderPath</em> property of <em>MacroServer</em> with its value
 defining the package location, e.g.</p>
 <div class="line-block">
-<div class="line">/usr/lib/python2.7/dist-packages/sardananxsrecorder</div>
+<div class="line">/usr/lib/python3/dist-packages/sardananxsrecorder</div>
 </div>
 </section>
 <section id="debian-packages">
@@ -205,7 +208,7 @@ defining the package location, e.g.</p>
 <span class="gp">$ </span>wget<span class="w"> </span>https://repos.desy.de/pni-hdri/trixie-pni-hdri.sources
 </pre></div>
 </div>
-<p>Finally, for python2.7</p>
+<p>Finally, install the package</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>apt-get<span class="w"> </span>update
 <span class="gp">$ </span>apt-get<span class="w"> </span>install<span class="w"> </span>python3-sardana-nxsrecorder
 </pre></div>
@@ -275,7 +278,7 @@ for MacroServer to 3 and restart servers.</p>
 </div>
 <p>for specific servers.</p>
 <p>If the <cite>RecoderPath</cite> property of MacroServer is not set one can do it by</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nxsetup<span class="w"> </span>add-recorder-path<span class="w"> </span>/usr/lib/python2.7/dist-packages/sardananxsrecorder
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nxsetup<span class="w"> </span>add-recorder-path<span class="w"> </span>/usr/lib/python3/dist-packages/sardananxsrecorder
 </pre></div>
 </div>
 <p>where the path should point the <cite>sardananxsrecorder</cite> package.</p>
@@ -313,7 +316,22 @@ for MacroServer to 3 and restart servers.</p>
 </li>
 <li><p><strong>ScanNamesNoGrouping</strong> <em>(bool)</em> - do not perform grouping when <code class="docutils literal notranslate"><span class="pre">ScanNames</span></code> is <code class="docutils literal notranslate"><span class="pre">False</span></code></p></li>
 <li><p><strong>ScanNamesNoMetadata</strong> <em>(bool)</em> - do not perform master file metadata ingestion when <code class="docutils literal notranslate"><span class="pre">ScanNames</span></code> is <code class="docutils literal notranslate"><span class="pre">False</span></code></p></li>
+<li><p><strong>BlissdataH5Map</strong> <em>(str)</em> - <code class="docutils literal notranslate"><span class="pre">nxs</span></code> lets blissdata (e.g. blisswriter) write the NeXus files, see below</p></li>
 </ul>
+</section>
+<section id="writing-files-via-blissdata">
+<h2>Writing files via blissdata<a class="headerlink" href="#writing-files-via-blissdata" title="Link to this heading">¶</a></h2>
+<p>With the Sardana blissdata publisher enabled and</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">p09/door/haso.01 [1]: senv BlissdataH5Map nxs</span>
+</pre></div>
+</div>
+<p>the <code class="docutils literal notranslate"><span class="pre">nxs</span></code> h5map builder switches the NeXus recorders of the scan to the h5map mode.
+Their in-process NXSDataWriter with the <code class="docutils literal notranslate"><span class="pre">h5map</span></code> writer of nxstools builds the NeXus tree
+configured by NXSRecSelector and NXSConfigServer in memory, and the tree is put into
+the <code class="docutils literal notranslate"><span class="pre">h5maps</span></code> of the blissdata scan, so blisswriter writes the file with the same structure.
+INIT data are exported when the scan starts, STEP fields as the blissdata streams of the scan channels
+and FINAL data when the scan ends. The recorders do not write STEP records.
+If the builder fails, the recorders write the files themselves.</p>
 <p>Contents:</p>
 <div class="toctree-wrapper compound">
 <ul>
