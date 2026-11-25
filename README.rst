@@ -54,7 +54,7 @@ Extract sources and run
 and add an *RecorderPath* property of *MacroServer* with its value
 defining the package location, e.g.
 
-|    /usr/lib/python2.7/dist-packages/sardananxsrecorder
+|    /usr/lib/python3/dist-packages/sardananxsrecorder
 
 
 Debian packages
@@ -78,7 +78,7 @@ and then download the corresponding source list
 	  $ wget https://repos.desy.de/pni-hdri/trixie-pni-hdri.sources
 
 
-Finally, for python2.7
+Finally, install the package
 
 .. code-block:: console
 
@@ -179,7 +179,7 @@ If the `RecoderPath` property of MacroServer is not set one can do it by
 
 .. code-block:: console
 
-	  $ nxsetup add-recorder-path /usr/lib/python2.7/dist-packages/sardananxsrecorder
+	  $ nxsetup add-recorder-path /usr/lib/python3/dist-packages/sardananxsrecorder
 
 where the path should point the `sardananxsrecorder` package.
 
