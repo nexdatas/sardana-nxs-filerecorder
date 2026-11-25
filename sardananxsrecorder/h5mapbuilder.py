@@ -40,7 +40,17 @@ import os
 try:
     from sardana.data.publishers.blissdata.h5map import H5MapBuilder
 except Exception:
-    H5MapBuilder = object
+    class H5MapBuilder(object):
+        """ h5map builder base of sardana without the blissdata publisher
+        """
+
+        def __init__(self, macro):
+            """ constructor
+
+            :param macro: the scan macro
+            :type macro: :class:`sardana.macroserver.macro.Macro`
+            """
+            self.macro = macro
 
 from .nxsrecorder import NXS_FileRecorder
 
