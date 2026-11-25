@@ -34,7 +34,7 @@
         </button>
         <a class="navbar-brand" href="../../index.html">
           sardananxsrecorder</a>
-        <span class="navbar-text navbar-version pull-left"><b>3.38</b></span>
+        <span class="navbar-text navbar-version pull-left"><b>3.39</b></span>
       </div>
 
         <div class="collapse navbar-collapse nav-collapse">
@@ -106,6 +106,7 @@
       <li><a class="reference external" href="../../index/../../latest/index.html">v:latest</a></li>
       <li><a class="reference external" href="../../index/../../stable/index.html">v:stable</a></li>
       
+      <li><a class="reference external" href="../../index/../../v3.39.0/index.html">v3.39.0</a></li>
       <li><a class="reference external" href="../../index/../../v3.38.0/index.html">v3.38.0</a></li>
       <li><a class="reference external" href="../../index/../../v3.37.0/index.html">v3.37.0</a></li>
       
@@ -318,6 +319,13 @@
 
         <span class="c1">#: (:obj:`bool`) external measurement group</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__oddmntgrp</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1">#: (:obj:`bool`) h5map mode, see :meth:`enable_h5map`</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__h5map</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="c1">#: (:obj:`bool`) entry opened in h5map mode</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__h5map_started</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="c1">#: (:class:`nxstools.h5mapwriter.H5MapFile`) h5map file tree</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__h5map_file</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;__init__:  Set NeXus: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__setNexusDevices</span><span class="p">(</span><span class="n">onlyconfig</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -730,6 +738,9 @@
                    <span class="s1">&#39;Writer Device: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__raw_filename</span><span class="p">))</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">onlyconfig</span><span class="p">:</span>
             <span class="n">vl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__getConfVar</span><span class="p">(</span><span class="s2">&quot;WriterDevice&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__h5map</span><span class="p">:</span>
+                <span class="c1"># the in-process writer exporting the tree to an h5map</span>
+                <span class="n">vl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__moduleLabel</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">vl</span><span class="p">:</span>
                 <span class="n">servers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__db</span><span class="o">.</span><span class="n">get_device_exported_for_class</span><span class="p">(</span>
                     <span class="s2">&quot;NXSDataWriter&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">value_string</span>
@@ -770,6 +781,8 @@
                 <span class="k">for</span> <span class="n">ky</span><span class="p">,</span> <span class="n">vl</span> <span class="ow">in</span> <span class="n">properties</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                     <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__nexuswriter_device</span><span class="p">,</span> <span class="n">ky</span><span class="p">):</span>
                         <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__nexuswriter_device</span><span class="p">,</span> <span class="n">ky</span><span class="p">,</span> <span class="n">vl</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__h5map</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">__nexuswriter_device</span><span class="o">.</span><span class="n">writer</span> <span class="o">=</span> <span class="s2">&quot;h5map&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;__setNexusDevices:  End: </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__raw_filename</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">__get_alias</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
@@ -940,6 +953,17 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">__command</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__nexussettings_device</span><span class="p">,</span>
                            <span class="s2">&quot;createDynamicComponent&quot;</span><span class="p">,</span>
                            <span class="p">[</span><span class="n">jdss</span><span class="p">,</span> <span class="n">jddict</span><span class="p">,</span> <span class="n">jkeys</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">__skipAcquisition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; skips the acquisition of the next writer command</span>
+
+<span class="sd">        The Tango attribute names of NXSDataWriter are case insensitive,</span>
+<span class="sd">        while the in-process TangoDataWriter reads ``skipacquisition``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__nexuswriter_device</span><span class="p">,</span> <span class="s1">&#39;command_inout&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__nexuswriter_device</span><span class="o">.</span><span class="n">skipAcquisition</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__nexuswriter_device</span><span class="o">.</span><span class="n">skipacquisition</span> <span class="o">=</span> <span class="kc">True</span>
 
     <span class="k">def</span> <span class="nf">__removeDynamicComponent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; removes the dynamic component</span>
@@ -1311,6 +1335,9 @@
 <span class="sd">        :param recordlist: sardana record list</span>
 <span class="sd">        :type recordlist: :class:`sardana.macroserver.scan.scandata.RecordList`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__h5map</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">__h5map_started</span><span class="p">:</span>
+            <span class="c1"># the entry was already opened by the h5map builder</span>
+            <span class="k">return</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;_startRecordList:  Start </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">__base_filename</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__env</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__macro</span><span class="p">()</span><span class="o">.</span><span class="n">getAllEnv</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__macro</span> <span class="k">else</span> <span class="p">{}</span>
@@ -1415,6 +1442,9 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">__command</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__nexuswriter_device</span><span class="p">,</span> <span class="s2">&quot;Init&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__nexuswriter_device</span><span class="o">.</span><span class="n">fileName</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__command</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__nexuswriter_device</span><span class="p">,</span> <span class="s2">&quot;openFile&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__h5map</span><span class="p">:</span>
+                <span class="c1"># closeFile drops the file, the h5maps are exported later</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__h5map_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__nexuswriter_device</span><span class="o">.</span><span class="n">getFile</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__nexuswriter_device</span><span class="o">.</span><span class="n">xmlsettings</span> <span class="o">=</span> <span class="n">cnfxml</span>
 
             <span class="k">if</span> <span class="s2">&quot;DEBUG_INIT_DATA&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">writerModes</span><span class="p">:</span>
@@ -1425,11 +1455,13 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">writerModes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__variableList</span><span class="p">(</span>
                 <span class="s2">&quot;NeXusWriterModes&quot;</span><span class="p">)</span>
             <span class="k">if</span> <span class="s2">&quot;NOINIT&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">writerModes</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">__nexuswriter_device</span><span class="o">.</span><span class="n">skipAcquisition</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__skipAcquisition</span><span class="p">()</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;_startRecordList SE: Open Entry </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span>
                        <span class="bp">self</span><span class="o">.</span><span class="n">__base_filename</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__command</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__nexuswriter_device</span><span class="p">,</span> <span class="s2">&quot;openEntry&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__h5map</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__h5map_started</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__removeDynamicComponent</span><span class="p">()</span>
             <span class="k">raise</span>
@@ -1514,6 +1546,9 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">return</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__h5map</span><span class="p">:</span>
+                <span class="c1"># STEP data goes through blissdata streams</span>
+                <span class="k">return</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">__env</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__macro</span><span class="p">()</span><span class="o">.</span><span class="n">getAllEnv</span><span class="p">()</span> \
                     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__macro</span> <span class="k">else</span> <span class="p">{}</span>
@@ -1525,7 +1560,7 @@
                 <span class="n">envrecord</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="n">NXS_FileRecorder</span><span class="o">.</span><span class="n">numpyEncoder</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__nexuswriter_device</span><span class="o">.</span><span class="n">jsonrecord</span> <span class="o">=</span> <span class="n">rec</span>
             <span class="k">if</span> <span class="s2">&quot;NOSTEP&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">writerModes</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">__nexuswriter_device</span><span class="o">.</span><span class="n">skipAcquisition</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__skipAcquisition</span><span class="p">()</span>
 
             <span class="k">if</span> <span class="s2">&quot;DEBUG_STEP_DATA&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">writerModes</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;_writeRecord DATA: {&quot;data&quot;:</span><span class="si">%s</span><span class="s1">}&#39;</span> <span class="o">%</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span>
@@ -1628,12 +1663,13 @@
                 <span class="n">envrecord</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="n">NXS_FileRecorder</span><span class="o">.</span><span class="n">numpyEncoder</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__nexuswriter_device</span><span class="o">.</span><span class="n">jsonrecord</span> <span class="o">=</span> <span class="n">rec</span>
             <span class="k">if</span> <span class="s2">&quot;NOFINAL&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">writerModes</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">__nexuswriter_device</span><span class="o">.</span><span class="n">skipAcquisition</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__skipAcquisition</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__command</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__nexuswriter_device</span><span class="p">,</span> <span class="s2">&quot;closeEntry&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__command</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__nexuswriter_device</span><span class="p">,</span> <span class="s2">&quot;closeFile&quot;</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__command</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__nexuswriter_device</span><span class="p">,</span> <span class="s2">&quot;closeFile&quot;</span><span class="p">)</span>
         <span class="k">finally</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__h5map_started</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__removeDynamicComponent</span><span class="p">()</span>
             <span class="n">vl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__getEnvVar</span><span class="p">(</span><span class="s2">&quot;NXSAppendSciCatDataset&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">vl</span><span class="p">:</span>
@@ -1642,6 +1678,56 @@
             <span class="k">if</span> <span class="n">cmf</span> <span class="ow">and</span> <span class="n">NXSWRITER</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">__createMeasurementFile</span><span class="p">()</span></div>
 
+
+    <span class="k">def</span> <span class="nf">enable_h5map</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; switches the recorder to the h5map mode</span>
+
+<span class="sd">        The NeXus tree is built in memory by an in-process NXSDataWriter</span>
+<span class="sd">        with the ``h5map`` writer of nxstools and exported by :meth:`h5maps`</span>
+<span class="sd">        to blissdata, which writes the file, e.g. with blisswriter.</span>
+<span class="sd">        STEP records are not written, as their data goes through</span>
+<span class="sd">        blissdata streams.  It has to be called before the record list</span>
+<span class="sd">        is started.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__h5map</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">disable_h5map</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; switches the recorder back to writing the file itself</span>
+
+<span class="sd">        The tree built in the h5map mode is dropped.  It has to be called</span>
+<span class="sd">        before the record list is started by the scan, e.g. when the</span>
+<span class="sd">        h5map builder fails.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__h5map_started</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__removeDynamicComponent</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__h5map</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__h5map_started</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__h5map_file</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__nexuswriter_device</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">h5map_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; h5map mode flag</span>
+
+<span class="sd">        :returns: True if the recorder works in the h5map mode</span>
+<span class="sd">        :rtype: :obj:`bool`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__h5map</span>
+
+    <span class="k">def</span> <span class="nf">h5maps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">streams</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">skip</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; exports the NeXus tree to the h5maps of a blissdata scan</span>
+
+<span class="sd">        :param streams: stream names of STEP fields or a stream resolver,</span>
+<span class="sd">                        see :meth:`nxstools.h5mapwriter.H5MapFile.h5map`</span>
+<span class="sd">        :type streams: :obj:`dict` &lt;:obj:`str`, :obj:`str`&gt; or callable</span>
+<span class="sd">        :param skip: strategies of fields to be skipped, e.g. ``[&quot;FINAL&quot;]``</span>
+<span class="sd">        :type skip: :obj:`list` &lt;:obj:`str`&gt;</span>
+<span class="sd">        :returns: ``{file name: h5map}`` or an empty dictionary</span>
+<span class="sd">        :rtype: :obj:`dict` &lt;:obj:`str`, `any`&gt;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__h5map_file</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{}</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__h5map_file</span><span class="o">.</span><span class="n">h5maps</span><span class="p">(</span><span class="n">streams</span><span class="p">,</span> <span class="n">skip</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">beamtime_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bmtfpath</span><span class="p">,</span> <span class="n">bmtfprefix</span><span class="p">,</span> <span class="n">bmtfext</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; code for beamtimeid  datasource</span>
