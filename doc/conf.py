@@ -66,7 +66,7 @@ try:
     sys.path.insert(0, os.path.abspath("../"))  # Adjust path as necessary
     import sardananxsrecorder
     version = ".".join(sardananxsrecorder.__version__.split(".")[:2])
-    release = release.__version__
+    release = sardananxsrecorder.__version__
 except Exception:
     pass
 
@@ -254,8 +254,9 @@ if os.getenv("NXSTOOLS_HIDE_VERSIONS") != 'TRUE':
     html_sidebars['**'].append('versions.html')
 
 html_context = {
-    "current_version": "v3.39.0",
+    "current_version": "v3.40.0",
     "docs_versions": [
+        "v3.40.0",
         "v3.39.0",
         "v3.38.0",
         "v3.37.0",

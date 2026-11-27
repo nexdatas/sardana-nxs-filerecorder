@@ -1,7 +1,7 @@
-2026-XX-YY Jan Kotanski <jankotan@gmail.com>
+2026-11-27 Jan Kotanski <jankotan@gmail.com>
 	* use WriterConfiguration of nxsrecconfig >= 4.15.0 to create the writer configuration
 	* add tests of the created writer configuration
-	* tagged as v3.40.X
+	* tagged as v3.40.0
 
 2026-11-25 Jan Kotanski <jankotan@gmail.com>
 	* change URL for the HDRI repository (#211)
