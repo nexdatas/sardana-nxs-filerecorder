@@ -62,6 +62,7 @@ install_requires = [
     # 'nxswriter',
     # 'nxstools',  # >4.1.0
     # 'nxsconfigserver',
+    # 'nxsrecselector',  # >=4.15.0
     # 'sardana',
     # 'taurus',
     # 'pymysqldb',

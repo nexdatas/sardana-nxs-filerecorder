@@ -38,6 +38,11 @@ Install the dependencies:
 
 |    sardana, sphinx, NXSDataWriter, NXSConfigServer, NXSRecSelector
 
+The python package of NXSRecSelector, i.e. ``nxsrecconfig`` >= 4.15.0
+(``python3-nxsrecselector``), has to be installed in the MacroServer
+environment, since the writer configuration is created by its
+``WriterConfiguration``.
+
 From sources
 """"""""""""
 

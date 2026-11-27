@@ -78,6 +78,52 @@ END_REASON_BY_END_STATUS = {
 }
 
 
+class MacroLog(object):
+
+    """ logger of the recorder which shows warnings also in the macro
+    """
+
+    def __init__(self, recorder, macro=None):
+        """ constructor
+
+        :param recorder: recorder
+        :type recorder: :class:`NXS_FileRecorder`
+        :param macro: weak reference to the macro
+        :type macro: :class:`weakref.ref`
+        """
+        #: (:class:`NXS_FileRecorder`) recorder
+        self.recorder = recorder
+        #: (:class:`weakref.ref`) weak reference to the macro
+        self.macro = macro
+
+    def debug(self, msg):
+        """ logs a debug message
+
+        :param msg: message
+        :type msg: :obj:`str`
+        """
+        self.recorder.debug(msg)
+
+    def info(self, msg):
+        """ logs an info message
+
+        :param msg: message
+        :type msg: :obj:`str`
+        """
+        self.recorder.info(msg)
+
+    def warning(self, msg):
+        """ logs a warning message and shows it in the macro
+
+        :param msg: message
+        :type msg: :obj:`str`
+        """
+        self.recorder.warning(msg)
+        macro = self.macro() if self.macro else None
+        if macro is not None:
+            macro.warning(msg)
+
+
 class NXS_FileRecorder(BaseFileRecorder):
     """ This recorder saves data to a NeXus file making use of NexDaTaS Writer
     """
@@ -146,13 +192,6 @@ class NXS_FileRecorder(BaseFileRecorder):
                        "vars": {},
                        "triggers": []}
 
-        #: (:obj:`dict` <:obj:`str` , :obj:`str`>) device aliases
-        self.__deviceAliases = {}
-        #: (:obj:`dict` <:obj:`str` , `None`>) dynamic datasources
-        self.__dynamicDataSources = {}
-        #: (:obj:`list` <:obj:`str`>) movable device aliases
-        self.__moveableDataSources = []
-
         #: (:obj:`str`) dynamic components
         self.__dynamicCP = "__dynamic_component__"
         #: (:obj:`str`) cache component prefix
@@ -160,12 +199,6 @@ class NXS_FileRecorder(BaseFileRecorder):
 
         #: (:obj:`dict` <:obj:`str` , `any`> ) environment
         self.__env = macro.getAllEnv() if macro else {}
-
-        #: (:obj:`list` <:obj:`str`>) available components
-        self.__availableComps = []
-
-        #: (:obj:`list` <:obj:`str`>) ordered aliases
-        self.__aliases = []
 
         #: (:obj:`str`) default timezone
         self.__timezone = "Europe/Berlin"
@@ -678,151 +711,6 @@ class NXS_FileRecorder(BaseFileRecorder):
             alias = None
         return alias
 
-    def __short_name(self, name):
-        """ provides a device alias
-
-        :param name: device name
-        :type name: :obj:`str`
-        :returns: device alias
-        :rtype: :obj:`str`
-        """
-        # if name does not contain a "/" it's probably an alias
-        if name.startswith("tango://"):
-            name = name[8:]
-        if name.find("/") == -1:
-            return name
-
-        # haso107klx:10000/expchan/hasysis3820ctrl/1
-        if name.find(':') >= 0:
-            lst = name.split("/")
-            name = "/".join(lst[1:])
-        return name
-
-    def __collectAliases(self, envRec):
-        """ sets deviceAlaises and dynamicDataSources from env record
-
-        :param envRec: environment record
-        :type envRec: :obj:`dict` <:obj:`str` , `any`>
-        """
-
-        if 'counters' in envRec:
-            for elm in envRec['counters']:
-                alias = self.__get_alias(str(elm))
-                if alias:
-                    self.__deviceAliases[alias] = str(elm)
-                else:
-                    self.__dynamicDataSources[(str(elm))] = None
-        if 'ref_moveables' in envRec:
-            for elm in envRec['ref_moveables']:
-                alias = self.__get_alias(str(elm))
-                if alias:
-                    self.__deviceAliases[alias] = str(elm)
-                else:
-                    self.__dynamicDataSources[(str(elm))] = None
-                # self.__moveableDataSources.append(alias or str(elm))
-        if 'column_desc' in envRec:
-            for elm in envRec['column_desc']:
-                if "name" in elm.keys():
-                    alias = self.__get_alias(str(elm["name"]))
-                    if alias:
-                        self.__deviceAliases[alias] = str(elm["name"])
-                    else:
-                        self.__dynamicDataSources[(str(elm["name"]))] = None
-        if 'datadesc' in envRec:
-            for elm in envRec['datadesc']:
-                alias = self.__get_alias(str(elm.name))
-                if alias:
-                    self.__deviceAliases[alias] = str(elm.name)
-                else:
-                    self.__dynamicDataSources[(str(elm.name))] = None
-
-    def __createDynamicComponent(self, dss, keys, udata, nexuscomponents):
-        """ creates a dynamic component
-
-        :param dss: datasource list
-        :type dss: :obj:`list` <:obj:`str`>
-        :param keys: keys without datasources
-        :type keys: :obj:`list` <:obj:`str`>
-        :param udata: keys without datasources
-        :type udata: :obj:`dict` <:obj:`str`, `any`>
-        :param nexuscomponents: nexus component list
-        :type nexuscomponents: :obj:`list` <:obj:`str`>
-        """
-        self.debug("__createDynamicComponent:  Step DSs: %s" % dss)
-        self.debug("__createDynamicComponent:  Init DSs: %s" % keys)
-        self.debug("__createDynamicComponent:  Init User Data: %s" % udata)
-        envRec = self.recordlist.getEnviron()
-        lddict = []
-        tdss = [ds for ds in dss if not ds.startswith("tango://")
-                and ds not in nexuscomponents]
-        tgdss = [self.__short_name(ds)
-                 for ds in dss if ds.startswith("tango://")
-                 and ds not in nexuscomponents]
-
-        fields = []
-        for dd in envRec['datadesc']:
-            alias = self.__get_alias(str(dd.name))
-            if alias in tdss and alias not in nexuscomponents:
-                mdd = {}
-                mdd["name"] = dd.name
-                mdd["shape"] = dd.shape
-                mdd["dtype"] = dd.dtype
-                mdd["strategy"] = 'STEP'
-                lddict.append(mdd)
-
-        fields = {}
-        for ky, vl in udata.items():
-            if "@" not in ky:
-                mdd = {}
-                mdd["name"] = ky
-                mdd["shape"] = numpy.shape(vl)
-                try:
-                    if mdd["shape"]:
-                        rank = len(mdd["shape"])
-                        for _ in range(rank):
-                            vl = vl[0]
-                    mdd["dtype"] = str(type(vl).__name__)
-                except Exception as e:
-                    self.warning("Cannot find a type of user data %s %s"
-                                 % (ky, str(e)))
-                    self.__macro().warning(
-                        "Cannot find a type of user data %s %s" % (ky, str(e)))
-                    mdd["dtype"] = 'string'
-                mdd["strategy"] = 'INIT'
-                fields[ky] = mdd
-
-        for ky, vl in udata.items():
-            if "@" in ky:
-                fld, att = ky.split("@")[:2]
-                if fld and att:
-                    if fld in fields.keys():
-                        fields[fld][att] = vl
-                    # else:
-                    #     fields[fld] = {
-                    #         "name": fld,
-                    #         "strategy": "INIT",
-                    #         "dtype": "string",
-                    #         "shape": tuple(),
-                    #         att: vl}
-
-        for mdd in fields.values():
-            lddict.append(mdd)
-
-        tdss.extend(tgdss)
-        jddict = json.dumps(lddict, cls=NXS_FileRecorder.numpyEncoder)
-        jdss = json.dumps(tdss, cls=NXS_FileRecorder.numpyEncoder)
-        jkeys = json.dumps(keys, cls=NXS_FileRecorder.numpyEncoder)
-        self.debug("__createDynamicComponent:  "
-                   "tango STEP datasources: %s" % tdss)
-        self.debug("__createDynamicComponent:  "
-                   "sardana STEP datasources: %s" % jddict)
-        self.debug("__createDynamicComponent:  "
-                   "INIT datasources: %s" % jkeys)
-        self.__dynamicCP = \
-            self.__command(self.__nexussettings_device,
-                           "createDynamicComponent",
-                           [jdss, jddict, jkeys])
-
     def __skipAcquisition(self):
         """ skips the acquisition of the next writer command
 
@@ -841,189 +729,23 @@ class NXS_FileRecorder(BaseFileRecorder):
                        "removeDynamicComponent",
                        str(self.__dynamicCP))
 
-    def __availableComponents(self):
-        """ provides a list of available components
+    def __motorNames(self):
+        """ provides motor names of the macro server pools
 
-        :returns: a list of available components
+        :returns: motor names
         :rtype: :obj:`list` <:obj:`str`>
         """
-        cmps = self.__command(self.__nexussettings_device,
-                              "availableComponents")
-        if self.__availableComps:
-            return list(set(cmps) & set(self.__availableComps))
-        else:
-            return cmps
-
-    def __searchDataSources(self, nexuscomponents, cfm, dyncp, userkeys):
-        """ checks if datasources and missing record keys are define in
-            the components or in the configuration server
-
-        :param nexuscomponents: nexus components
-        :type nexuscomponents: :obj:`list` <:obj:`str`>
-        :param cfm: componentsFromMntGrp flag
-        :type cfm: :obj:`bool`
-        :param dyncp: dynamicComponent flag
-        :type dyncp: :obj:`bool`
-        :param userkeys: user data names
-        :type userkeys: :obj:`list` <:obj:`str`>
-
-        :returns: tuple with (step_datasources, not_found_datasources,
-                              required_components,  missing_user_data)
-        :rtype: (`list` <:obj:`str`>, `list` <:obj:`str`>,
-                 `list` <:obj:`str`>, `list` <:obj:`str`>)
-        """
-        self.debug("__searchDataSources: Init: %s"
-                   % str([nexuscomponents, cfm, dyncp, userkeys]))
-        dsFound = {}
-        dsNotFound = []
-
-        # (:obj:`list` <:obj:`str`>) all component source names
-        allcpdss = []
-        cachedss = []
-        cpReq = {}
-        keyFound = set()
-
-        #: check datasources / get require components with give datasources
-        if cfm:
-            cmps = list(set(nexuscomponents) |
-                        set(self.__availableComponents()))
-        else:
-            cmps = list(set(nexuscomponents) &
-                        set(self.__availableComponents()))
-        self.debug("__searchDataSources:  Get selected DSs: %s"
-                   % str([cfm, dyncp]))
-        if self.__oddmntgrp:
-            nds = []
-        else:
-            nds = self.__command(self.__nexussettings_device,
-                                 "selectedDataSources")
-        nds = nds if nds else []
-        datasources = list(set(nds) | set(self.__deviceAliases.keys()))
-        self.debug("__searchDataSources:  Get components DSs: %s"
-                   % str([cfm, dyncp]))
-        hascpsrcs = hasattr(self.__nexussettings_device, 'componentSources')
-        # aacpdss = json.loads(
-        #     self.__command(self.__nexussettings_device,
-        #                    "componentSources",
-        #                    cmps))
-        self.debug("__searchDataSources:  component loop: %s"
-                   % str([cfm, dyncp, hascpsrcs]))
-        for cp in cmps:
-            self.debug("__searchDataSources:  component item: %s" % cp)
-            try:
-                if hascpsrcs:
-                    cpdss = json.loads(
-                        self.__command(self.__nexussettings_device,
-                                       "componentSources",
-                                       [cp]))
-                    adss = [ds["dsname"] for ds in cpdss
-                            if ("parentobj" not in ds or
-                                ds["parentobj"] in ["field", "map", "vds"])]
-                    allcpdss.extend(adss)
-                    if cp.startswith(self.__cacheCPPrefix):
-                        cachedss.extend(adss)
-                        if self.__macro:
-                            cldss = [ds["dsname"] for ds in cpdss
-                                     if (("parentobj" not in ds or
-                                          ds["parentobj"]
-                                          in ["field", "map", "vds"])
-                                         and ds["dstype"] == "CLIENT")]
-
-                            pools = self.__macro().getPools()
-                            motors = []
-                            for pool in pools:
-                                motors.extend(pool.MotorList)
-                            mnames = [json.loads(m)["name"] for m in motors]
-
-                            self.__moveableDataSources.extend(
-                                list(set(cldss) & set(mnames)))
-
-                else:
-                    cpdss = json.loads(
-                        self.__command(self.__nexussettings_device,
-                                       "componentClientSources",
-                                       [cp]))
-                dss = [ds["dsname"]
-                       for ds in cpdss if ds["strategy"] == 'STEP'
-                       and ds["dstype"] == 'CLIENT']
-                reckeys = [
-                    ds["record"] for ds in cpdss if ds["dstype"] == 'CLIENT']
-                keyFound.update(set(reckeys))
-            except Exception as e:
-                if cp in nexuscomponents:
-                    self.warning("Component '%s' wrongly defined in DB!" % cp)
-                    # self.warning("Error: '%s'" % str(e))
-                    if self.__macro:
-                        self.__macro().warning(
-                            "Component '%s' wrongly defined in DB!" % cp)
-                        self.__macro().warning("Error: '%s'" % str(e))
-                else:
-                    self.debug(
-                        "__searchDataSources:  "
-                        "Component '%s' wrongly defined in DB!" % cp)
-                    self.warning("Error: '%s'" % str(e))
-                    if self.__macro:
-                        self.__macro().debug(
-                            "__searchDataSources:  "
-                            "Component '%s' wrongly defined in DB!" % cp)
-                    self.__macro().debug("Error: '%s'" % str(e))
-                dss = []
-            if dss:
-                cdss = list(set(dss) & set(datasources))
-                for ds in cdss:
-                    self.debug("__searchDataSources:  '%s' found in '%s'"
-                               % (ds, cp))
-                    if ds not in dsFound.keys():
-                        dsFound[ds] = []
-                    dsFound[ds].append(cp)
-                    if cp not in cpReq.keys():
-                        cpReq[cp] = []
-                    cpReq[cp].append(ds)
-        self.debug("__searchDataSources:  "
-                   "component loop end: %s" % str([cfm, dyncp]))
-        missingKeys = set(userkeys) - keyFound
-
-        self.debug("__searchDataSources:  "
-                   "dynamic component loop: %s" % str([cfm, dyncp]))
-        datasources.extend(self.__dynamicDataSources.keys())
-        #: get not found datasources
-        for ds in datasources:
-            self.debug("__searchDataSources:  "
-                       " dynamic component item: %s" % ds)
-            if ds not in dsFound.keys() and ds not in allcpdss:
-                dsNotFound.append(ds)
-                if not dyncp:
-                    self.warning(
-                        "Warning: '%s' will not be stored. "
-                        "It was not found in Components!"
-                        " Consider setting: NeXusDynamicComponents=True" % ds)
-                    if self.__macro:
-                        self.__macro().warning(
-                            "Warning: '%s' will not be stored. "
-                            "It was not found in Components!"
-                            " Consider setting: NeXusDynamicComponents=True"
-                            % ds)
-            elif not cfm and ds not in allcpdss:
-                if not (set(dsFound[ds]) & set(nexuscomponents)):
-                    dsNotFound.append(ds)
-                    if not dyncp:
-                        self.warning(
-                            "Warning: '%s' will not be stored. "
-                            "It was not found in User Components!"
-                            " Consider setting: NeXusDynamicComponents=True"
-                            % ds)
-                        if self.__macro:
-                            self.__macro().warning(
-                                "Warning: '%s' will not be stored. "
-                                "It was not found in User Components!"
-                                " Consider setting: "
-                                "NeXusDynamicComponents=True" % ds)
-        self.debug("__searchDataSources:  "
-                   "dynamic component loop end: %s" % str([cfm, dyncp]))
-        return (nds, dsNotFound, cpReq, list(missingKeys), cachedss)
+        names = []
+        for pool in self.__macro().getPools():
+            names.extend(json.loads(motor)["name"]
+                         for motor in pool.MotorList)
+        return names
 
     def __createConfiguration(self, userdata):
         """ create NeXus configuration
+
+        The configuration is created by
+        :class:`nxsrecconfig.WriterConfiguration.WriterConfiguration`.
 
         :param userdata: user data dictionary
         :type userdata: :obj:`dict` <:obj:`str` , `any`>
@@ -1031,167 +753,26 @@ class NXS_FileRecorder(BaseFileRecorder):
         :rtype: :obj:`str`
         """
         self.debug("__createConfiguration:  Init: %s" % self.__oddmntgrp)
-        cfm = self.__getConfVar("ComponentsFromMntGrp",
-                                False, pass_default=self.__oddmntgrp)
-        dyncp = self.__getConfVar("DynamicComponents",
-                                  True, pass_default=self.__oddmntgrp)
-
-        envRec = self.recordlist.getEnviron()
-        self.debug("__createConfiguration:  CollectAllises: %s"
-                   % self.__oddmntgrp)
-        self.__collectAliases(envRec)
-
-        self.debug("__createConfiguration:  Get Components: %s"
-                   % self.__oddmntgrp)
-        mandatory = self.__command(self.__nexussettings_device,
-                                   "mandatoryComponents")
-        self.info("Default Components %s" % str(mandatory))
-
-        nexuscomponents = []
-        lst = self.__getServerVar("components", None, False,
-                                  pass_default=self.__oddmntgrp)
-        if isinstance(lst, (tuple, list)):
-            nexuscomponents.extend(lst)
-        self.info("User Components %s" % str(nexuscomponents))
-
-        ccomp = None
-        if hasattr(self.__nexussettings_device, "cachecomponent"):
-            ccomp = self.__nexussettings_device.cachecomponent
-            allnexuscomponents = list(set(nexuscomponents) | set(mandatory))
-        if ccomp:
-            self.info("Cache Component %s" % str(ccomp))
-            nexuscomponents = [ccomp]
-            allnexuscomponents = [ccomp]
-
-        self.__availableComps = []
-        lst = self.__getConfVar("OptionalComponents",
-                                None, True, pass_default=self.__oddmntgrp)
-        if isinstance(lst, (tuple, list)):
-            self.__availableComps.extend(lst)
-        self.__availableComps = list(set(
-            self.__availableComps))
-        self.info("Available Components %s" % str(
-            self.__availableComponents()))
-
-        self.debug("__createConfiguration:  Search DataSources: %s"
-                   % self.__oddmntgrp)
-        nds, dsNotFound, cpReq, missingKeys, cachedss = \
-            self.__searchDataSources(
-                allnexuscomponents,
-                cfm, dyncp, userdata.keys())
-        self.debug("__createConfiguration:  Get User data: %s"
-                   % self.__oddmntgrp)
-
-        self.debug("__createConfiguration:  DataSources Not Found : %s"
-                   % dsNotFound)
-        self.debug("__createConfiguration:  Components required : %s" % cpReq)
-        self.debug("__createConfiguration:  Missing User Data : %s"
-                   % missingKeys)
-        if "InitDataSources" in self.__conf.keys():
-            # compatibility with version 2
-            ids = self.__getConfVar(
-                "InitDataSources",
-                None, True, pass_default=self.__oddmntgrp)
-        else:
-            idsdct = self.__getConfVar(
-                "DataSourcePreselection",
-                None, True, pass_default=self.__oddmntgrp)
-            ids = [k for (k, vl) in idsdct.items() if vl] if idsdct else None
-        self.__vars["vars"]["nexus_init_datasources"] = \
-            " ".join(missingKeys + list(ids or []))
-        udata = {str(re.sub('[^0-9a-zA-Z@_]+', "_", str(ky))): userdata[ky]
-                 for ky in missingKeys}
-        # udata = {ky: userdata[ky] for ky in missingKeys}
-        if userdata:
-            userdata.update(udata)
-        ids = list((set(ids or []) - set(cachedss))
-                   | set(self.__moveableDataSources))
-        # ids = list(set(ids or []))
-        self.debug("__createConfiguration:  Create dynamic components: %s"
-                   % self.__oddmntgrp)
-        self.__createDynamicComponent(
-            dsNotFound if dyncp else [], ids, udata, nexuscomponents)
-        nexuscomponents.append(str(self.__dynamicCP))
-        self.debug("__createConfiguration:  Add Components: %s"
-                   % self.__oddmntgrp)
-
-        if cfm:
-            self.info("Sardana Components %s" % cpReq.keys())
-            nexuscomponents.extend(cpReq.keys())
-        nexuscomponents = list(set(nexuscomponents))
-
-        nexusvariables = {}
-        dct = self.__getConfVar("ConfigVariables", None, True)
-        if isinstance(dct, dict):
-            nexusvariables = dct
-        oldtoswitch = None
         try:
-
-            self.info("Components %s" % list(
-                set(nexuscomponents) | set(mandatory)))
-            toswitch = set()
-            for dd in envRec['datadesc']:
-                alias = self.__get_alias(str(dd.name))
-                if alias:
-                    toswitch.add(alias)
-            toswitch.update(set(nds))
-            och = self.__getConfVar("OrderedChannels",
-                                    None, True, pass_default=self.__oddmntgrp)
-            allcp = list(nexuscomponents)
-            allcp.extend(list(toswitch))
-            och = och or []
-            self.__aliases = [ch for ch in och if ch in allcp]
-            if self.__aliases:
-                self.__vars["vars"]["mgchannels"] = " ".join(self.__aliases)
-            timers = self.__command(self.__nexussettings_device,
-                                    "availableTimers")
-            if timers:
-                self.__vars["vars"]["timers"] = " ".join(timers)
-
-            self.__vars["vars"]["nexus_components"] = " ".join(nexuscomponents)
-            stepdss = [str(ds) for ds in envRec['ref_moveables']
-                       if str(ds) in toswitch]
-            stepdss.extend(
-                [str(ds) for ds in toswitch
-                 if ds not in envRec['ref_moveables']])
-            self.__vars["vars"]["nexus_step_datasources"] = " ".join(stepdss)
-            self.__nexussettings_device.configVariables = json.dumps(
-                dict(nexusvariables, **self.__vars["vars"]),
-                cls=NXS_FileRecorder.numpyEncoder)
-            if self.__macro:
-                self.__macro().debug(
-                    "VAR %s" % self.__nexussettings_device.configVariables)
-            self.debug("__createConfiguration:  Update Config Varialels: %s"
-                       % self.__oddmntgrp)
-            self.__command(self.__nexussettings_device,
-                           "updateConfigVariables")
-
-            self.debug("__createConfiguration:  Aliases: %s"
-                       % str(self.__aliases))
-            self.debug("__createConfiguration:  Switching to STEP mode: %s"
-                       % stepdss)
-            oldtoswitch = self.__getServerVar("stepdatasources", "[]", False)
-            stepdss = str(json.dumps(list(toswitch)))
-            self.debug("__createConfiguration:  Set STEP datasources: %s"
-                       % self.__oddmntgrp)
-            self.__nexussettings_device.stepdatasources = stepdss
-            self.debug("__createConfiguration:   Set LINK datasources: %s"
-                       % self.__oddmntgrp)
-            if hasattr(self.__nexussettings_device, "linkdatasources"):
-                self.__nexussettings_device.linkdatasources = stepdss
-            self.debug("__createConfiguration:  "
-                       "Create Writer configuration: %s" % self.__oddmntgrp)
-            cnfxml = self.__command(
-                self.__nexussettings_device, "createWriterConfiguration",
-                nexuscomponents)
+            from nxsrecconfig.WriterConfiguration import WriterConfiguration
+        except ImportError as e:
+            raise Exception(
+                "NXS_FileRecorder requires nxsrecconfig >= 4.15.0 "
+                "(python3-nxsrecselector): %s" % str(e))
+        wconf = WriterConfiguration(
+            self.__nexussettings_device,
+            conf=self.__conf,
+            variables=self.__vars["vars"],
+            log=MacroLog(self, self.__macro),
+            getalias=self.__get_alias,
+            moveables=self.__motorNames if self.__macro else None,
+            oddmntgrp=self.__oddmntgrp,
+            cacheprefix=self.__cacheCPPrefix,
+            dynamiccp=self.__dynamicCP)
+        try:
+            cnfxml = wconf.create(self.recordlist.getEnviron(), userdata)
         finally:
-            self.debug("__createConfiguration:   Reset variables: %s"
-                       % self.__oddmntgrp)
-            self.__nexussettings_device.configVariables = json.dumps(
-                nexusvariables)
-            if oldtoswitch is not None:
-                self.__nexussettings_device.stepdatasources = oldtoswitch
-
+            self.__dynamicCP = wconf.dynamicCP
         self.debug("__createConfiguration:  End: %s" % self.__oddmntgrp)
         return cnfxml
 
