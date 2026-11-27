@@ -42,10 +42,32 @@ except Exception:
 class Desc(object):
     """ sardana channel description stand-in """
 
-    def __init__(self, name, shape=(), dtype="float64"):
+    def __init__(self, name, shape=(), dtype="float64", stream=None):
         self.name = name
+        self.label = name
         self.shape = list(shape)
         self.dtype = dtype
+        # Sardana before the blissdata publisher has no external_stream
+        if stream is not None:
+            self.external_stream = stream
+
+
+class Writer(object):
+    """ NXSDataWriter stand-in collecting records """
+
+    def __init__(self):
+        self.jsonrecord = "{}"
+        self.records = []
+
+    def record(self, jsonstring):
+        self.records.append(json.loads(jsonstring))
+
+
+class Rec(object):
+    """ sardana record stand-in """
+
+    def __init__(self, data):
+        self.data = data
 
 
 class Pool(object):
@@ -147,7 +169,7 @@ class CreateConfigurationTest(unittest.TestCase):
         settings.Settings = self._orig_settings
         shutil.rmtree(self.tmpdir)
 
-    def create(self, selector, userdata):
+    def create(self, selector, userdata, datadesc=None):
         import nxsrecconfig.Settings as settings
         settings.Settings = lambda: selector
         env = {"ScanDir": self.tmpdir, "ScanFile": ["t.nxs"], "ScanID": 12,
@@ -159,8 +181,9 @@ class CreateConfigurationTest(unittest.TestCase):
             os.path.join(self.tmpdir, "t.nxs"), macro=self.macro)
         rec.recordlist = FakeRecordList({
             "serialno": 12, "title": "ascan",
-            "datadesc": [Desc("exp_c01"), Desc("exp_c02", (2,)),
-                         Desc("mot01"), Desc("dyn_ch")],
+            "datadesc": datadesc or [
+                Desc("exp_c01"), Desc("exp_c02", (2,)),
+                Desc("mot01"), Desc("dyn_ch")],
             "ref_moveables": ["mot01"], "counters": ["exp_c01", "exp_c02"],
             "column_desc": [{"name": "col1"}, {"label": "x"}]})
         rec._NXS_FileRecorder__conf.update(
@@ -226,6 +249,54 @@ class CreateConfigurationTest(unittest.TestCase):
                     if m[0] == "warning"]
         self.assertTrue(
             "Component 'broken' wrongly defined in DB!" in warnings)
+
+    def test_streamed_channels(self):
+        selector = ConfSelector()
+        datadesc = [Desc("exp_c01", stream=False), Desc("mot01"),
+                    Desc("lima", (10, 20), "uint16", stream=True)]
+        rec, xml = self.create(selector, {}, datadesc)
+        dcp = [c[1] for c in selector.calls
+               if c[0] == "createDynamicComponent"][0]
+        fields = {f["name"]: f for f in json.loads(dcp[1])}
+        # stream references are stored as strings
+        self.assertEqual(fields["lima"]["dtype"], "string")
+        self.assertEqual(fields["lima"]["shape"], [])
+        self.assertEqual(fields["mot01"]["dtype"], "float64")
+        # the scan environment is not changed
+        self.assertEqual(rec.recordlist.getEnviron()["datadesc"][2].shape,
+                         [10, 20])
+
+        self.assertEqual(rec.streamedChannels({"datadesc": datadesc}),
+                         {"lima"})
+        rec._NXS_FileRecorder__streamed = {"lima"}
+        writer = Writer()
+        rec._NXS_FileRecorder__nexuswriter_device = writer
+        rec._writeRecord(Rec({"lima": "esrf:stream:lima:3", "mot01": 1.0}))
+        rec._writeRecord(Rec({"lima": float("nan"), "mot01": 2.0}))
+        self.assertEqual(writer.records[0]["data"],
+                         {"lima": "esrf:stream:lima:3", "mot01": 1.0})
+        # placeholders of streamed channels are skipped
+        self.assertEqual(writer.records[1]["data"], {"mot01": 2.0})
+
+    def test_older_sardana(self):
+        datadesc = [Desc("exp_c01"), Desc("lima", (10, 20), "uint16")]
+        env = {"datadesc": datadesc}
+        self.assertEqual(
+            nxsrecorder.NXS_FileRecorder.streamedChannels(env), set())
+        self.assertTrue(
+            nxsrecorder.NXS_FileRecorder.streamedEnviron(env) is env)
+        selector = ConfSelector()
+        rec, xml = self.create(selector, {}, datadesc)
+        dcp = [c[1] for c in selector.calls
+               if c[0] == "createDynamicComponent"][0]
+        fields = {f["name"]: f for f in json.loads(dcp[1])}
+        self.assertEqual(fields["lima"]["dtype"], "uint16")
+        self.assertEqual(fields["lima"]["shape"], [10, 20])
+        writer = Writer()
+        rec._NXS_FileRecorder__nexuswriter_device = writer
+        rec._writeRecord(Rec({"lima": [[1, 2]], "exp_c01": 1.0}))
+        self.assertEqual(writer.records[0]["data"],
+                         {"lima": [[1, 2]], "exp_c01": 1.0})
 
     def test_cache_component(self):
         selector = ConfSelector(cache="__configuration_mg1")

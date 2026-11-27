@@ -1,4 +1,5 @@
 2026-11-27 Jan Kotanski <jankotan@gmail.com>
+	* store stream references of channels streamed by the Sardana blissdata publisher as strings, skip their placeholders
 	* use WriterConfiguration of nxsrecconfig >= 4.15.0 to create the writer configuration
 	* add tests of the created writer configuration
 	* tagged as v3.40.0

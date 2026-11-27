@@ -227,6 +227,9 @@ class NXS_FileRecorder(BaseFileRecorder):
 
         #: (:obj:`bool`) h5map mode, see :meth:`enable_h5map`
         self.__h5map = False
+        #: (:obj:`set` <:obj:`str`>) names and labels of channels streamed
+        #:     by the scan data publisher, i.e. with references in records
+        self.__streamed = set()
         #: (:obj:`bool`) entry opened in h5map mode
         self.__h5map_started = False
         #: (:class:`nxstools.h5mapwriter.H5MapFile`) h5map file tree
@@ -741,6 +744,59 @@ class NXS_FileRecorder(BaseFileRecorder):
                          for motor in pool.MotorList)
         return names
 
+    @classmethod
+    def streamedChannels(cls, envRec):
+        """ provides channels streamed by the scan data publisher
+
+        Records of Sardana with a blissdata publisher contain stream
+        references of these channels, i.e. of Streamable controllers.
+        Older Sardana versions do not mark channels as streamed.
+
+        :param envRec: scan environment with ``datadesc``
+        :type envRec: :obj:`dict` <:obj:`str`, `any`>
+        :returns: names and labels of the streamed channels
+        :rtype: :obj:`set` <:obj:`str`>
+        """
+        names = set()
+        for dd in envRec.get("datadesc") or []:
+            if isinstance(dd, dict):
+                streamed = dd.get("external_stream", False)
+                keys = [dd.get("name"), dd.get("label")]
+            else:
+                streamed = getattr(dd, "external_stream", False)
+                keys = [getattr(dd, "name", None), getattr(dd, "label", None)]
+            if streamed:
+                names.update(str(key) for key in keys if key)
+        return names
+
+    @classmethod
+    def streamedEnviron(cls, envRec):
+        """ provides the scan environment with streamed channels
+            described as string references, as in the Sardana HDF5 recorder
+
+        :param envRec: scan environment with ``datadesc``
+        :type envRec: :obj:`dict` <:obj:`str`, `any`>
+        :returns: scan environment for the writer configuration
+        :rtype: :obj:`dict` <:obj:`str`, `any`>
+        """
+        streamed = cls.streamedChannels(envRec)
+        if not streamed:
+            return envRec
+        env = dict(envRec)
+        datadesc = []
+        for dd in envRec.get("datadesc") or []:
+            name = dd.get("name") if isinstance(dd, dict) \
+                else getattr(dd, "name", None)
+            if name is not None and str(name) in streamed:
+                label = dd.get("label") if isinstance(dd, dict) \
+                    else getattr(dd, "label", None)
+                datadesc.append({"name": name, "label": label,
+                                 "shape": [], "dtype": "string"})
+            else:
+                datadesc.append(dd)
+        env["datadesc"] = datadesc
+        return env
+
     def __createConfiguration(self, userdata):
         """ create NeXus configuration
 
@@ -769,8 +825,11 @@ class NXS_FileRecorder(BaseFileRecorder):
             oddmntgrp=self.__oddmntgrp,
             cacheprefix=self.__cacheCPPrefix,
             dynamiccp=self.__dynamicCP)
+        envRec = self.recordlist.getEnviron()
+        if not self.__h5map:
+            envRec = self.streamedEnviron(envRec)
         try:
-            cnfxml = wconf.create(self.recordlist.getEnviron(), userdata)
+            cnfxml = wconf.create(envRec, userdata)
         finally:
             self.__dynamicCP = wconf.dynamicCP
         self.debug("__createConfiguration:  End: %s" % self.__oddmntgrp)
@@ -803,6 +862,16 @@ class NXS_FileRecorder(BaseFileRecorder):
             appendscanid = not self.__setFileName(
                 self.__base_filename, not appendentry)
             envRec = self.recordlist.getEnviron()
+            self.__streamed = set() if self.__h5map \
+                else self.streamedChannels(envRec)
+            if self.__streamed:
+                msg = ("NXS_FileRecorder: %s streamed by the scan data "
+                       "publisher, their references are stored. "
+                       "Use the 'nxs' h5map builder to store their data"
+                       % ", ".join(sorted(self.__streamed)))
+                self.info(msg)
+                if self.__macro:
+                    self.__macro().info(msg)
             self.__vars["vars"]["serialno"] = ("_%05i" % self.__serial) \
                 if appendscanid else ""
             self.__vars["vars"]["scan_id"] = envRec["serialno"]
@@ -1012,8 +1081,15 @@ class NXS_FileRecorder(BaseFileRecorder):
                     record.data,
                     cls=NXS_FileRecorder.numpyEncoder))
 
+            data = record.data
+            if self.__streamed:
+                # streamed channels provide string references,
+                # placeholders, e.g. NaN, are skipped
+                data = {key: value for key, value in data.items()
+                        if key not in self.__streamed or
+                        isinstance(value, str)}
             jsonString = '{"data":%s}' % json.dumps(
-                record.data,
+                data,
                 cls=NXS_FileRecorder.numpyEncoder)
             # self.debug("JSON!!: %s" % jsonString)
             self.__command(self.__nexuswriter_device, "record", jsonString)
