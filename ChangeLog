@@ -1,3 +1,9 @@
+2026-11-27 Jan Kotanski <jankotan@gmail.com>
+	* store stream references of channels streamed by the Sardana blissdata publisher as strings, skip their placeholders
+	* use WriterConfiguration of nxsrecconfig >= 4.15.0 to create the writer configuration
+	* add tests of the created writer configuration
+	* tagged as v3.40.0
+
 2026-11-25 Jan Kotanski <jankotan@gmail.com>
 	* change URL for the HDRI repository (#211)
 	* add the nxs h5map builder writing NeXus files via blissdata (#215)
